@@ -47,8 +47,8 @@ import org.apache.camel.component.salesforce.api.dto.RestError;
 import org.apache.camel.component.salesforce.api.utils.JsonUtils;
 import org.apache.camel.component.salesforce.internal.dto.LoginError;
 import org.apache.camel.component.salesforce.internal.dto.LoginToken;
+import org.apache.camel.support.jsse.KeyStoreParameters;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.jsse.KeyStoreParameters;
 import org.eclipse.jetty.client.HttpConversation;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -102,7 +102,7 @@ public class SalesforceSession implements Service {
         config.setLoginUrl(loginUrl.endsWith("/") ? loginUrl.substring(0, loginUrl.length() - 1) : loginUrl);
 
         this.objectMapper = JsonUtils.createObjectMapper();
-        this.listeners = new CopyOnWriteArraySet<SalesforceSessionListener>();
+        this.listeners = new CopyOnWriteArraySet<>();
     }
 
     public synchronized String login(String oldToken) throws SalesforceException {
@@ -224,6 +224,13 @@ public class SalesforceSession implements Service {
             byte[] signed = signature.sign();
 
             token.append('.').append(Base64.getUrlEncoder().encodeToString(signed));
+
+            // Clean the private key from memory
+            try {
+                key.destroy();
+            } catch (javax.security.auth.DestroyFailedException ex) {
+                LOG.debug("Error destroying private key: {}", ex.getMessage());
+            }
         } catch (IOException | GeneralSecurityException e) {
             throw new IllegalStateException(e);
         }
@@ -272,7 +279,7 @@ public class SalesforceSession implements Service {
                 final String errorCode = error.getError();
                 final String msg = String.format("Login error code:[%s] description:[%s]", error.getError(),
                     error.getErrorDescription());
-                final List<RestError> errors = new ArrayList<RestError>();
+                final List<RestError> errors = new ArrayList<>();
                 errors.add(new RestError(errorCode, msg));
                 throw new SalesforceException(errors, HttpStatus.BAD_REQUEST_400);
 

@@ -30,7 +30,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,8 +75,7 @@ public class MailComponentAutoConfiguration {
     }
 
     @Lazy
-    @Bean(name = {"imap-component", "imaps-component", "pop3-component",
-            "pop3s-component", "smtp-component", "smtps-component"})
+    @Bean({"imap-component", "imaps-component", "pop3-component", "pop3s-component", "smtp-component", "smtps-component"})
     @ConditionalOnMissingBean(MailComponent.class)
     public MailComponent configureMailComponent() throws Exception {
         MailComponent component = new MailComponent();

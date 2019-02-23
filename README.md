@@ -4,6 +4,7 @@
 [![Javadocs](http://www.javadoc.io/badge/org.apache.camel/apache-camel.svg?color=brightgreen)](http://www.javadoc.io/doc/org.apache.camel/camel-core)
 [![Stack Overflow](https://img.shields.io/:stack%20overflow-apache--camel-brightgreen.svg)](http://stackoverflow.com/questions/tagged/apache-camel)
 [![Gitter](https://img.shields.io/gitter/room/apache/apache-camel.js.svg)](https://gitter.im/apache/apache-camel)
+[![Twitter](https://img.shields.io/twitter/follow/ApacheCamel.svg?label=Follow&style=social)](https://twitter.com/ApacheCamel)
  
 
 [Apache Camel](http://camel.apache.org/) is a powerful open source integration framework based on known
@@ -36,10 +37,10 @@ unit test your routes.
 Apache Camel comes with a lot of artifacts with components, data formats, languages and various other kinds.
 The up to date list is available online at:
 
-* Components: <https://github.com/apache/camel/tree/master/components#components>
-* Data Formats: <https://github.com/apache/camel/tree/master/components#data-formats>
-* Languages: <https://github.com/apache/camel/tree/master/components#expression-languages>
-* Miscellaneous: <https://github.com/apache/camel/tree/master/components#miscellaneous-components>
+* Components: <https://github.com/apache/camel/tree/master/components/readme.adoc#components>
+* Data Formats: <https://github.com/apache/camel/tree/master/components/readme.adoc#data-formats>
+* Languages: <https://github.com/apache/camel/tree/master/components/readme.adoc#expression-languages>
+* Miscellaneous: <https://github.com/apache/camel/tree/master/components/readme.adoc#miscellaneous-components>
 
 ## Examples
 
@@ -58,7 +59,7 @@ To help you get started, try the following links:
 
 It is also recommended to get started by trying out some of the beginner examples.
 
-* Examples: <https://github.com/apache/camel/tree/master/examples#examples>
+* Examples: <https://github.com/apache/camel/tree/master/examples/README.adoc#examples>
 
 **Building**
   
@@ -77,11 +78,15 @@ Website: <http://camel.apache.org/>
 
 Github: <https://github.com/apache/camel>
 
+Issue tracker: <https://issues.apache.org/jira/projects/CAMEL>
+
 Mailing list: <http://camel.apache.org/mailing-lists.html>
 
 IRC chat: <http://camel.apache.org/irc-room.html>
 
 Gitter chat: <https://gitter.im/apache/apache-camel>
+
+Twitter: <https://twitter.com/ApacheCamel>
 
 
 **Support**

@@ -34,7 +34,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,18 +104,15 @@ public class GsonDataFormatAutoConfiguration {
                 if (ObjectHelper.isNotEmpty(customizers)) {
                     for (DataFormatCustomizer<GsonDataFormat> customizer : customizers) {
                         boolean useCustomizer = (customizer instanceof HasId)
-                                ? HierarchicalPropertiesEvaluator
-                                        .evaluate(
-                                                applicationContext
-                                                        .getEnvironment(),
-                                                "camel.dataformat.customizer",
-                                                "camel.dataformat.json-gson.customizer",
-                                                ((HasId) customizer).getId())
-                                : HierarchicalPropertiesEvaluator
-                                        .evaluate(applicationContext
-                                                .getEnvironment(),
-                                                "camel.dataformat.customizer",
-                                                "camel.dataformat.json-gson.customizer");
+                                ? HierarchicalPropertiesEvaluator.evaluate(
+                                        applicationContext.getEnvironment(),
+                                        "camel.dataformat.customizer",
+                                        "camel.dataformat.json-gson.customizer",
+                                        ((HasId) customizer).getId())
+                                : HierarchicalPropertiesEvaluator.evaluate(
+                                        applicationContext.getEnvironment(),
+                                        "camel.dataformat.customizer",
+                                        "camel.dataformat.json-gson.customizer");
                         if (useCustomizer) {
                             LOGGER.debug(
                                     "Configure dataformat {}, with customizer {}",

@@ -16,9 +16,6 @@
  */
 package org.apache.camel.component.google.calendar;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.google.api.services.calendar.CalendarScopes;
 import org.apache.camel.component.google.calendar.internal.GoogleCalendarApiName;
 import org.apache.camel.spi.Metadata;
@@ -33,11 +30,11 @@ import org.apache.camel.spi.UriPath;
 public class GoogleCalendarConfiguration {
 
     @UriPath
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private GoogleCalendarApiName apiName;
 
     @UriPath(enums = "calendarImport,clear,delete,get,insert,instances,list,move,patch,query,quickAdd,stop,update,watch")
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private String methodName;
 
     @UriParam(defaultValue = CalendarScopes.CALENDAR)

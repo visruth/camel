@@ -34,7 +34,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,18 +105,15 @@ public class JacksonXMLDataFormatAutoConfiguration {
                 if (ObjectHelper.isNotEmpty(customizers)) {
                     for (DataFormatCustomizer<JacksonXMLDataFormat> customizer : customizers) {
                         boolean useCustomizer = (customizer instanceof HasId)
-                                ? HierarchicalPropertiesEvaluator
-                                        .evaluate(
-                                                applicationContext
-                                                        .getEnvironment(),
-                                                "camel.dataformat.customizer",
-                                                "camel.dataformat.jacksonxml.customizer",
-                                                ((HasId) customizer).getId())
-                                : HierarchicalPropertiesEvaluator
-                                        .evaluate(applicationContext
-                                                .getEnvironment(),
-                                                "camel.dataformat.customizer",
-                                                "camel.dataformat.jacksonxml.customizer");
+                                ? HierarchicalPropertiesEvaluator.evaluate(
+                                        applicationContext.getEnvironment(),
+                                        "camel.dataformat.customizer",
+                                        "camel.dataformat.jacksonxml.customizer",
+                                        ((HasId) customizer).getId())
+                                : HierarchicalPropertiesEvaluator.evaluate(
+                                        applicationContext.getEnvironment(),
+                                        "camel.dataformat.customizer",
+                                        "camel.dataformat.jacksonxml.customizer");
                         if (useCustomizer) {
                             LOGGER.debug(
                                     "Configure dataformat {}, with customizer {}",

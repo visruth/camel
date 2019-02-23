@@ -29,9 +29,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-/**
- * @version
- */
 public class SqlProducerExpressionParameterTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
@@ -92,9 +89,9 @@ public class SqlProducerExpressionParameterTest extends CamelTestSupport {
             public void configure() {
                 getContext().getComponent("sql", SqlComponent.class).setDataSource(db);
 
-                from("direct:start").to("sql:select * from projects where license = :#${property.license} order by id").to("mock:result");
+                from("direct:start").to("sql:select * from projects where license = :#${exchangeProperty.license} order by id").to("mock:result");
 
-                from("direct:start-simple").to("sql:select * from projects where license = :#$simple{property.license} order by id").to("mock:result-simple");
+                from("direct:start-simple").to("sql:select * from projects where license = :#$simple{exchangeProperty.license} order by id").to("mock:result-simple");
             }
         };
     }

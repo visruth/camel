@@ -16,13 +16,13 @@
  */
 package org.apache.camel.component.file.remote;
 
+import org.apache.camel.AggregationStrategy;
 import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.junit.Test;
 
-import static org.apache.camel.util.ExchangeHelper.copyResultsPreservePattern;
+import static org.apache.camel.support.ExchangeHelper.copyResultsPreservePattern;
 
 public class FtpPollEnrichBridgeErrorHandlerTest extends BaseServerTestSupport {
 

@@ -19,6 +19,8 @@ package org.apache.camel.maven.packaging.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.camel.maven.packaging.StringHelper;
+
 import static org.apache.camel.maven.packaging.StringHelper.cutLastZeroDigit;
 
 public class LanguageModel {
@@ -38,7 +40,7 @@ public class LanguageModel {
     private String groupId;
     private String artifactId;
     private String version;
-    private final List<LanguageOptionModel> languageOptions = new ArrayList<LanguageOptionModel>();
+    private final List<LanguageOptionModel> languageOptions = new ArrayList<>();
 
     public LanguageModel() {
         this(false);
@@ -161,24 +163,12 @@ public class LanguageModel {
     }
 
     public String getShortJavaType() {
-        if (javaType.startsWith("java.util.Map")) {
-            return "Map";
-        } else if (javaType.startsWith("java.util.Set")) {
-            return "Set";
-        } else if (javaType.startsWith("java.util.List")) {
-            return "List";
-        }
-        int pos = javaType.lastIndexOf(".");
-        if (pos != -1) {
-            return javaType.substring(pos + 1);
-        } else {
-            return javaType;
-        }
+        return StringHelper.getClassShortName(javaType);
     }
 
     public String getDocLink() {
         if ("camel-core".equals(artifactId)) {
-            return coreOnly ? "src/main/docs" : "../camel-core/src/main/docs";
+            return coreOnly ? "src/main/docs" : "../core/camel-core/src/main/docs";
         } else {
             return artifactId + "/src/main/docs";
         }

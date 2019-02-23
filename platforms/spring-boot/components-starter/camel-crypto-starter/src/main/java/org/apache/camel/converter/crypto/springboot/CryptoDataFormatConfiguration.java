@@ -33,6 +33,11 @@ public class CryptoDataFormatConfiguration
             DataFormatConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the crypto data format. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * The JCE algorithm name indicating the cryptographic algorithm that will
      * be used. Is by default DES/CBC/PKCS5Padding.
      */
@@ -77,7 +82,7 @@ public class CryptoDataFormatConfiguration
     /**
      * Whether the data format should set the Content-Type header with the type
      * from the data format if the data format is capable of doing so. For
-     * example application/xml for data formats marshalling to XML or
+     * example application/xml for data formats marshalling to XML, or
      * application/json for data formats marshalling to JSon etc.
      */
     private Boolean contentTypeHeader = false;

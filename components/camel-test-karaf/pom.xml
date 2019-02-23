@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-test-karaf</artifactId>
@@ -34,12 +34,10 @@
   <description>Camel integration testing with Apache Karaf</description>
 
   <properties>
-    <!-- use by camel-catalog -->
     <firstVersion>2.18.0</firstVersion>
     <label>testing,java,osgi</label>
 
     <karf-test-version>${karaf4-version}</karf-test-version>
-    <camel.osgi.export.pkg>org.apache.camel.test.karaf</camel.osgi.export.pkg>
   </properties>
 
   <dependencies>
@@ -89,15 +87,15 @@
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
+      <artifactId>osgi.cmpn</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
+      <artifactId>camel-support</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -158,13 +156,9 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!-- version 2.19.1 causes pax-exam to fail when testing the 2nd/3rd container when testing all  -->
-        <!-- so we use an older version of surefire which works -->
-        <version>2.18.1</version>
         <configuration>
           <!-- do not re-run these tests -->
-          <!-- not supported by older version of surefire -->
-          <!--<rerunFailingTestsCount>0</rerunFailingTestsCount>-->
+          <rerunFailingTestsCount>0</rerunFailingTestsCount>
           <systemPropertyVariables>
             <karafVersion>${karaf4-version}</karafVersion>
           </systemPropertyVariables>
@@ -174,11 +168,10 @@
       <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
-          <extensions>true</extensions>
           <configuration>
               <instructions>
                   <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                  <!-- Export-Package>org.apache.camel.test.karaf</Export-Package -->>
+                  <!-- Export-Package>org.apache.camel.test.karaf</Export-Package -->
                   <DynamicImport-Package>*</DynamicImport-Package>
                   <Import-Package/>
                   <_removeheaders>Import-Package, Private-Package, Include-Resource, Karaf-Info, Require-Capability</_removeheaders>
@@ -202,9 +195,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <!-- version 2.19.1 causes pax-exam to fail when testing the 2nd/3rd container when testing all  -->
-            <!-- so we use an older version of surefire which works -->
-            <version>2.18.1</version>
             <configuration>
               <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
               <!--

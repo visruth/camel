@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.camel.example</groupId>
     <artifactId>examples</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-example-jms-file</artifactId>
@@ -67,8 +67,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-activemq</artifactId>
       <!-- lets use JMS 2.0 api but camel-jms still works with ActiveMQ 5.x that is JMS 1.1 only -->
       <exclusions>
         <exclusion>

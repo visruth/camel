@@ -22,7 +22,6 @@ import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.github.benmanes.caffeine.cache.stats.StatsCounter;
 import org.apache.camel.component.caffeine.EvictionType;
-import org.apache.camel.component.caffeine.load.CaffeineLoadCacheComponent;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -38,6 +37,11 @@ public class CaffeineLoadCacheComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the caffeine-loadcache component.
+     * This is enabled by default.
+     */
+    private Boolean enabled;
     /**
      * Sets the global component configuration
      */
@@ -87,13 +91,13 @@ public class CaffeineLoadCacheComponentConfiguration
         /**
          * The cache key type, default "java.lang.Object"
          */
-        private String keyType = "java.lang.Object";
+        private Class keyType = java.lang.Object.class;
         /**
          * The cache value type, default "java.lang.Object"
          */
-        private String valueType = "java.lang.Object";
+        private Class valueType = java.lang.Object.class;
         /**
-         * To configure the default an already instantianted cache to be used
+         * To configure an already instantiated cache to be used
          */
         private Cache cache;
         /**
@@ -159,19 +163,19 @@ public class CaffeineLoadCacheComponentConfiguration
             this.key = key;
         }
 
-        public String getKeyType() {
+        public Class getKeyType() {
             return keyType;
         }
 
-        public void setKeyType(String keyType) {
+        public void setKeyType(Class keyType) {
             this.keyType = keyType;
         }
 
-        public String getValueType() {
+        public Class getValueType() {
             return valueType;
         }
 
-        public void setValueType(String valueType) {
+        public void setValueType(Class valueType) {
             this.valueType = valueType;
         }
 

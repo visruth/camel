@@ -18,6 +18,7 @@ package org.apache.camel.itest.shiro;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.jms.ConnectionFactory;
 import javax.naming.Context;
 
@@ -26,8 +27,8 @@ import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.component.shiro.security.ShiroSecurityConstants;
 import org.apache.camel.component.shiro.security.ShiroSecurityPolicy;
 import org.apache.camel.itest.CamelJmsTestHelper;
+import org.apache.camel.support.jndi.JndiContext;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.camel.util.jndi.JndiContext;
 import org.junit.Test;
 
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
@@ -46,7 +47,7 @@ public class ShiroOverJmsTest extends CamelTestSupport {
         getMockEndpoint("mock:foo").expectedBodiesReceived("Hello World");
         getMockEndpoint("mock:result").expectedBodiesReceived("Bye World");
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put(ShiroSecurityConstants.SHIRO_SECURITY_USERNAME, "ringo");
         headers.put(ShiroSecurityConstants.SHIRO_SECURITY_PASSWORD, "starr");
         template.requestBodyAndHeaders("direct:start", "Hello World", headers);

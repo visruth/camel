@@ -20,9 +20,10 @@ import java.util.Map;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
-import org.apache.camel.impl.DefaultComponent;
-import org.apache.camel.util.CamelContextHelper;
-import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.spi.annotations.Component;
+import org.apache.camel.support.CamelContextHelper;
+import org.apache.camel.support.DefaultComponent;
+import org.apache.camel.util.StringHelper;
 
 /**
  * Represents the component that manages {@link CassandraEndpoint}. This
@@ -38,6 +39,7 @@ import org.apache.camel.util.ObjectHelper;
  * <li>cql:bean:clusterRef/keyspace</li>
  * </ul>
  */
+@Component("cql")
 public class CassandraComponent extends DefaultComponent {
 
     public CassandraComponent() {
@@ -67,8 +69,8 @@ public class CassandraComponent extends DefaultComponent {
         } else {
             // hosts and port (port is optional)
             if (remaining.contains(":")) {
-                port = ObjectHelper.after(remaining, ":");
-                hosts = ObjectHelper.before(remaining, ":");
+                port = StringHelper.after(remaining, ":");
+                hosts = StringHelper.before(remaining, ":");
             } else {
                 hosts = remaining;
             }

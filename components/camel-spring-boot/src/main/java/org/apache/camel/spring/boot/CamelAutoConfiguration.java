@@ -19,8 +19,11 @@ package org.apache.camel.spring.boot;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
@@ -28,27 +31,30 @@ import org.apache.camel.Exchange;
 import org.apache.camel.FluentProducerTemplate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.TypeConverters;
+import org.apache.camel.cloud.ServiceRegistry;
 import org.apache.camel.cluster.CamelClusterService;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.component.properties.PropertiesParser;
 import org.apache.camel.health.HealthCheckRegistry;
 import org.apache.camel.health.HealthCheckRepository;
 import org.apache.camel.health.HealthCheckService;
+import org.apache.camel.impl.CompositeRegistry;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.FileWatcherReloadStrategy;
 import org.apache.camel.processor.interceptor.BacklogTracer;
-import org.apache.camel.processor.interceptor.DefaultTraceFormatter;
 import org.apache.camel.processor.interceptor.HandleFault;
-import org.apache.camel.processor.interceptor.TraceFormatter;
-import org.apache.camel.processor.interceptor.Tracer;
 import org.apache.camel.spi.AsyncProcessorAwaitManager;
 import org.apache.camel.spi.EndpointStrategy;
 import org.apache.camel.spi.EventFactory;
 import org.apache.camel.spi.EventNotifier;
+import org.apache.camel.spi.ExecutorServiceManager;
 import org.apache.camel.spi.InflightRepository;
 import org.apache.camel.spi.InterceptStrategy;
 import org.apache.camel.spi.LifecycleStrategy;
-import org.apache.camel.spi.ManagementNamingStrategy;
+import org.apache.camel.spi.LogListener;
+import org.apache.camel.spi.ManagementObjectNameStrategy;
 import org.apache.camel.spi.ManagementStrategy;
+import org.apache.camel.spi.Registry;
 import org.apache.camel.spi.ReloadStrategy;
 import org.apache.camel.spi.RouteController;
 import org.apache.camel.spi.RoutePolicyFactory;
@@ -57,11 +63,12 @@ import org.apache.camel.spi.ShutdownStrategy;
 import org.apache.camel.spi.StreamCachingStrategy;
 import org.apache.camel.spi.ThreadPoolProfile;
 import org.apache.camel.spi.UnitOfWorkFactory;
+import org.apache.camel.spi.UuidGenerator;
 import org.apache.camel.spring.CamelBeanPostProcessor;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.camel.spring.spi.XmlCamelContextConfigurer;
+import org.apache.camel.support.jsse.GlobalSSLContextParametersSupplier;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.jsse.GlobalSSLContextParametersSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -71,6 +78,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.OrderComparator;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
@@ -111,6 +119,20 @@ public class CamelAutoConfiguration {
     static CamelContext doConfigureCamelContext(ApplicationContext applicationContext,
                                          CamelContext camelContext,
                                          CamelConfigurationProperties config) throws Exception {
+
+        camelContext.init();
+
+        if (camelContext instanceof DefaultCamelContext) {
+            final DefaultCamelContext defaultContext = (DefaultCamelContext) camelContext;
+            final Map<String, Registry> registryBeans = applicationContext.getBeansOfType(Registry.class);
+
+            if (!registryBeans.isEmpty()) {
+                final List<Registry> registries = new ArrayList<>(registryBeans.values());
+                OrderComparator.sort(registries);
+                final Registry registry = new CompositeRegistry(registries);
+                defaultContext.setRegistry(registry);
+            }
+        }
 
         if (ObjectHelper.isNotEmpty(config.getFileConfigurations())) {
             Environment env = applicationContext.getEnvironment();
@@ -179,7 +201,7 @@ public class CamelAutoConfiguration {
         camelContext.setAllowUseOriginalMessage(config.isAllowUseOriginalMessage());
         camelContext.setUseBreadcrumb(config.isUseBreadcrumb());
         camelContext.setUseDataType(config.isUseDataType());
-        camelContext.setUseMDCLogging(config.isUseMDCLogging());
+        camelContext.setUseMDCLogging(config.isUseMdcLogging());
         camelContext.setLoadTypeConverters(config.isLoadTypeConverters());
 
         if (camelContext.getManagementStrategy().getManagementAgent() != null) {
@@ -193,36 +215,14 @@ public class CamelAutoConfiguration {
 
         // tracing
         camelContext.setTracing(config.isTracing());
-        if (camelContext.getDefaultTracer() instanceof Tracer) {
-            Tracer tracer = (Tracer) camelContext.getDefaultTracer();
-            if (tracer.getDefaultTraceFormatter() != null) {
-                DefaultTraceFormatter formatter = tracer.getDefaultTraceFormatter();
-                if (config.getTracerFormatterBreadCrumbLength() != null) {
-                    formatter.setBreadCrumbLength(config.getTracerFormatterBreadCrumbLength());
-                }
-                if (config.getTracerFormatterMaxChars() != null) {
-                    formatter.setMaxChars(config.getTracerFormatterMaxChars());
-                }
-                if (config.getTracerFormatterNodeLength() != null) {
-                    formatter.setNodeLength(config.getTracerFormatterNodeLength());
-                }
-                formatter.setShowBody(config.isTraceFormatterShowBody());
-                formatter.setShowBodyType(config.isTracerFormatterShowBodyType());
-                formatter.setShowBreadCrumb(config.isTraceFormatterShowBreadCrumb());
-                formatter.setShowException(config.isTraceFormatterShowException());
-                formatter.setShowExchangeId(config.isTraceFormatterShowExchangeId());
-                formatter.setShowExchangePattern(config.isTraceFormatterShowExchangePattern());
-                formatter.setShowHeaders(config.isTraceFormatterShowHeaders());
-                formatter.setShowNode(config.isTraceFormatterShowNode());
-                formatter.setShowProperties(config.isTraceFormatterShowProperties());
-                formatter.setShowRouteId(config.isTraceFormatterShowRouteId());
-                formatter.setShowShortExchangeId(config.isTraceFormatterShowShortExchangeId());
-            }
-        }
 
         if (config.getXmlRoutesReloadDirectory() != null) {
             ReloadStrategy reload = new FileWatcherReloadStrategy(config.getXmlRoutesReloadDirectory());
             camelContext.setReloadStrategy(reload);
+        }
+
+        if (config.getThreadNamePattern() != null) {
+            camelContext.getExecutorServiceManager().setThreadNamePattern(config.getThreadNamePattern());
         }
 
         // additional advanced configuration which is not configured using CamelConfigurationProperties
@@ -240,7 +240,7 @@ public class CamelAutoConfiguration {
     @ConditionalOnMissingBean(RoutesCollector.class)
     RoutesCollector routesCollector(ApplicationContext applicationContext, CamelConfigurationProperties config) {
         Collection<CamelContextConfiguration> configurations = applicationContext.getBeansOfType(CamelContextConfiguration.class).values();
-        return new RoutesCollector(applicationContext, new ArrayList<CamelContextConfiguration>(configurations), config);
+        return new RoutesCollector(applicationContext, new ArrayList<>(configurations), config);
     }
 
     /**
@@ -343,139 +343,52 @@ public class CamelAutoConfiguration {
      * Similar code in camel-core-xml module in class org.apache.camel.core.xml.AbstractCamelContextFactoryBean.
      */
     static void afterPropertiesSet(ApplicationContext applicationContext, CamelContext camelContext) throws Exception {
-        Tracer tracer = getSingleBeanOfType(applicationContext, Tracer.class);
-        if (tracer != null) {
-            // use formatter if there is a TraceFormatter bean defined
-            TraceFormatter formatter = getSingleBeanOfType(applicationContext, TraceFormatter.class);
-            if (formatter != null) {
-                tracer.setFormatter(formatter);
-            }
-            LOG.info("Using custom Tracer: {}", tracer);
-            camelContext.addInterceptStrategy(tracer);
-        }
-        BacklogTracer backlogTracer = getSingleBeanOfType(applicationContext, BacklogTracer.class);
-        if (backlogTracer != null) {
-            LOG.info("Using custom BacklogTracer: {}", backlogTracer);
-            camelContext.addInterceptStrategy(backlogTracer);
-        }
-        HandleFault handleFault = getSingleBeanOfType(applicationContext, HandleFault.class);
-        if (handleFault != null) {
-            LOG.info("Using custom HandleFault: {}", handleFault);
-            camelContext.addInterceptStrategy(handleFault);
-        }
-        InflightRepository inflightRepository = getSingleBeanOfType(applicationContext, InflightRepository.class);
-        if (inflightRepository != null) {
-            LOG.info("Using custom InflightRepository: {}", inflightRepository);
-            camelContext.setInflightRepository(inflightRepository);
-        }
-        AsyncProcessorAwaitManager asyncProcessorAwaitManager = getSingleBeanOfType(applicationContext, AsyncProcessorAwaitManager.class);
-        if (asyncProcessorAwaitManager != null) {
-            LOG.info("Using custom AsyncProcessorAwaitManager: {}", asyncProcessorAwaitManager);
-            camelContext.setAsyncProcessorAwaitManager(asyncProcessorAwaitManager);
-        }
-        ManagementStrategy managementStrategy = getSingleBeanOfType(applicationContext, ManagementStrategy.class);
-        if (managementStrategy != null) {
-            LOG.info("Using custom ManagementStrategy: {}", managementStrategy);
-            camelContext.setManagementStrategy(managementStrategy);
-        }
-        ManagementNamingStrategy managementNamingStrategy = getSingleBeanOfType(applicationContext, ManagementNamingStrategy.class);
-        if (managementNamingStrategy != null) {
-            LOG.info("Using custom ManagementNamingStrategy: {}", managementNamingStrategy);
-            camelContext.getManagementStrategy().setManagementNamingStrategy(managementNamingStrategy);
-        }
-        EventFactory eventFactory = getSingleBeanOfType(applicationContext, EventFactory.class);
-        if (eventFactory != null) {
-            LOG.info("Using custom EventFactory: {}", eventFactory);
-            camelContext.getManagementStrategy().setEventFactory(eventFactory);
-        }
-        UnitOfWorkFactory unitOfWorkFactory = getSingleBeanOfType(applicationContext, UnitOfWorkFactory.class);
-        if (unitOfWorkFactory != null) {
-            LOG.info("Using custom UnitOfWorkFactory: {}", unitOfWorkFactory);
-            camelContext.setUnitOfWorkFactory(unitOfWorkFactory);
-        }
-        RuntimeEndpointRegistry runtimeEndpointRegistry = getSingleBeanOfType(applicationContext, RuntimeEndpointRegistry.class);
-        if (runtimeEndpointRegistry != null) {
-            LOG.info("Using custom RuntimeEndpointRegistry: {}", runtimeEndpointRegistry);
-            camelContext.setRuntimeEndpointRegistry(runtimeEndpointRegistry);
-        }
-        // custom type converters defined as <bean>s
-        Map<String, TypeConverters> typeConverters = applicationContext.getBeansOfType(TypeConverters.class);
-        if (typeConverters != null && !typeConverters.isEmpty()) {
-            for (Map.Entry<String, TypeConverters> entry : typeConverters.entrySet()) {
-                TypeConverters converter = entry.getValue();
-                LOG.info("Adding custom TypeConverters with id: {} and implementation: {}", entry.getKey(), converter);
-                camelContext.getTypeConverterRegistry().addTypeConverters(converter);
-            }
-        }
-        // set the event notifier strategies if defined
-        Map<String, EventNotifier> eventNotifiers = applicationContext.getBeansOfType(EventNotifier.class);
-        if (eventNotifiers != null && !eventNotifiers.isEmpty()) {
-            for (Map.Entry<String, EventNotifier> entry : eventNotifiers.entrySet()) {
-                EventNotifier notifier = entry.getValue();
-                // do not add if already added, for instance a tracer that is also an InterceptStrategy class
-                if (!camelContext.getManagementStrategy().getEventNotifiers().contains(notifier)) {
-                    LOG.info("Using custom EventNotifier with id: {} and implementation: {}", entry.getKey(), notifier);
-                    camelContext.getManagementStrategy().addEventNotifier(notifier);
+        final ManagementStrategy managementStrategy = camelContext.getManagementStrategy();
+
+        registerPropertyForBeanType(applicationContext, BacklogTracer.class, bt -> camelContext.setExtension(BacklogTracer.class, bt));
+        registerPropertyForBeanType(applicationContext, HandleFault.class, camelContext::addInterceptStrategy);
+        registerPropertyForBeanType(applicationContext, InflightRepository.class, camelContext::setInflightRepository);
+        registerPropertyForBeanType(applicationContext, AsyncProcessorAwaitManager.class, camelContext::setAsyncProcessorAwaitManager);
+        registerPropertyForBeanType(applicationContext, ManagementStrategy.class, camelContext::setManagementStrategy);
+        registerPropertyForBeanType(applicationContext, ManagementObjectNameStrategy.class, managementStrategy::setManagementObjectNameStrategy);
+        registerPropertyForBeanType(applicationContext, EventFactory.class, managementStrategy::setEventFactory);
+        registerPropertyForBeanType(applicationContext, UnitOfWorkFactory.class, camelContext::setUnitOfWorkFactory);
+        registerPropertyForBeanType(applicationContext, RuntimeEndpointRegistry.class, camelContext::setRuntimeEndpointRegistry);
+
+        registerPropertiesForBeanTypes(applicationContext, TypeConverters.class, camelContext.getTypeConverterRegistry()::addTypeConverters);
+
+        final Predicate<EventNotifier> containsEventNotifier = managementStrategy.getEventNotifiers()::contains;
+        registerPropertiesForBeanTypesWithCondition(applicationContext, EventNotifier.class, containsEventNotifier.negate(), managementStrategy::addEventNotifier);
+
+        registerPropertiesForBeanTypes(applicationContext, EndpointStrategy.class, camelContext::addRegisterEndpointCallback);
+
+        registerPropertyForBeanType(applicationContext, ShutdownStrategy.class, camelContext::setShutdownStrategy);
+        
+        final Predicate<InterceptStrategy> containsInterceptStrategy = camelContext.getInterceptStrategies()::contains;
+        registerPropertiesForBeanTypesWithCondition(applicationContext, InterceptStrategy.class, containsInterceptStrategy.negate(), camelContext::addInterceptStrategy);
+
+        final Predicate<LifecycleStrategy> containsLifecycleStrategy = camelContext.getLifecycleStrategies()::contains;
+        registerPropertiesForBeanTypesWithCondition(applicationContext, LifecycleStrategy.class, containsLifecycleStrategy.negate(), camelContext::addLifecycleStrategy);
+
+        registerPropertiesForBeanTypes(applicationContext, CamelClusterService.class, addServiceToContext(camelContext));
+
+        // service registry
+        Map<String, ServiceRegistry> serviceRegistries = applicationContext.getBeansOfType(ServiceRegistry.class);
+        if (serviceRegistries != null && !serviceRegistries.isEmpty()) {
+            for (Map.Entry<String, ServiceRegistry> entry : serviceRegistries.entrySet()) {
+                ServiceRegistry service = entry.getValue();
+
+                if (service.getId() == null) {
+                    service.setId(camelContext.getUuidGenerator().generateUuid());
                 }
-            }
-        }
-        // set endpoint strategies if defined
-        Map<String, EndpointStrategy> endpointStrategies = applicationContext.getBeansOfType(EndpointStrategy.class);
-        if (endpointStrategies != null && !endpointStrategies.isEmpty()) {
-            for (Map.Entry<String, EndpointStrategy> entry : endpointStrategies.entrySet()) {
-                EndpointStrategy strategy = entry.getValue();
-                LOG.info("Using custom EndpointStrategy with id: {} and implementation: {}", entry.getKey(), strategy);
-                camelContext.addRegisterEndpointCallback(strategy);
-            }
-        }
-        // shutdown
-        ShutdownStrategy shutdownStrategy = getSingleBeanOfType(applicationContext, ShutdownStrategy.class);
-        if (shutdownStrategy != null) {
-            LOG.info("Using custom ShutdownStrategy: " + shutdownStrategy);
-            camelContext.setShutdownStrategy(shutdownStrategy);
-        }
-        // add global interceptors
-        Map<String, InterceptStrategy> interceptStrategies = applicationContext.getBeansOfType(InterceptStrategy.class);
-        if (interceptStrategies != null && !interceptStrategies.isEmpty()) {
-            for (Map.Entry<String, InterceptStrategy> entry : interceptStrategies.entrySet()) {
-                InterceptStrategy strategy = entry.getValue();
-                // do not add if already added, for instance a tracer that is also an InterceptStrategy class
-                if (!camelContext.getInterceptStrategies().contains(strategy)) {
-                    LOG.info("Using custom InterceptStrategy with id: {} and implementation: {}", entry.getKey(), strategy);
-                    camelContext.addInterceptStrategy(strategy);
-                }
-            }
-        }
-        // set the lifecycle strategy if defined
-        Map<String, LifecycleStrategy> lifecycleStrategies = applicationContext.getBeansOfType(LifecycleStrategy.class);
-        if (lifecycleStrategies != null && !lifecycleStrategies.isEmpty()) {
-            for (Map.Entry<String, LifecycleStrategy> entry : lifecycleStrategies.entrySet()) {
-                LifecycleStrategy strategy = entry.getValue();
-                // do not add if already added, for instance a tracer that is also an InterceptStrategy class
-                if (!camelContext.getLifecycleStrategies().contains(strategy)) {
-                    LOG.info("Using custom LifecycleStrategy with id: {} and implementation: {}", entry.getKey(), strategy);
-                    camelContext.addLifecycleStrategy(strategy);
-                }
-            }
-        }
-        // cluster service
-        Map<String, CamelClusterService> clusterServices = applicationContext.getBeansOfType(CamelClusterService.class);
-        if (clusterServices != null && !clusterServices.isEmpty()) {
-            for (Map.Entry<String, CamelClusterService> entry : clusterServices.entrySet()) {
-                CamelClusterService service = entry.getValue();
-                LOG.info("Using CamelClusterService with id: {} and implementation: {}", service.getId(), service);
+
+                LOG.info("Using ServiceRegistry with id: {} and implementation: {}", service.getId(), service);
                 camelContext.addService(service);
             }
         }
-        // add route policy factories
-        Map<String, RoutePolicyFactory> routePolicyFactories = applicationContext.getBeansOfType(RoutePolicyFactory.class);
-        if (routePolicyFactories != null && !routePolicyFactories.isEmpty()) {
-            for (Map.Entry<String, RoutePolicyFactory> entry : routePolicyFactories.entrySet()) {
-                RoutePolicyFactory factory = entry.getValue();
-                LOG.info("Using custom RoutePolicyFactory with id: {} and implementation: {}", entry.getKey(), factory);
-                camelContext.addRoutePolicyFactory(factory);
-            }
-        }
+
+        registerPropertiesForBeanTypes(applicationContext, RoutePolicyFactory.class, camelContext::addRoutePolicyFactory);
+
         // add SSL context parameters
         GlobalSSLContextParametersSupplier sslContextParametersSupplier = getSingleBeanOfType(applicationContext, GlobalSSLContextParametersSupplier.class);
         if (sslContextParametersSupplier != null) {
@@ -486,37 +399,69 @@ public class CamelAutoConfiguration {
         if (healthCheckRegistry != null) {
             healthCheckRegistry.setCamelContext(camelContext);
             LOG.info("Using HealthCheckRegistry: {}", healthCheckRegistry);
-            camelContext.setHealthCheckRegistry(healthCheckRegistry);
+            camelContext.setExtension(HealthCheckRegistry.class, healthCheckRegistry);
         } else {
-            healthCheckRegistry = camelContext.getHealthCheckRegistry();
+            healthCheckRegistry = HealthCheckRegistry.get(camelContext);
             healthCheckRegistry.setCamelContext(camelContext);
         }
-        // Health check repository
-        Map<String, HealthCheckRepository> repositories = applicationContext.getBeansOfType(HealthCheckRepository.class);
-        if (ObjectHelper.isNotEmpty(repositories)) {
-            for (HealthCheckRepository repository: repositories.values()) {
-                healthCheckRegistry.addRepository(repository);
-            }
-        }
-        // Health check service
-        HealthCheckService healthCheckService = getSingleBeanOfType(applicationContext, HealthCheckService.class);
-        if (healthCheckService != null) {
-            LOG.info("Using HealthCheckService: {}", healthCheckService);
-            camelContext.addService(healthCheckService);
-        }
-        // Route controller
-        RouteController routeController = getSingleBeanOfType(applicationContext, RouteController.class);
-        if (routeController != null) {
-            LOG.info("Using RouteController: " + routeController);
-            camelContext.setRouteController(routeController);
-        }
+
+        registerPropertiesForBeanTypes(applicationContext, HealthCheckRepository.class, healthCheckRegistry::addRepository);
+
+        registerPropertyForBeanType(applicationContext, HealthCheckService.class, addServiceToContext(camelContext));
+        registerPropertyForBeanType(applicationContext, RouteController.class, camelContext::setRouteController);
+        registerPropertyForBeanType(applicationContext, UuidGenerator.class, camelContext::setUuidGenerator);
+
+        final Predicate<LogListener> containsLogListener = camelContext.getLogListeners()::contains;
+        registerPropertiesForBeanTypesWithCondition(applicationContext, LogListener.class, containsLogListener.negate(), camelContext::addLogListener);
+
+        registerPropertyForBeanType(applicationContext, ExecutorServiceManager.class, camelContext::setExecutorServiceManager);
 
         // set the default thread pool profile if defined
         initThreadPoolProfiles(applicationContext, camelContext);
     }
 
+    private static <T> Consumer<T> addServiceToContext(final CamelContext camelContext) {
+        return service -> {
+            try {
+                camelContext.addService(service);
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to add service to Camel context", e);
+            }
+        };
+    }
+
+    private static <T> void registerPropertyForBeanType(final ApplicationContext applicationContext, final Class<T> beanType, final Consumer<T> propertySetter) {
+        T propertyBean = getSingleBeanOfType(applicationContext, beanType);
+        if (propertyBean == null) {
+            return;
+        }
+
+        LOG.info("Using custom {}: {}", beanType.getSimpleName(), propertyBean);
+        propertySetter.accept(propertyBean);
+    }
+
+    private static <T> void registerPropertiesForBeanTypes(final ApplicationContext applicationContext, final Class<T> beanType, final Consumer<T> propertySetter) {
+        registerPropertiesForBeanTypesWithCondition(applicationContext, beanType, b -> true, propertySetter);
+    }
+
+    private static <T> void registerPropertiesForBeanTypesWithCondition(final ApplicationContext applicationContext, final Class<T> beanType, final Predicate<T> condition,
+        final Consumer<T> propertySetter) {
+        final Map<String, T> beans = applicationContext.getBeansOfType(beanType);
+        if (!ObjectHelper.isNotEmpty(beans)) {
+            return;
+        }
+
+        final String simpleName = beanType.getSimpleName();
+        beans.forEach((name, bean) -> {
+            if (condition.test(bean)) {
+                LOG.info("Adding custom {} with id: {} and implementation: {}", simpleName, name, bean);
+                propertySetter.accept(bean);
+            }
+        });
+    }
+    
     private static void initThreadPoolProfiles(ApplicationContext applicationContext, CamelContext camelContext) {
-        Set<String> defaultIds = new HashSet<String>();
+        Set<String> defaultIds = new HashSet<>();
 
         // lookup and use custom profiles from the registry
         Map<String, ThreadPoolProfile> profiles = applicationContext.getBeansOfType(ThreadPoolProfile.class);

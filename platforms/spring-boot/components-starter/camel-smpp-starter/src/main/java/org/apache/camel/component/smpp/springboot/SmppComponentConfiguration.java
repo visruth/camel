@@ -18,7 +18,6 @@ package org.apache.camel.component.smpp.springboot;
 
 import java.util.Map;
 import javax.annotation.Generated;
-import org.apache.camel.component.smpp.SmppComponent;
 import org.apache.camel.component.smpp.SmppSplittingPolicy;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.jsmpp.session.SessionStateListener;
@@ -35,6 +34,11 @@ public class SmppComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the smpp component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
     /**
      * To use the shared SmppConfiguration as configuration.
      */
@@ -78,27 +82,18 @@ public class SmppComponentConfiguration
          * The system id (username) for connecting to SMSC server.
          */
         private String systemId = "smppclient";
-        private String password;
         /**
          * Defines the data coding according the SMPP 3.4 specification, section
-         * 5.2.19. Example data encodings are:
-         * <ul>
-         * <li>0: SMSC Default Alphabet</li>
-         * <li>3: Latin 1 (ISO-8859-1)</li>
-         * <li>4: Octet unspecified (8-bit binary)</li>
-         * <li>8: UCS2 (ISO/IEC-10646)</li>
-         * <li>13: Extended Kanji JIS(X 0212-1990)</li>
-         * </ul>
+         * 5.2.19. Example data encodings are: <ul> <li>0: SMSC Default
+         * Alphabet</li> <li>3: Latin 1 (ISO-8859-1)</li> <li>4: Octet
+         * unspecified (8-bit binary)</li> <li>8: UCS2 (ISO/IEC-10646)</li>
+         * <li>13: Extended Kanji JIS(X 0212-1990)</li> </ul>
          */
         private Byte dataCoding;
         /**
          * Defines encoding of data according the SMPP 3.4 specification,
-         * section 5.2.19.
-         * <ul>
-         * <li>0: SMSC Default Alphabet
-         * <li>4: 8 bit Alphabet</li>
-         * <li>8: UCS2 Alphabet</li></li>
-         * </ul>
+         * section 5.2.19. <ul> <li>0: SMSC Default Alphabet <li>4: 8 bit
+         * Alphabet</li> <li>8: UCS2 Alphabet</li></li> </ul>
          */
         private Byte alphabet;
         /**
@@ -106,6 +101,11 @@ public class SmppComponentConfiguration
          * SubmitSm, ReplaceSm and SubmitMulti.
          */
         private String encoding = "ISO-8859-1";
+        /**
+         * Defines the encoding scheme of the short message user data. Only for
+         * SubmitSm, ReplaceSm and SubmitMulti.
+         */
+        private String password;
         /**
          * Defines the interval in milliseconds between the confidence checks.
          * The confidence check is used to test the communication path between
@@ -123,94 +123,61 @@ public class SmppComponentConfiguration
          * This parameter is used to categorize the type of ESME (External Short
          * Message Entity) that is binding to the SMSC (max. 13 characters).
          */
-        private String systemType = "cp";
+        private String systemType;
         /**
          * Is used to request an SMSC delivery receipt and/or SME originated
-         * acknowledgements. The following values are defined:
-         * <ul>
-         * <li>0: No SMSC delivery receipt requested.</li>
-         * <li>1: SMSC delivery receipt requested where final delivery outcome
-         * is success or failure.</li>
+         * acknowledgements. The following values are defined: <ul> <li>0: No
+         * SMSC delivery receipt requested.</li> <li>1: SMSC delivery receipt
+         * requested where final delivery outcome is success or failure.</li>
          * <li>2: SMSC delivery receipt requested where the final delivery
-         * outcome is delivery failure.</li>
-         * </ul>
+         * outcome is delivery failure.</li> </ul>
          */
         private Byte registeredDelivery;
         /**
          * The service type parameter can be used to indicate the SMS
          * Application service associated with the message. The following
-         * generic service_types are defined:
-         * <ul>
-         * <li>CMT: Cellular Messaging</li>
-         * <li>CPT: Cellular Paging</li>
-         * <li>VMN: Voice Mail Notification</li>
-         * <li>VMA: Voice Mail Alerting</li>
-         * <li>WAP: Wireless Application Protocol</li>
-         * <li>USSD: Unstructured Supplementary Services Data</li>
-         * </ul>
+         * generic service_types are defined: <ul> <li>CMT: Cellular
+         * Messaging</li> <li>CPT: Cellular Paging</li> <li>VMN: Voice Mail
+         * Notification</li> <li>VMA: Voice Mail Alerting</li> <li>WAP: Wireless
+         * Application Protocol</li> <li>USSD: Unstructured Supplementary
+         * Services Data</li> </ul>
          */
-        private String serviceType = "CMT";
+        private String serviceType;
         /**
          * Defines the type of number (TON) to be used in the SME originator
-         * address parameters. The following TON values are defined:
-         * <ul>
-         * <li>0: Unknown</li>
-         * <li>1: International</li>
-         * <li>2: National</li>
-         * <li>3: Network Specific</li>
-         * <li>4: Subscriber Number</li>
-         * <li>5: Alphanumeric</li>
-         * <li>6: Abbreviated</li>
-         * </ul>
+         * address parameters. The following TON values are defined: <ul> <li>0:
+         * Unknown</li> <li>1: International</li> <li>2: National</li> <li>3:
+         * Network Specific</li> <li>4: Subscriber Number</li> <li>5:
+         * Alphanumeric</li> <li>6: Abbreviated</li> </ul>
          */
         private Byte sourceAddrTon;
         /**
          * Defines the type of number (TON) to be used in the SME destination
          * address parameters. Only for SubmitSm, SubmitMulti, CancelSm and
-         * DataSm. The following TON values are defined:
-         * <ul>
-         * <li>0: Unknown</li>
-         * <li>1: International</li>
-         * <li>2: National</li>
-         * <li>3: Network Specific</li>
-         * <li>4: Subscriber Number</li>
-         * <li>5: Alphanumeric</li>
-         * <li>6: Abbreviated</li>
-         * </ul>
+         * DataSm. The following TON values are defined: <ul> <li>0:
+         * Unknown</li> <li>1: International</li> <li>2: National</li> <li>3:
+         * Network Specific</li> <li>4: Subscriber Number</li> <li>5:
+         * Alphanumeric</li> <li>6: Abbreviated</li> </ul>
          */
         private Byte destAddrTon;
         /**
          * Defines the numeric plan indicator (NPI) to be used in the SME
          * originator address parameters. The following NPI values are defined:
-         * <ul>
-         * <li>0: Unknown</li>
-         * <li>1: ISDN (E163/E164)</li>
-         * <li>2: Data (X.121)</li>
-         * <li>3: Telex (F.69)</li>
-         * <li>6: Land Mobile (E.212)</li>
-         * <li>8: National</li>
-         * <li>9: Private</li>
-         * <li>10: ERMES</li>
-         * <li>13: Internet (IP)</li>
-         * <li>18: WAP Client Id (to be defined by WAP Forum)</li>
-         * </ul>
+         * <ul> <li>0: Unknown</li> <li>1: ISDN (E163/E164)</li> <li>2: Data
+         * (X.121)</li> <li>3: Telex (F.69)</li> <li>6: Land Mobile (E.212)</li>
+         * <li>8: National</li> <li>9: Private</li> <li>10: ERMES</li> <li>13:
+         * Internet (IP)</li> <li>18: WAP Client Id (to be defined by WAP
+         * Forum)</li> </ul>
          */
         private Byte sourceAddrNpi;
         /**
          * Defines the type of number (TON) to be used in the SME destination
          * address parameters. Only for SubmitSm, SubmitMulti, CancelSm and
-         * DataSm. The following NPI values are defined:
-         * <ul>
-         * <li>0: Unknown</li>
-         * <li>1: ISDN (E163/E164)</li>
-         * <li>2: Data (X.121)</li>
-         * <li>3: Telex (F.69)</li>
-         * <li>6: Land Mobile (E.212)</li>
-         * <li>8: National</li>
-         * <li>9: Private</li>
-         * <li>10: ERMES</li>
-         * <li>13: Internet (IP)</li>
-         * <li>18: WAP Client Id (to be defined by WAP Forum)</li>
+         * DataSm. The following NPI values are defined: <ul> <li>0:
+         * Unknown</li> <li>1: ISDN (E163/E164)</li> <li>2: Data (X.121)</li>
+         * <li>3: Telex (F.69)</li> <li>6: Land Mobile (E.212)</li> <li>8:
+         * National</li> <li>9: Private</li> <li>10: ERMES</li> <li>13: Internet
+         * (IP)</li> <li>18: WAP Client Id (to be defined by WAP Forum)</li>
          * </ul>
          */
         private Byte destAddrNpi;
@@ -221,13 +188,9 @@ public class SmppComponentConfiguration
         /**
          * Allows the originating SME to assign a priority level to the short
          * message. Only for SubmitSm and SubmitMulti. Four Priority Levels are
-         * supported:
-         * <ul>
-         * <li>0: Level 0 (lowest) priority</li>
-         * <li>1: Level 1 priority</li>
-         * <li>2: Level 2 priority</li>
-         * <li>3: Level 3 (highest) priority</li>
-         * </ul>
+         * supported: <ul> <li>0: Level 0 (lowest) priority</li> <li>1: Level 1
+         * priority</li> <li>2: Level 2 priority</li> <li>3: Level 3 (highest)
+         * priority</li> </ul>
          */
         private Byte priorityFlag;
         /**
@@ -235,11 +198,8 @@ public class SmppComponentConfiguration
          * that is still pending delivery. The SMSC will replace an existing
          * message provided that the source address, destination address and
          * service type match the same fields in the new message. The following
-         * replace if present flag values are defined:
-         * <ul>
-         * <li>0: Don't replace</li>
-         * <li>1: Replace</li>
-         * </ul>
+         * replace if present flag values are defined: <ul> <li>0: Don't
+         * replace</li> <li>1: Replace</li> </ul>
          */
         private Byte replaceIfPresentFlag;
         /**
@@ -255,33 +215,19 @@ public class SmppComponentConfiguration
         private String destAddr = "1717";
         /**
          * Defines the type of number (TON) to be used in the SME. The following
-         * TON values are defined:
-         * <ul>
-         * <li>0: Unknown</li>
-         * <li>1: International</li>
-         * <li>2: National</li>
-         * <li>3: Network Specific</li>
-         * <li>4: Subscriber Number</li>
-         * <li>5: Alphanumeric</li>
-         * <li>6: Abbreviated</li>
-         * </ul>
+         * TON values are defined: <ul> <li>0: Unknown</li> <li>1:
+         * International</li> <li>2: National</li> <li>3: Network Specific</li>
+         * <li>4: Subscriber Number</li> <li>5: Alphanumeric</li> <li>6:
+         * Abbreviated</li> </ul>
          */
         private Byte typeOfNumber;
         /**
          * Defines the numeric plan indicator (NPI) to be used in the SME. The
-         * following NPI values are defined:
-         * <ul>
-         * <li>0: Unknown</li>
-         * <li>1: ISDN (E163/E164)</li>
-         * <li>2: Data (X.121)</li>
-         * <li>3: Telex (F.69)</li>
-         * <li>6: Land Mobile (E.212)</li>
-         * <li>8: National</li>
-         * <li>9: Private</li>
-         * <li>10: ERMES</li>
-         * <li>13: Internet (IP)</li>
-         * <li>18: WAP Client Id (to be defined by WAP Forum)</li>
-         * </ul>
+         * following NPI values are defined: <ul> <li>0: Unknown</li> <li>1:
+         * ISDN (E163/E164)</li> <li>2: Data (X.121)</li> <li>3: Telex
+         * (F.69)</li> <li>6: Land Mobile (E.212)</li> <li>8: National</li>
+         * <li>9: Private</li> <li>10: ERMES</li> <li>13: Internet (IP)</li>
+         * <li>18: WAP Client Id (to be defined by WAP Forum)</li> </ul>
          */
         private Byte numberingPlanIndicator;
         /**
@@ -299,6 +245,10 @@ public class SmppComponentConfiguration
          * succeed.
          */
         private Long reconnectDelay = 5000L;
+        /**
+         * Defines the maximum number of attempts to reconnect to the SMSC, if
+         * SMSC returns a negative bind response
+         */
         private Integer maxReconnect = 2147483647;
         /**
          * Sessions can be lazily created to avoid exceptions, if the SMSC is
@@ -341,18 +291,15 @@ public class SmppComponentConfiguration
          */
         private String addressRange;
         /**
-         * You can specify a policy for handling long messages:
-         * <ul>
-         * <li>ALLOW - the default, long messages are split to 140 bytes per
-         * message</li>
+         * You can specify a policy for handling long messages: <ul> <li>ALLOW -
+         * the default, long messages are split to 140 bytes per message</li>
          * <li>TRUNCATE - long messages are split and only the first fragment
          * will be sent to the SMSC. Some carriers drop subsequent fragments so
          * this reduces load on the SMPP connection sending parts of a message
-         * that will never be delivered.</li>
-         * <li>REJECT - if a message would need to be split, it is rejected with
-         * an SMPP NegativeResponseException and the reason code signifying the
-         * message is too long.</li>
-         * </ul>
+         * that will never be delivered.</li> <li>REJECT - if a message would
+         * need to be split, it is rejected with an SMPP
+         * NegativeResponseException and the reason code signifying the message
+         * is too long.</li> </ul>
          */
         private SmppSplittingPolicy splittingPolicy = SmppSplittingPolicy.ALLOW;
         /**
@@ -385,14 +332,6 @@ public class SmppComponentConfiguration
             this.systemId = systemId;
         }
 
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
         public Byte getDataCoding() {
             return dataCoding;
         }
@@ -415,6 +354,14 @@ public class SmppComponentConfiguration
 
         public void setEncoding(String encoding) {
             this.encoding = encoding;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
         }
 
         public Integer getEnquireLinkTimer() {

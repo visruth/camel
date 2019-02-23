@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.crypto.cms;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -56,8 +55,8 @@ import org.apache.camel.component.crypto.cms.sig.SignerInfo;
 import org.apache.camel.component.crypto.cms.util.ExchangeUtil;
 import org.apache.camel.component.crypto.cms.util.KeystoreUtil;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.support.jsse.KeyStoreParameters;
 import org.apache.camel.util.IOHelper;
-import org.apache.camel.util.jsse.KeyStoreParameters;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -112,7 +111,7 @@ public class SignedDataTest {
         throws UnsupportedEncodingException, Exception {
         KeyStoreParameters keystore = KeystoreUtil.getKeyStoreParameters(keystoreName);
 
-        List<SignerInfo> signers = new ArrayList<SignerInfo>(aliases.length);
+        List<SignerInfo> signers = new ArrayList<>(aliases.length);
         for (String alias : aliases) {
             DefaultSignerInfo signerInfo = new DefaultSignerInfo();
             signerInfo.setIncludeCertificates(includeCertificates); // without

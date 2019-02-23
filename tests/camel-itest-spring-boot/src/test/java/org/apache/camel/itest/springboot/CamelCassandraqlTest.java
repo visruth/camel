@@ -17,7 +17,6 @@
 package org.apache.camel.itest.springboot;
 
 import org.apache.camel.itest.springboot.util.ArquillianPackager;
-import org.apache.camel.itest.springboot.util.DependencyResolver;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
@@ -37,6 +36,8 @@ public class CamelCassandraqlTest extends AbstractSpringBootTestSupport {
         return new ITestConfigBuilder()
                 .module(inferModuleName(CamelCassandraqlTest.class))
                 .unitTestExclusionPattern(".*(\\.integration\\..*|IntegrationTest$|CassandraComponentProducerTest$|CassandraComponentBeanRefTest$|CassandraComponentConsumerTest$)")
+                .includeTestDependencies(false)
+                .unitTestsEnabled(false)
                 .build();
     }
 

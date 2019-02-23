@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.camel.example</groupId>
     <artifactId>examples</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-example-widget-gadget-xml</artifactId>
@@ -34,7 +34,7 @@
   <packaging>jar</packaging>
 
   <properties>
-    <category>Beginner</category>
+    <category>EIP</category>
     <title>Widget Gadget XML</title>
   </properties>
 
@@ -57,8 +57,8 @@
       <artifactId>camel-jms</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-activemq</artifactId>
     </dependency>
 
     <!-- ActiveMQ client -->

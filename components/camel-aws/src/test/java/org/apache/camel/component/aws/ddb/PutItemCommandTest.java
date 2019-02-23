@@ -24,7 +24,7 @@ import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -47,12 +47,12 @@ public class PutItemCommandTest {
 
     @Test
     public void execute() {
-        Map<String, AttributeValue> attributeMap = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> attributeMap = new HashMap<>();
         AttributeValue attributeValue = new AttributeValue("test value");
         attributeMap.put("name", attributeValue);
         exchange.getIn().setHeader(DdbConstants.ITEM, attributeMap);
 
-        Map<String, ExpectedAttributeValue> expectedAttributeValueMap = new HashMap<String, ExpectedAttributeValue>();
+        Map<String, ExpectedAttributeValue> expectedAttributeValueMap = new HashMap<>();
         expectedAttributeValueMap.put("name", new ExpectedAttributeValue(attributeValue));
         exchange.getIn().setHeader(DdbConstants.UPDATE_CONDITION, expectedAttributeValueMap);
 

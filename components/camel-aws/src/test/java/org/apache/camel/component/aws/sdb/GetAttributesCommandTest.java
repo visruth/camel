@@ -23,7 +23,7 @@ import com.amazonaws.services.simpledb.model.Attribute;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,7 +51,7 @@ public class GetAttributesCommandTest {
     @SuppressWarnings("unchecked")
     @Test
     public void execute() {
-        List<String> attributeNames = new ArrayList<String>();
+        List<String> attributeNames = new ArrayList<>();
         attributeNames.add("ATTRIBUTE1");
         exchange.getIn().setHeader(SdbConstants.ATTRIBUTE_NAMES, attributeNames);
         exchange.getIn().setHeader(SdbConstants.ITEM_NAME, "ITEM1");
@@ -73,7 +73,7 @@ public class GetAttributesCommandTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void executeWithoutItemName() {
-        List<String> attributeNames = new ArrayList<String>();
+        List<String> attributeNames = new ArrayList<>();
         attributeNames.add("ATTRIBUTE1");
         exchange.getIn().setHeader(SdbConstants.ATTRIBUTE_NAMES, attributeNames);
         
@@ -84,7 +84,7 @@ public class GetAttributesCommandTest {
     public void determineAttributeNames() {
         assertNull(this.command.determineAttributeNames());
         
-        List<String> attributeNames = new ArrayList<String>();
+        List<String> attributeNames = new ArrayList<>();
         attributeNames.add("ATTRIBUTE1");
         exchange.getIn().setHeader(SdbConstants.ATTRIBUTE_NAMES, attributeNames);
         

@@ -30,7 +30,7 @@ import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.camel.impl.DefaultProducer;
+import org.apache.camel.support.DefaultProducer;
 import org.apache.camel.util.CastUtils;
 import org.apache.camel.util.URISupport;
 
@@ -83,7 +83,7 @@ public class CwProducer extends DefaultProducer {
         } else {
             Map<String, String> dimensions = exchange.getIn().getHeader(CwConstants.METRIC_DIMENSIONS, Map.class);
             if (dimensions != null) {
-                Collection<Dimension> dimensionCollection = new ArrayList<Dimension>();
+                Collection<Dimension> dimensionCollection = new ArrayList<>();
                 for (Map.Entry<String, String> dimensionEntry : dimensions.entrySet()) {
                     Dimension dimension = new Dimension().withName(dimensionEntry.getKey()).withValue(dimensionEntry.getValue());
                     dimensionCollection.add(dimension);

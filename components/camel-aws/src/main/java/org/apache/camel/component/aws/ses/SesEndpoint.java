@@ -21,19 +21,17 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
+import org.apache.camel.support.DefaultEndpoint;
 import org.apache.camel.util.ObjectHelper;
 
 /**
@@ -47,11 +45,6 @@ public class SesEndpoint extends DefaultEndpoint {
     @UriParam
     private SesConfiguration configuration;
 
-    @Deprecated
-    public SesEndpoint(String uri, CamelContext context, SesConfiguration configuration) {
-        super(uri, context);
-        this.configuration = configuration;
-    }
     public SesEndpoint(String uri, Component component, SesConfiguration configuration) {
         super(uri, component);
         this.configuration = configuration;
@@ -63,10 +56,16 @@ public class SesEndpoint extends DefaultEndpoint {
         sesClient = configuration.getAmazonSESClient() != null
             ? configuration.getAmazonSESClient()
             : createSESClient();
-            
-        if (ObjectHelper.isNotEmpty(configuration.getAmazonSESEndpoint())) {
-            sesClient.setEndpoint(configuration.getAmazonSESEndpoint());
+    }
+    
+    @Override
+    public void doStop() throws Exception {
+        if (ObjectHelper.isEmpty(configuration.getAmazonSESClient())) {
+            if (sesClient != null) {
+                sesClient.shutdown();
+            }
         }
+        super.doStop();
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
@@ -115,9 +114,8 @@ public class SesEndpoint extends DefaultEndpoint {
                 clientBuilder = AmazonSimpleEmailServiceClientBuilder.standard().withClientConfiguration(clientConfiguration);
             }
         }
-        if (ObjectHelper.isNotEmpty(configuration.getAmazonSESEndpoint()) && ObjectHelper.isNotEmpty(configuration.getRegion())) {
-            EndpointConfiguration endpointConfiguration = new EndpointConfiguration(configuration.getAmazonSESEndpoint(), configuration.getRegion());
-            clientBuilder = clientBuilder.withEndpointConfiguration(endpointConfiguration);
+        if (ObjectHelper.isNotEmpty(configuration.getRegion())) {
+            clientBuilder = clientBuilder.withRegion(Regions.valueOf(configuration.getRegion()));
         }
         client = clientBuilder.build();
         return client;

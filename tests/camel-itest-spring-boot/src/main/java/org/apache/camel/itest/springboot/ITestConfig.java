@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class ITestConfig implements Serializable {
 
-    private static final int DEFAULT_SPRING_BOOT_MAJOR_VERSION = 1;
+    private static final int DEFAULT_SPRING_BOOT_MAJOR_VERSION = 2;
 
     private static final long serialVersionUID = -3641997669166217595L;
 
@@ -272,30 +272,30 @@ public class ITestConfig implements Serializable {
 
     @Override
     public String toString() {
-        return "ITestConfig{" +
-                "moduleName='" + moduleName + '\'' +
-                ", mavenGroup='" + mavenGroup + '\'' +
-                ", mavenVersion='" + mavenVersion + '\'' +
-                ", mavenOfflineResolution=" + mavenOfflineResolution +
-                ", modulesPath='" + modulesPath + '\'' +
-                ", moduleBasePath='" + moduleBasePath + '\'' +
-                ", includeTestDependencies=" + includeTestDependencies +
-                ", includeProvidedDependencies=" + includeProvidedDependencies +
-                ", unitTestEnabled=" + unitTestEnabled +
-                ", unitTestInclusionPattern='" + unitTestInclusionPattern + '\'' +
-                ", unitTestExclusionPattern='" + unitTestExclusionPattern + '\'' +
-                ", unitTestBasePackage='" + unitTestBasePackage + '\'' +
-                ", unitTestsExpectedNumber=" + unitTestsExpectedNumber +
-                ", resources=" + resources +
-                ", additionalDependencies=" + additionalDependencies +
-                ", mavenExclusions=" + mavenExclusions +
-                ", autoStartComponent=" + autoStartComponent +
-                ", jmxDisabledNames=" + jmxDisabledNames +
-                ", systemProperties=" + systemProperties +
-                ", useCustomLog=" + useCustomLog +
-                ", ignoreLibraryMismatch=" + ignoreLibraryMismatch +
-                ", testLibraryVersions=" + testLibraryVersions +
-                ", springBootVersion=" + springBootVersion +
-                '}';
+        return "ITestConfig{"
+                + "moduleName='" + moduleName + '\''
+                + ", mavenGroup='" + mavenGroup + '\''
+                + ", mavenVersion='" + mavenVersion + '\''
+                + ", mavenOfflineResolution=" + mavenOfflineResolution
+                + ", modulesPath='" + modulesPath + '\''
+                + ", moduleBasePath='" + moduleBasePath + '\''
+                + ", includeTestDependencies=" + includeTestDependencies
+                + ", includeProvidedDependencies=" + includeProvidedDependencies
+                + ", unitTestEnabled=" + unitTestEnabled
+                + ", unitTestInclusionPattern='" + unitTestInclusionPattern + '\''
+                + ", unitTestExclusionPattern='" + unitTestExclusionPattern + '\''
+                + ", unitTestBasePackage='" + unitTestBasePackage + '\''
+                + ", unitTestsExpectedNumber=" + unitTestsExpectedNumber
+                + ", resources=" + resources
+                + ", additionalDependencies=" + additionalDependencies
+                + ", mavenExclusions=" + mavenExclusions
+                + ", autoStartComponent=" + autoStartComponent
+                + ", jmxDisabledNames=" + jmxDisabledNames
+                + ", systemProperties=" + systemProperties
+                + ", useCustomLog=" + useCustomLog
+                + ", ignoreLibraryMismatch=" + ignoreLibraryMismatch
+                + ", testLibraryVersions=" + testLibraryVersions
+                + ", springBootVersion=" + springBootVersion
+                + '}';
     }
 }

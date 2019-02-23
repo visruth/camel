@@ -25,14 +25,11 @@ import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-/**
- * @version 
- */
 public class SpringJohnzonJsonDataFormatTest extends CamelSpringTestSupport {
 
     @Test
     public void testMarshalAndUnmarshalMap() throws Exception {
-        Map<String, Object> in = new HashMap<String, Object>();
+        Map<String, Object> in = new HashMap<>();
         in.put("name", "Camel");
 
         MockEndpoint mock = getMockEndpoint("mock:reverse");

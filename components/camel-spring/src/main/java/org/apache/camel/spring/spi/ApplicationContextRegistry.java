@@ -30,8 +30,6 @@ import org.springframework.context.ApplicationContext;
 /**
  * A {@link Registry} implementation which looks up the objects in the Spring
  * {@link ApplicationContext}
- * 
- * @version 
  */
 public class ApplicationContextRegistry implements Registry {
     private ApplicationContext applicationContext;
@@ -77,27 +75,12 @@ public class ApplicationContextRegistry implements Registry {
     @Override
     public <T> Set<T> findByType(Class<T> type) {
         Map<String, T> map = findByTypeWithName(type);
-        return new HashSet<T>(map.values());
+        return new HashSet<>(map.values());
     }
 
     @Override
     public <T> Map<String, T> findByTypeWithName(Class<T> type) {
         return BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, type);
-    }
-
-    @Override
-    public Object lookup(String name) {
-        return lookupByName(name);
-    }
-
-    @Override
-    public <T> T lookup(String name, Class<T> type) {
-        return lookupByNameAndType(name, type);
-    }
-
-    @Override
-    public <T> Map<String, T> lookupByType(Class<T> type) {
-        return findByTypeWithName(type);
     }
 
 }

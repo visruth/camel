@@ -21,27 +21,22 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.apache.camel.Endpoint;
-import org.apache.camel.impl.UriEndpointComponent;
 import org.apache.camel.spi.Metadata;
+import org.apache.camel.spi.annotations.Component;
+import org.apache.camel.support.DefaultComponent;
+import org.apache.camel.support.ResourceHelper;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.ResourceHelper;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-/**
- * @version 
- */
-public class MyBatisComponent extends UriEndpointComponent {
+@Component("mybatis")
+public class MyBatisComponent extends DefaultComponent {
 
     @Metadata(label = "advanced")
     private SqlSessionFactory sqlSessionFactory;
     @Metadata(defaultValue = "SqlMapConfig.xml")
     private String configurationUri = "SqlMapConfig.xml";
-
-    public MyBatisComponent() {
-        super(MyBatisEndpoint.class);
-    }
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {

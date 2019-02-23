@@ -27,14 +27,14 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
-import org.apache.camel.impl.DefaultHeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategyAware;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
+import org.apache.camel.support.DefaultEndpoint;
+import org.apache.camel.support.DefaultHeaderFilterStrategy;
 import org.fusesource.hawtbuf.AsciiBuffer;
 import org.fusesource.hawtdispatch.Task;
 import org.fusesource.stomp.client.Callback;
@@ -54,10 +54,10 @@ import static org.fusesource.stomp.client.Constants.UNSUBSCRIBE;
 /**
  * The stomp component is used for communicating with Stomp compliant message brokers.
  */
-@UriEndpoint(firstVersion = "2.12.0", scheme = "stomp", title = "Stomp", syntax = "stomp:destination", consumerClass = StompConsumer.class, label = "messaging")
+@UriEndpoint(firstVersion = "2.12.0", scheme = "stomp", title = "Stomp", syntax = "stomp:destination", label = "messaging")
 public class StompEndpoint extends DefaultEndpoint implements AsyncEndpoint, HeaderFilterStrategyAware {
 
-    @UriPath(description = "Name of the queue") @Metadata(required = "true")
+    @UriPath(description = "Name of the queue") @Metadata(required = true)
     private String destination;
     @UriParam
     private StompConfiguration configuration;
@@ -66,7 +66,7 @@ public class StompEndpoint extends DefaultEndpoint implements AsyncEndpoint, Hea
     @UriParam(label = "advanced", description = "To use a custom HeaderFilterStrategy to filter header to and from Camel message.")
     private HeaderFilterStrategy headerFilterStrategy;
 
-    private final List<StompConsumer> consumers = new CopyOnWriteArrayList<StompConsumer>();
+    private final List<StompConsumer> consumers = new CopyOnWriteArrayList<>();
 
     public StompEndpoint(String uri, StompComponent component, StompConfiguration configuration, String destination) {
         super(uri, component);
@@ -109,7 +109,7 @@ public class StompEndpoint extends DefaultEndpoint implements AsyncEndpoint, Hea
                 connection.receive(new Callback<StompFrame>() {
                     @Override
                     public void onFailure(Throwable value) {
-                        if (started.get()) {
+                        if (isStarted()) {
                             connection.close(null);
                         }
                     }

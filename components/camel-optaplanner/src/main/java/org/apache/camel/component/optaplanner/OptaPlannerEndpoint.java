@@ -23,9 +23,9 @@ import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
+import org.apache.camel.support.DefaultEndpoint;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 
@@ -34,7 +34,7 @@ import org.optaplanner.core.api.solver.SolverFactory;
  */
 @UriEndpoint(firstVersion = "2.13.0", scheme = "optaplanner", title = "OptaPlanner", syntax = "optaplanner:configFile", label = "engine,planning")
 public class OptaPlannerEndpoint extends DefaultEndpoint {
-    private static final Map<String, Solver<Object>> SOLVERS = new HashMap<String, Solver<Object>>();
+    private static final Map<String, Solver<Object>> SOLVERS = new HashMap<>();
 
     @UriParam
     private OptaPlannerConfiguration configuration;

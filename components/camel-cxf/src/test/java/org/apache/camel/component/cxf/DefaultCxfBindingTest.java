@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.xml.parsers.DocumentBuilder;
@@ -39,10 +38,10 @@ import org.apache.camel.ExchangePattern;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.camel.converter.IOConverter;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
-import org.apache.camel.impl.DefaultHeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategy;
-import org.apache.camel.util.IOHelper;
+import org.apache.camel.support.DefaultExchange;
+import org.apache.camel.support.DefaultHeaderFilterStrategy;
+import org.apache.camel.support.ExchangeHelper;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.soap.SoapBindingConstants;
@@ -58,9 +57,6 @@ import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * 
- */
 public class DefaultCxfBindingTest extends Assert {
     
     private static final String SOAP_MESSAGE_1 = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\""
@@ -98,7 +94,7 @@ public class DefaultCxfBindingTest extends Assert {
     @Test
     public void testPayloadBodyNamespace() throws Exception {
         MessageImpl message = new MessageImpl();
-        Map<String, String> nsMap = new HashMap<String, String>();
+        Map<String, String> nsMap = new HashMap<>();
         Document document = getDocument(SOAP_MESSAGE_1);
         message.setContent(Node.class, document);
         DefaultCxfBinding.getPayloadBodyElements(message, nsMap);
@@ -115,7 +111,7 @@ public class DefaultCxfBindingTest extends Assert {
     @Test
     public void testOverridePayloadBodyNamespace() throws Exception {
         MessageImpl message = new MessageImpl();
-        Map<String, String> nsMap = new HashMap<String, String>();
+        Map<String, String> nsMap = new HashMap<>();
         Document document = getDocument(SOAP_MESSAGE_2);
         message.setContent(Node.class, document);
         DefaultCxfBinding.getPayloadBodyElements(message, nsMap);
@@ -139,12 +135,12 @@ public class DefaultCxfBindingTest extends Assert {
         exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/xml;charset=ISO-8859-1");
         cxfBinding.setCharsetWithContentType(exchange);
         
-        String charset = IOHelper.getCharsetName(exchange);
+        String charset = ExchangeHelper.getCharsetName(exchange);
         assertEquals("Get a wrong charset", "ISO-8859-1", charset);
         
         exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/xml");
         cxfBinding.setCharsetWithContentType(exchange);
-        charset = IOHelper.getCharsetName(exchange);
+        charset = ExchangeHelper.getCharsetName(exchange);
         assertEquals("Get a worng charset name", "UTF-8", charset);
     }
     
@@ -155,7 +151,7 @@ public class DefaultCxfBindingTest extends Assert {
         Exchange exchange = new DefaultExchange(context);
         org.apache.cxf.message.Exchange cxfExchange = new org.apache.cxf.message.ExchangeImpl();
         exchange.setProperty(CxfConstants.DATA_FORMAT_PROPERTY, DataFormat.PAYLOAD);
-        Map<String, Object> requestContext = new HashMap<String, Object>();
+        Map<String, Object> requestContext = new HashMap<>();
         
         exchange.getIn().setHeader("soapAction", "urn:hello:world");
         exchange.getIn().setHeader("MyFruitHeader", "peach");
@@ -205,22 +201,40 @@ public class DefaultCxfBindingTest extends Assert {
     }
     
     @Test
+    public void testPopulateCxfSoapHeaderRequestFromExchangeWithExplicitOperationName() {
+        DefaultCxfBinding cxfBinding = new DefaultCxfBinding();
+        cxfBinding.setHeaderFilterStrategy(new DefaultHeaderFilterStrategy());
+        Exchange exchange = new DefaultExchange(context);
+        org.apache.cxf.message.Exchange cxfExchange = new org.apache.cxf.message.ExchangeImpl();
+        Map<String, Object> requestContext = new HashMap<>();
+
+        String expectedSoapActionHeader = "urn:hello:world";
+        exchange.getIn().setHeader(CxfConstants.OPERATION_NAMESPACE, "http://test123");
+        exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "testOperation");
+
+        cxfBinding.populateCxfRequestFromExchange(cxfExchange, exchange, requestContext);
+
+        String actualSoapActionHeader = (String)requestContext.get(SoapBindingConstants.SOAP_ACTION);
+        assertNull(actualSoapActionHeader);
+    }
+    
+    @Test
     public void testPopupalteExchangeFromCxfResponse() {
         DefaultCxfBinding cxfBinding = new DefaultCxfBinding();
         cxfBinding.setHeaderFilterStrategy(new DefaultHeaderFilterStrategy());
         Exchange exchange = new DefaultExchange(context);
         org.apache.cxf.message.Exchange cxfExchange = new org.apache.cxf.message.ExchangeImpl();
         exchange.setProperty(CxfConstants.DATA_FORMAT_PROPERTY, DataFormat.PAYLOAD);
-        Map<String, Object> responseContext = new HashMap<String, Object>();
+        Map<String, Object> responseContext = new HashMap<>();
         responseContext.put(org.apache.cxf.message.Message.RESPONSE_CODE, Integer.valueOf(200));
-        Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         headers.put("content-type", Arrays.asList("text/xml;charset=UTF-8"));
         headers.put("Content-Length", Arrays.asList("241"));
         responseContext.put(org.apache.cxf.message.Message.PROTOCOL_HEADERS, headers);
         org.apache.cxf.message.Message cxfMessage = new org.apache.cxf.message.MessageImpl();
         cxfExchange.setInMessage(cxfMessage);
         
-        Set<Attachment> attachments = new HashSet<Attachment>();
+        Set<Attachment> attachments = new HashSet<>();
         AttachmentImpl attachment = new AttachmentImpl("att-1", new DataHandler(new FileDataSource("pom.xml")));
         attachment.setHeader("additional-header", "value 1");
         attachments.add(attachment);
@@ -245,9 +259,9 @@ public class DefaultCxfBindingTest extends Assert {
         Exchange exchange = new DefaultExchange(context);
         org.apache.cxf.message.Exchange cxfExchange = new org.apache.cxf.message.ExchangeImpl();
         exchange.setProperty(CxfConstants.DATA_FORMAT_PROPERTY, DataFormat.PAYLOAD);
-        Map<String, Object> responseContext = new HashMap<String, Object>();
+        Map<String, Object> responseContext = new HashMap<>();
         responseContext.put(org.apache.cxf.message.Message.RESPONSE_CODE, Integer.valueOf(200));
-        Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         responseContext.put(org.apache.cxf.message.Message.PROTOCOL_HEADERS, headers);
         org.apache.cxf.message.Message cxfMessage = new org.apache.cxf.message.MessageImpl();
         cxfExchange.setInMessage(cxfMessage);
@@ -314,7 +328,7 @@ public class DefaultCxfBindingTest extends Assert {
         org.apache.cxf.message.Exchange cxfExchange = new org.apache.cxf.message.ExchangeImpl();
         exchange.setProperty(CxfConstants.DATA_FORMAT_PROPERTY, DataFormat.PAYLOAD);
         org.apache.cxf.message.Message cxfMessage = new org.apache.cxf.message.MessageImpl();
-        Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         headers.put("content-type", Arrays.asList("text/xml;charset=UTF-8"));
         headers.put("Content-Length", Arrays.asList("241"));
         headers.put("soapAction", Arrays.asList("urn:hello:world"));
@@ -322,7 +336,7 @@ public class DefaultCxfBindingTest extends Assert {
         headers.put("mybrewheader", Arrays.asList("cappuccino", "espresso"));
         cxfMessage.put(org.apache.cxf.message.Message.PROTOCOL_HEADERS, headers);
 
-        Set<Attachment> attachments = new HashSet<Attachment>();
+        Set<Attachment> attachments = new HashSet<>();
         AttachmentImpl attachment = new AttachmentImpl("att-1", new DataHandler(new FileDataSource("pom.xml")));
         attachment.setHeader("attachment-header", "value 1");
         attachments.add(attachment);
@@ -356,7 +370,7 @@ public class DefaultCxfBindingTest extends Assert {
         org.apache.cxf.message.Exchange cxfExchange = new org.apache.cxf.message.ExchangeImpl();
         exchange.setProperty(CxfConstants.DATA_FORMAT_PROPERTY, DataFormat.PAYLOAD);
         org.apache.cxf.message.Message cxfMessage = new org.apache.cxf.message.MessageImpl();
-        Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         headers.put("myfruitheader", Arrays.asList("peach"));
         headers.put("mybrewheader", Arrays.asList("cappuccino", "espresso"));
         cxfMessage.put(org.apache.cxf.message.Message.PROTOCOL_HEADERS, headers);

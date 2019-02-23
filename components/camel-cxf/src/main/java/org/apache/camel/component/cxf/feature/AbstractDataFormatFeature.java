@@ -38,49 +38,15 @@ public abstract class AbstractDataFormatFeature extends AbstractFeature {
     protected static final Collection<Class<?>> REMOVING_FAULT_IN_INTERCEPTORS;
     
     static {
-        REMOVING_FAULT_IN_INTERCEPTORS = new ArrayList<Class<?>>();
+        REMOVING_FAULT_IN_INTERCEPTORS = new ArrayList<>();
         REMOVING_FAULT_IN_INTERCEPTORS.add(ClientFaultConverter.class);
     }
 
     // The interceptors which need to be keeped
-    protected Set<String> inInterceptorNames = new HashSet<String>();
-    protected Set<String> outInterceptorNames = new HashSet<String>();
+    protected Set<String> inInterceptorNames = new HashSet<>();
+    protected Set<String> outInterceptorNames = new HashSet<>();
     protected abstract Logger getLogger();
-    
 
-    @Deprecated
-    // It will be removed in Camel 3.0
-    protected void removeInterceptorWhichIsInThePhases(List<Interceptor<? extends Message>> interceptors, String[] phaseNames) {
-        removeInterceptorWhichIsInThePhases(interceptors, phaseNames, null);
-    }
-    
-    protected void removeInterceptorWhichIsInThePhases(List<Interceptor<? extends Message>> interceptors, String[] phaseNames, Set<String> needToBeKept) {
-        for (Interceptor<? extends Message> i : interceptors) {
-            if (i instanceof PhaseInterceptor) {
-                PhaseInterceptor<? extends Message> p = (PhaseInterceptor<? extends Message>) i;
-                for (String phaseName : phaseNames) {
-                    if (p.getPhase().equals(phaseName)) {
-                        // To support the old API
-                        if (needToBeKept == null) {
-                            getLogger().info("removing the interceptor " + p);
-                            interceptors.remove(p);
-                            break;
-                        } else if (!needToBeKept.contains(p.getClass().getName())) {
-                            getLogger().info("removing the interceptor " + p);
-                            interceptors.remove(p);
-                            break; 
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    @Deprecated
-    // It will be removed in Camel 3.0
-    protected void removeInterceptorWhichIsOutThePhases(List<Interceptor<? extends Message>> interceptors, String[] phaseNames) {
-        removeInterceptorWhichIsOutThePhases(interceptors, phaseNames, null);
-    }
 
     protected void removeInterceptorWhichIsOutThePhases(List<Interceptor<? extends Message>> interceptors, String[] phaseNames, Set<String> needToBeKept) {
         for (Interceptor<? extends Message> i : interceptors) {

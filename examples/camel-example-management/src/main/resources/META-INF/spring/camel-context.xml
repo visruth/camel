@@ -45,7 +45,7 @@
       <from uri="file://target/inbox"/>
       <split>
         <xpath>/stocks/stock</xpath>
-        <!-- throttle 10 msg/sec being send the the ActiveMQ queue -->
+        <!-- throttle 10 msg/sec being send the ActiveMQ queue -->
         <throttle>
           <constant>10</constant>
           <!-- store the stock symbol as a header -->
@@ -72,7 +72,7 @@
   </camelContext>
 
   <!-- create a Camel ActiveMQ component to use -->
-  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent" depends-on="broker">
+  <bean id="activemq" class="org.apache.camel.component.activemq.ActiveMQComponent" depends-on="broker">
     <property name="brokerURL" value="vm://myBroker?create=false&amp;waitForStart=5000"/>
   </bean>
 

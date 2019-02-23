@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Camel :: Spring Boot</name>
@@ -32,7 +32,6 @@
   <description>Using Camel with Spring Boot</description>
 
   <properties>
-    <!-- use by camel-catalog -->
     <firstVersion>2.15.0</firstVersion>
     <label>spring,microservice</label>
 
@@ -54,7 +53,13 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-actuator</artifactId>
+      <artifactId>spring-boot-autoconfigure-processor</artifactId>
+      <optional>true</optional>
+      <version>${spring-boot-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
       <optional>true</optional>
       <version>${spring-boot-version}</version>
     </dependency>
@@ -118,14 +123,44 @@
       <artifactId>camel-jackson</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-http4</artifactId>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-package-maven-plugin</artifactId>
+        <version>${project.version}</version>
+        <configuration>
+          <!-- set to true to make build fail fast if missing documentation in docs files -->
+          <failFast>true</failFast>
+          <!-- set to true to make build fail if an option has no description -->
+          <failOnMissingDescription>true</failOnMissingDescription>
+        </configuration>
+        <executions>
+          <execution>
+            <id>readme</id>
+            <goals>
+              <goal>update-spring-boot-auto-configuration-readme</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <profiles>
     <profile>
-      <id>jdk9-build</id>
+      <id>jdk9+-build</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <build>
         <plugins>
@@ -133,7 +168,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <forkedProcessTimeoutInSeconds>3000</forkedProcessTimeoutInSeconds>
-              <argLine>--add-modules java.xml.bind --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+              <argLine>--add-modules java.xml.bind</argLine>
             </configuration>
           </plugin>
         </plugins>

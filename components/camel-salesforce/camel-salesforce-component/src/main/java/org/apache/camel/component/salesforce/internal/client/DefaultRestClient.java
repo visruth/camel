@@ -36,10 +36,10 @@ import org.apache.camel.component.salesforce.api.SalesforceMultipleChoicesExcept
 import org.apache.camel.component.salesforce.api.TypeReferences;
 import org.apache.camel.component.salesforce.api.dto.RestError;
 import org.apache.camel.component.salesforce.api.utils.JsonUtils;
+import org.apache.camel.component.salesforce.api.utils.XStreamUtils;
 import org.apache.camel.component.salesforce.internal.PayloadFormat;
 import org.apache.camel.component.salesforce.internal.SalesforceSession;
 import org.apache.camel.component.salesforce.internal.dto.RestChoices;
-import org.apache.camel.component.salesforce.internal.dto.RestErrors;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.URISupport;
 import org.eclipse.jetty.client.api.Request;
@@ -69,12 +69,7 @@ public class DefaultRestClient extends AbstractClientBase implements RestClient 
 
         // initialize error parsers for JSON and XML
         this.objectMapper = JsonUtils.createObjectMapper();
-        this.xStream = new XStream();
-        xStream.processAnnotations(RestErrors.class);
-        xStream.processAnnotations(RestChoices.class);
-
-        xStream.ignoreUnknownElements();
-        XStreamUtils.addDefaultPermissions(xStream);
+        this.xStream = XStreamUtils.createXStream();
     }
 
     @Override
@@ -443,6 +438,10 @@ public class DefaultRestClient extends AbstractClientBase implements RestClient 
 
     @Override
     public void limits(Map<String, List<String>> headers, final ResponseCallback responseCallback) {
+        if (format != PayloadFormat.JSON) {
+            throw new IllegalArgumentException("Using XML format for the Limits API, to use it set the `format` endpoint property to JSON");
+        }
+
         final Request get = getRequest(HttpMethod.GET, versionUrl() + "limits/", headers);
 
         // requires authorization token

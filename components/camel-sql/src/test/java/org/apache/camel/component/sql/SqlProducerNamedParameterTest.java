@@ -30,9 +30,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-/**
- * @version 
- */
 public class SqlProducerNamedParameterTest extends CamelTestSupport {
 
     private EmbeddedDatabase db;
@@ -57,7 +54,7 @@ public class SqlProducerNamedParameterTest extends CamelTestSupport {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedMessageCount(1);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("lic", "ASF");
 
         template.sendBody("direct:start", map);

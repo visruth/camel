@@ -21,19 +21,17 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
+import org.apache.camel.support.DefaultEndpoint;
 import org.apache.camel.util.ObjectHelper;
 
 /**
@@ -45,12 +43,6 @@ public class CwEndpoint extends DefaultEndpoint {
     @UriParam
     private CwConfiguration configuration;
     private AmazonCloudWatch cloudWatchClient;
-
-    @Deprecated
-    public CwEndpoint(String uri, CamelContext context, CwConfiguration configuration) {
-        super(uri, context);
-        this.configuration = configuration;
-    }
 
     public CwEndpoint(String uri, Component component, CwConfiguration configuration) {
         super(uri, component);
@@ -74,6 +66,16 @@ public class CwEndpoint extends DefaultEndpoint {
         super.doStart();
 
         cloudWatchClient = configuration.getAmazonCwClient() != null ? configuration.getAmazonCwClient() : createCloudWatchClient();
+    }
+    
+    @Override
+    public void doStop() throws Exception {
+        if (ObjectHelper.isEmpty(configuration.getAmazonCwClient())) {
+            if (cloudWatchClient != null) {
+                cloudWatchClient.shutdown();
+            }
+        }
+        super.doStop();
     }
 
     public CwConfiguration getConfiguration() {
@@ -118,9 +120,8 @@ public class CwEndpoint extends DefaultEndpoint {
                 clientBuilder = AmazonCloudWatchClientBuilder.standard().withClientConfiguration(clientConfiguration);
             }
         }
-        if (ObjectHelper.isNotEmpty(configuration.getAmazonCwEndpoint()) && ObjectHelper.isNotEmpty(configuration.getRegion())) {
-            EndpointConfiguration endpointConfiguration = new EndpointConfiguration(configuration.getAmazonCwEndpoint(), configuration.getRegion());
-            clientBuilder = clientBuilder.withEndpointConfiguration(endpointConfiguration);
+        if (ObjectHelper.isNotEmpty(configuration.getRegion())) {
+            clientBuilder = clientBuilder.withRegion(Regions.valueOf(configuration.getRegion()));
         }
         client = clientBuilder.build();
         return client;

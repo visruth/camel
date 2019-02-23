@@ -16,13 +16,11 @@
  */
 package org.apache.camel.example;
 
+import org.apache.camel.AggregationStrategy;
 import org.apache.camel.Exchange;
-import org.apache.camel.processor.aggregate.AggregationStrategy;
 
 /**
  * Aggregate two numbers
- *
- * @version 
  */
 // START SNIPPET: e1
 public class NumberAggregationStrategy implements AggregationStrategy {

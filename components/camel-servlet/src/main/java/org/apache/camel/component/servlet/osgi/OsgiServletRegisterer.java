@@ -20,7 +20,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import javax.servlet.http.HttpServlet;
 
-import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 
@@ -87,13 +87,13 @@ public class OsgiServletRegisterer {
     }
 
     public void register() throws Exception {
-        ObjectHelper.notEmpty(alias, "alias", this);
-        ObjectHelper.notEmpty(servletName, "servletName", this);
+        StringHelper.notEmpty(alias, "alias", this);
+        StringHelper.notEmpty(servletName, "servletName", this);
 
         HttpContext actualHttpContext = (httpContext == null)
             ? httpService.createDefaultHttpContext()
             : httpContext;
-        final Dictionary<String, String> initParams = new Hashtable<String, String>();
+        final Dictionary<String, String> initParams = new Hashtable<>();
         initParams.put("matchOnUriPrefix", matchOnUriPrefix ? "true" : "false");
         initParams.put("servlet-name", servletName);
         httpService.registerServlet(alias, servlet, initParams, actualHttpContext);

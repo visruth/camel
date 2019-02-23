@@ -19,13 +19,11 @@ package org.apache.camel.component.mina2.springboot;
 import java.util.List;
 import javax.annotation.Generated;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.component.mina2.Mina2Component;
 import org.apache.camel.component.mina2.Mina2TextLineDelimiter;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
-import org.apache.camel.util.jsse.SSLContextParameters;
+import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * Socket level networking using TCP or UDP with the Apache Mina 2.x library.
@@ -38,6 +36,11 @@ public class Mina2ComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the mina2 component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
     /**
      * To use the shared mina configuration.
      */
@@ -193,7 +196,6 @@ public class Mina2ComponentConfiguration
         /**
          * To configure SSL security.
          */
-        @NestedConfigurationProperty
         private SSLContextParameters sslContextParameters;
         /**
          * Whether to auto start SSL handshake.

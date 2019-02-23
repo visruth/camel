@@ -26,7 +26,6 @@ import io.fabric8.kubernetes.api.model.PersistentVolumeClaimSpec;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListMultiDeletable;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 
@@ -34,8 +33,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.component.kubernetes.AbstractKubernetesEndpoint;
 import org.apache.camel.component.kubernetes.KubernetesConstants;
 import org.apache.camel.component.kubernetes.KubernetesOperations;
-import org.apache.camel.impl.DefaultProducer;
-import org.apache.camel.util.MessageHelper;
+import org.apache.camel.support.DefaultProducer;
+import org.apache.camel.support.MessageHelper;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +97,8 @@ public class KubernetesPersistentVolumesClaimsProducer extends DefaultProducer {
     protected void doList(Exchange exchange, String operation) throws Exception {
         PersistentVolumeClaimList persistentVolumeClaimList = getEndpoint()
                 .getKubernetesClient().persistentVolumeClaims().list();
+        MessageHelper.copyHeaders(exchange.getIn(), exchange.getOut(), true);
+        
         exchange.getOut().setBody(persistentVolumeClaimList.getItems());
     }
 

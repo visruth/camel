@@ -28,7 +28,7 @@ import com.amazonaws.services.dynamodbv2.model.ConsumedCapacity;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -52,7 +52,7 @@ public class QueryCommandTest {
     @Test
     public void execute() {
 
-        Map<String, AttributeValue> startKey = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> startKey = new HashMap<>();
         startKey.put("1", new AttributeValue("startKey"));
 
         List<String> attributeNames = Arrays.asList("attrNameOne", "attrNameTwo");
@@ -62,7 +62,7 @@ public class QueryCommandTest {
         exchange.getIn().setHeader(DdbConstants.LIMIT, 10);
         exchange.getIn().setHeader(DdbConstants.SCAN_INDEX_FORWARD, true);
         
-        Map<String, Condition> keyConditions = new HashMap<String, Condition>();
+        Map<String, Condition> keyConditions = new HashMap<>();
         Condition condition = new Condition()
             .withComparisonOperator(ComparisonOperator.GT.toString())
             .withAttributeValueList(new AttributeValue().withN("1985"));
@@ -73,7 +73,7 @@ public class QueryCommandTest {
 
         command.execute();
 
-        Map<String, AttributeValue> mapAssert = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> mapAssert = new HashMap<>();
         mapAssert.put("1", new AttributeValue("LAST_KEY"));
         ConsumedCapacity consumed = (ConsumedCapacity) exchange.getIn().getHeader(DdbConstants.CONSUMED_CAPACITY);
         assertEquals(Integer.valueOf(1), exchange.getIn().getHeader(DdbConstants.COUNT, Integer.class));

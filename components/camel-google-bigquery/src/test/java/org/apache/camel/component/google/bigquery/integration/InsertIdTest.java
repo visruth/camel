@@ -28,7 +28,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.google.bigquery.GoogleBigQueryConstants;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -99,7 +99,6 @@ public class InsertIdTest extends BigQueryTestSupport {
         Exchange exchange2 = new DefaultExchange(context);
         String uuid2Col2 = UUID.randomUUID().toString();
 
-        Map<String, String> object2 = new HashMap<>();
         object.put("col1", uuidCol1);
         object.put("col2", uuid2Col2);
         exchange2.getIn().setBody(object);
@@ -130,7 +129,6 @@ public class InsertIdTest extends BigQueryTestSupport {
         Exchange exchange2 = new DefaultExchange(context);
         String uuid2Col2 = UUID.randomUUID().toString();
 
-        Map<String, String> object2 = new HashMap<>();
         object.put("col1", uuidCol1);
         object.put("col2", uuid2Col2);
         exchange2.getIn().setBody(object);

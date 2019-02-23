@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.impl.DefaultHeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategy;
+import org.apache.camel.support.DefaultHeaderFilterStrategy;
 import org.apache.camel.util.ObjectHelper;
 import org.jivesoftware.smack.packet.DefaultExtensionElement;
 import org.jivesoftware.smack.packet.ExtensionElement;
@@ -132,7 +132,7 @@ public class XmppBinding {
     }
 
     public Map<String, Object> extractHeadersFromXmpp(Stanza stanza, Exchange exchange) {
-        Map<String, Object> answer = new HashMap<String, Object>();
+        Map<String, Object> answer = new HashMap<>();
 
         ExtensionElement jpe = stanza.getExtension(JivePropertiesExtension.NAMESPACE);
         if (jpe instanceof JivePropertiesExtension) {

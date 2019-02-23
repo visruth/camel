@@ -40,10 +40,9 @@ import org.apache.camel.component.rabbitmq.testbeans.TestNonSerializableObject;
 import org.apache.camel.component.rabbitmq.testbeans.TestPartiallySerializableObject;
 import org.apache.camel.component.rabbitmq.testbeans.TestSerializableObject;
 import org.apache.camel.impl.JndiRegistry;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
-public class RabbitMQInOutIntTest extends CamelTestSupport {
+public class RabbitMQInOutIntTest extends AbstractRabbitMQIntTest {
 
     public static final String ROUTING_KEY = "rk5";
     public static final long TIMEOUT_MS = 2000;
@@ -64,7 +63,7 @@ public class RabbitMQInOutIntTest extends CamelTestSupport {
     @EndpointInject(uri = "rabbitmq:localhost:5672/" + EXCHANGE_NO_ACK + "?threadPoolSize=1&exchangeType=direct&username=cameltest&password=cameltest"
             + "&autoAck=false&autoDelete=false&durable=false&queue=q5&routingKey=" + ROUTING_KEY
             + "&transferException=true&requestTimeout=" + TIMEOUT_MS
-            + "&queueArgs=#queueArgs")
+            + "&args=#args")
     private Endpoint noAutoAckEndpoint;
 
     @EndpointInject(uri = "mock:result")
@@ -74,9 +73,9 @@ public class RabbitMQInOutIntTest extends CamelTestSupport {
     protected JndiRegistry createRegistry() throws Exception {
         JndiRegistry jndi = super.createRegistry();
 
-        HashMap<String, Object> queueArgs = new HashMap<>();
-        queueArgs.put("x-expires", 60000);
-        jndi.bind("queueArgs", queueArgs);
+        HashMap<String, Object> args = new HashMap<>();
+        args.put("queue.x-expires", 60000);
+        jndi.bind("args", args);
 
         return jndi;
     }
@@ -142,7 +141,7 @@ public class RabbitMQInOutIntTest extends CamelTestSupport {
 
     @Test
     public void headerTest() throws InterruptedException, IOException {
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
 
         TestSerializableObject testObject = new TestSerializableObject();
         testObject.setName("header");
@@ -158,8 +157,8 @@ public class RabbitMQInOutIntTest extends CamelTestSupport {
         headers.put("CamelSerialize", true);
 
         // populate a map and an arrayList
-        Map<Object, Object> tmpMap = new HashMap<Object, Object>();
-        List<String> tmpList = new ArrayList<String>();
+        Map<Object, Object> tmpMap = new HashMap<>();
+        List<String> tmpList = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             String name = "header" + i;
             tmpList.add(name);

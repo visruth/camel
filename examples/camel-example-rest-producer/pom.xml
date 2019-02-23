@@ -25,11 +25,11 @@
   <parent>
     <groupId>org.apache.camel.example</groupId>
     <artifactId>examples</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-example-rest-producer</artifactId>
-  <name>Camel :: Example :: Rest Producer</name>
+  <name>Camel :: Example :: Rest :: Producer</name>
   <description>An example showing how to use Camel Rest to call a REST service</description>
 
   <properties>
@@ -67,6 +67,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -128,9 +134,9 @@
 
   <profiles>
     <profile>
-      <id>jdk9-build</id>
+      <id>jdk9+-build</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <build>
         <plugins>

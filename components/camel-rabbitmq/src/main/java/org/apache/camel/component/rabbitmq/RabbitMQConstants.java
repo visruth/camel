@@ -17,8 +17,10 @@
 package org.apache.camel.component.rabbitmq;
 
 public final class RabbitMQConstants {
+
     // TODO need to change the constant which is start with camel
     public static final String ROUTING_KEY = "rabbitmq.ROUTING_KEY";
+    public static final String EXCHANGE_OVERRIDE_NAME = "rabbitmq.EXCHANGE_OVERRIDE_NAME";
     public static final String EXCHANGE_NAME = "rabbitmq.EXCHANGE_NAME";
     public static final String CONTENT_TYPE = "rabbitmq.CONTENT_TYPE";
     public static final String PRIORITY = "rabbitmq.PRIORITY";
@@ -44,9 +46,11 @@ public final class RabbitMQConstants {
     public static final String RABBITMQ_DIRECT_REPLY_EXCHANGE = "";
     public static final String RABBITMQ_DIRECT_REPLY_ROUTING_KEY = "amq.rabbitmq.reply-to";
     public static final String RABBITMQ_QUEUE_LENGTH_LIMIT_KEY = "x-max-length";
+    public static final String RABBITMQ_QUEUE_MAX_PRIORITY_KEY = "x-max-priority";
     public static final String RABBITMQ_QUEUE_MESSAGE_TTL_KEY = "x-message-ttl";
     public static final String RABBITMQ_QUEUE_TTL_KEY = "x-expires";
     
+
     private RabbitMQConstants() {
         //Constants class
     }

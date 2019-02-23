@@ -22,12 +22,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.impl.DefaultHeaderFilterStrategy;
+import org.apache.camel.support.DefaultHeaderFilterStrategy;
 import org.junit.Test;
 
-/**
- * @version 
- */
 public class RestletHeaderFilterStrategyTest extends RestletTestSupport {
 
     private static final String HEADER_FILTER = "filter";
@@ -37,7 +34,7 @@ public class RestletHeaderFilterStrategyTest extends RestletTestSupport {
         String acceptedHeaderKey = "dontFilter";
         MockEndpoint mock = getMockEndpoint("mock:out");
         mock.expectedHeaderReceived(acceptedHeaderKey, "any value");
-        String out = template.requestBodyAndHeader("direct:start", null, acceptedHeaderKey, "any value", String.class);
+        template.requestBodyAndHeader("direct:start", null, acceptedHeaderKey, "any value", String.class);
         mock.assertIsSatisfied();
     }
 
@@ -47,7 +44,6 @@ public class RestletHeaderFilterStrategyTest extends RestletTestSupport {
         MockEndpoint mock = getMockEndpoint("mock:out");
         mock.whenAnyExchangeReceived(new Processor() {
             public void process(Exchange exchange) throws Exception {
-                String notValidHeader = exchange.getIn().getHeader(notAcceptedHeaderKey, String.class);
                 Map<String, Object> headers = exchange.getIn().getHeaders();
                 for (String key : headers.keySet()) {
                     assertFalse("Header should have been filtered: " + key, key.startsWith(HEADER_FILTER));

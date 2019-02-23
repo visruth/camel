@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -34,10 +33,11 @@ import org.apache.camel.Exchange;
 import org.apache.camel.NoTypeConversionAvailableException;
 import org.apache.camel.spi.DataFormat;
 import org.apache.camel.spi.DataFormatName;
-import org.apache.camel.support.ServiceSupport;
+import org.apache.camel.spi.annotations.Dataformat;
+import org.apache.camel.support.ObjectHelper;
+import org.apache.camel.support.ResourceHelper;
+import org.apache.camel.support.service.ServiceSupport;
 import org.apache.camel.util.IOHelper;
-import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.ResourceHelper;
 import org.beanio.BeanReader;
 import org.beanio.BeanReaderErrorHandler;
 import org.beanio.BeanWriter;
@@ -50,6 +50,7 @@ import static org.apache.camel.dataformat.beanio.BeanIOHelper.getOrCreateBeanRea
  * A <a href="http://camel.apache.org/data-format.html">data format</a> (
  * {@link DataFormat}) for beanio data.
  */
+@Dataformat("beanio")
 public class BeanIODataFormat extends ServiceSupport implements DataFormat, DataFormatName, CamelContextAware {
 
     private transient CamelContext camelContext;
@@ -71,7 +72,7 @@ public class BeanIODataFormat extends ServiceSupport implements DataFormat, Data
 
     @Override
     protected void doStart() throws Exception {
-        ObjectHelper.notNull(getStreamName(), "Stream name not configured.");
+        org.apache.camel.util.ObjectHelper.notNull(getStreamName(), "Stream name not configured.");
         if (factory == null) {
             // Create the stream factory that will be used to read/write objects.
             factory = StreamFactory.newInstance();
@@ -124,10 +125,9 @@ public class BeanIODataFormat extends ServiceSupport implements DataFormat, Data
     private List<Object> getModels(Exchange exchange, Object body) {
         List<Object> models;
         if ((models = exchange.getContext().getTypeConverter().convertTo(List.class, body)) == null) {
-            models = new ArrayList<Object>();
-            Iterator<Object> it = ObjectHelper.createIterator(body);
-            while (it.hasNext()) {
-                models.add(it.next());
+            models = new ArrayList<>();
+            for (Object model : ObjectHelper.createIterable(body)) {
+                models.add(model);
             }
         }
         return models;
@@ -146,7 +146,7 @@ public class BeanIODataFormat extends ServiceSupport implements DataFormat, Data
     }
 
     private List<Object> readModels(Exchange exchange, InputStream stream) throws Exception {
-        List<Object> results = new ArrayList<Object>();
+        List<Object> results = new ArrayList<>();
         BufferedReader streamReader = IOHelper.buffered(new InputStreamReader(stream, getEncoding()));
 
         BeanReader in = factory.createReader(getStreamName(), streamReader);
@@ -208,7 +208,14 @@ public class BeanIODataFormat extends ServiceSupport implements DataFormat, Data
         configuration.setIgnoreInvalidRecords(ignoreInvalidRecords);
     }
 
+    public void setEncoding(String encoding) {
+        setEncoding(Charset.forName(encoding));
+    }
+
     public void setEncoding(Charset encoding) {
+        if (encoding == null) {
+            throw new IllegalArgumentException("Charset encoding is null");
+        }
         configuration.setEncoding(encoding);
     }
 

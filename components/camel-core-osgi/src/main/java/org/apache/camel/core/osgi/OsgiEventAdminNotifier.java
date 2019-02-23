@@ -20,6 +20,7 @@ import java.util.Dictionary;
 import java.util.EventObject;
 import java.util.Hashtable;
 
+import org.apache.camel.spi.CamelEvent;
 import org.apache.camel.support.EventNotifierSupport;
 
 import org.osgi.framework.Bundle;
@@ -56,17 +57,17 @@ public class OsgiEventAdminNotifier extends EventNotifierSupport {
 
     public OsgiEventAdminNotifier(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-        this.tracker = new ServiceTracker<EventAdmin, EventAdmin>(bundleContext, EventAdmin.class.getName(), null);
+        this.tracker = new ServiceTracker<>(bundleContext, EventAdmin.class.getName(), null);
         setIgnoreExchangeEvents(true);
     }
 
-    public void notify(EventObject event) throws Exception {
+    public void notify(CamelEvent event) throws Exception {
         EventAdmin eventAdmin = tracker.getService();
         if (eventAdmin == null) {
             return;
         }
 
-        Dictionary<String, Object> props = new Hashtable<String, Object>();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(TYPE, getType(event));
         props.put(EVENT, event);
         props.put(TIMESTAMP, System.currentTimeMillis());
@@ -82,7 +83,7 @@ public class OsgiEventAdminNotifier extends EventNotifierSupport {
         eventAdmin.postEvent(new Event(getTopic(event), props));
     }
 
-    public boolean isEnabled(EventObject event) {
+    public boolean isEnabled(CamelEvent event) {
         return true;
     }
 
@@ -108,15 +109,11 @@ public class OsgiEventAdminNotifier extends EventNotifierSupport {
         return sb.toString();
     }
 
-    public static String getType(EventObject event) {
-        String type = event.getClass().getSimpleName();
-        if (type.endsWith("Event")) {
-            type = type.substring(0, type.length() - "Event".length());
-        }
-        return type;
+    public static String getType(CamelEvent event) {
+        return event.getType().name();
     }
 
-    public static String getTopic(EventObject event) {
+    public static String getTopic(CamelEvent event) {
         String topic;
         String type = getType(event);
         if (type.startsWith("CamelContext")) {

@@ -25,8 +25,8 @@ import org.apache.camel.Processor;
 import org.apache.camel.SSLContextParametersAware;
 import org.apache.camel.component.cxf.CXFTestSupport;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.camel.test.spring.CamelSpringTestSupport;
-import org.apache.camel.util.jsse.SSLContextParameters;
 import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -71,7 +71,7 @@ public class SslGlobalTest extends CamelSpringTestSupport {
     protected Exchange sendJaxWsMessage(String endpointUri) throws InterruptedException {
         Exchange exchange = template.send(endpointUri, new Processor() {
             public void process(final Exchange exchange) {
-                final List<String> params = new ArrayList<String>();
+                final List<String> params = new ArrayList<>();
                 params.add(TEST_MESSAGE);
                 exchange.getIn().setBody(params);
                 exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, GREET_ME_OPERATION);

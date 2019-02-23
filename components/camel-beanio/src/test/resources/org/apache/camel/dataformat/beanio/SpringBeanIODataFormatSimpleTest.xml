@@ -29,21 +29,21 @@
   <camelContext xmlns="http://camel.apache.org/schema/spring">
     <!-- setup beanio data format -->
     <dataFormats>
-      <beanio id="myBeanio" mapping="org/apache/camel/dataformat/beanio/mappings.xml" streamName="employeeFile"/>
+      <beanio id="myBeanio" mapping="org/apache/camel/dataformat/beanio/mappings.xml" streamName="employeeFile" encoding="UTF-8"/>
     </dataFormats>
 
     <route>
       <from uri="direct:unmarshal"/>
-      <unmarshal ref="myBeanio"/>
+      <unmarshal><custom ref="myBeanio"/></unmarshal>
       <split>
-        <simple>body</simple>
+        <simple>${body}</simple>
         <to uri="mock:beanio-unmarshal"/>
       </split>
     </route>
     
     <route>
       <from uri="direct:marshal"/>
-      <marshal ref="myBeanio"/>
+      <marshal><custom ref="myBeanio"/></marshal>
       <to uri="mock:beanio-marshal"/>
     </route>
   </camelContext>

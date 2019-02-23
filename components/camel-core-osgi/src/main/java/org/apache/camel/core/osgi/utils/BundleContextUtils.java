@@ -26,8 +26,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.util.CamelContextHelper;
-import org.apache.camel.util.LoadPropertiesException;
+import org.apache.camel.LoadPropertiesException;
+import org.apache.camel.support.CamelContextHelper;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -80,7 +80,7 @@ public final class BundleContextUtils {
     public static Map<String, Properties> findComponents(BundleContext bundleContext, CamelContext camelContext)
         throws IOException, LoadPropertiesException {
 
-        SortedMap<String, Properties> answer = new TreeMap<String, Properties>();
+        SortedMap<String, Properties> answer = new TreeMap<>();
         Bundle[] bundles = bundleContext.getBundles();
         for (Bundle bundle : bundles) {
             Enumeration<URL> iter = bundle.getResources(CamelContextHelper.COMPONENT_DESCRIPTOR);

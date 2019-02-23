@@ -26,7 +26,7 @@ import org.apache.camel.Attachment;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.RuntimeCamelException;
-import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.support.DefaultMessage;
 import org.apache.camel.support.ExpressionAdapter;
 import org.apache.camel.util.IOHelper;
 
@@ -76,7 +76,7 @@ public class SplitAttachmentsExpression extends ExpressionAdapter {
         }
 
         try {
-            List<Message> answer = new ArrayList<Message>();
+            List<Message> answer = new ArrayList<>();
             Message inMessage = exchange.getIn();
             for (Map.Entry<String, Attachment> entry : inMessage.getAttachmentObjects().entrySet()) {
                 Message attachmentMessage;

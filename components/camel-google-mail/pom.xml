@@ -24,12 +24,12 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-google-mail</artifactId>
   <packaging>jar</packaging>
-  <name>Camel :: GoogleMail</name>
+  <name>Camel :: Google Mail</name>
   <description>Camel Component for GoogleMail</description>
 
   <properties>
@@ -38,16 +38,12 @@
     <componentPackage>org.apache.camel.component.google.mail</componentPackage>
     <outPackage>org.apache.camel.component.google.mail.internal</outPackage>
     <camel.osgi.private.pkg>org.apache.camel.component.google.mail.internal</camel.osgi.private.pkg>
-    <camel.osgi.export.pkg>org.apache.camel.component.google.mail</camel.osgi.export.pkg>
-    <camel.osgi.export.service>
-          org.apache.camel.spi.ComponentResolver;component=google-mail
-    </camel.osgi.export.service>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
+      <artifactId>camel-support</artifactId>
     </dependency>
     <dependency>
         <groupId>com.google.api-client</groupId>
@@ -58,6 +54,12 @@
         <groupId>com.google.oauth-client</groupId>
         <artifactId>google-oauth-client-jetty</artifactId>
         <version>${google-api-client-version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>servlet-api</artifactId>
+          </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
         <groupId>com.google.http-client</groupId>
@@ -96,7 +98,7 @@
         <groupId>com.google.apis</groupId>
         <artifactId>google-api-services-gmail</artifactId>
         <version>${google-api-services-mail-version}</version>
-      <classifier>javadoc</classifier>
+      <type>javadoc</type>
       <scope>provided</scope>
     </dependency>
 

@@ -24,15 +24,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- *
- * @version 
- */
 @XmlRootElement(name = "Order")
 public class Order {
     private long id;
     private String description;
-    private Map<Long, Product> products = new HashMap<Long, Product>();
+    private Map<Long, Product> products = new HashMap<>();
 
     public Order() {
         init();

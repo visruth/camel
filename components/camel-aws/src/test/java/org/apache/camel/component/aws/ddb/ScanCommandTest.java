@@ -27,7 +27,7 @@ import com.amazonaws.services.dynamodbv2.model.ConsumedCapacity;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -50,7 +50,7 @@ public class ScanCommandTest {
 
     @Test
     public void execute() {
-        Map<String, Condition> scanFilter = new HashMap<String, Condition>();
+        Map<String, Condition> scanFilter = new HashMap<>();
         Condition condition = new Condition()
                 .withComparisonOperator(ComparisonOperator.GT.toString())
                 .withAttributeValueList(new AttributeValue().withN("1985"));
@@ -59,7 +59,7 @@ public class ScanCommandTest {
 
         command.execute();
 
-        Map<String, AttributeValue> mapAssert = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> mapAssert = new HashMap<>();
         mapAssert.put("1", new AttributeValue("LAST_KEY"));
 
         ConsumedCapacity consumed = (ConsumedCapacity) exchange.getIn().getHeader(DdbConstants.CONSUMED_CAPACITY);

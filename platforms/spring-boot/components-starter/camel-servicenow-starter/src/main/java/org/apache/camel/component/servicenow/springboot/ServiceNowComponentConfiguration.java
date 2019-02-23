@@ -19,14 +19,12 @@ package org.apache.camel.component.servicenow.springboot;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.camel.component.servicenow.ServiceNowComponent;
 import org.apache.camel.component.servicenow.ServiceNowRelease;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
-import org.apache.camel.util.jsse.SSLContextParameters;
+import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * The servicenow component is used to integrate Camel with ServiceNow cloud
@@ -40,6 +38,11 @@ public class ServiceNowComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the servicenow component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
     /**
      * The ServiceNow instance name
      */
@@ -217,10 +220,6 @@ public class ServiceNowComponentConfiguration
     public static class ServiceNowConfigurationNestedConfiguration {
         public static final Class CAMEL_NESTED_CLASS = org.apache.camel.component.servicenow.ServiceNowConfiguration.class;
         /**
-         * ServiceNow user account name, MUST be provided
-         */
-        private String userName;
-        /**
          * The ServiceNow REST API url
          */
         private String apiUrl;
@@ -228,6 +227,10 @@ public class ServiceNowComponentConfiguration
          * The ServiceNow REST API version, default latest
          */
         private String apiVersion;
+        /**
+         * ServiceNow user account name, MUST be provided
+         */
+        private String userName;
         /**
          * ServiceNow account password, MUST be provided
          */
@@ -353,13 +356,8 @@ public class ServiceNowComponentConfiguration
          */
         private Boolean inputDisplayValue;
         /**
-         * Defines the request model
-         */
-        private Map requestModels;
-        /**
          * Sets Jackson's ObjectMapper to use for request/reply
          */
-        @NestedConfigurationProperty
         private ObjectMapper mapper;
         /**
          * The ServiceNow release to target, default to Helsinki See
@@ -374,17 +372,14 @@ public class ServiceNowComponentConfiguration
          * To configure security using SSLContextParameters. See
          * http://camel.apache.org/camel-configuration-utilities.html
          */
-        @NestedConfigurationProperty
         private SSLContextParameters sslContextParameters;
         /**
          * To configure http-client
          */
-        @NestedConfigurationProperty
         private HTTPClientPolicy httpClientPolicy;
         /**
          * To configure proxy authentication
          */
-        @NestedConfigurationProperty
         private ProxyAuthorizationPolicy proxyAuthorizationPolicy;
         /**
          * The proxy host name
@@ -414,19 +409,18 @@ public class ServiceNowComponentConfiguration
          * The date-time format used for Json serialization/deserialization
          */
         private String dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+        /**
+         * The date-time format used for Json serialization/deserialization
+         */
         private Map models;
+        /**
+         * Defines the request model
+         */
+        private Map requestModels;
         /**
          * Defines the response model
          */
         private Map responseModels;
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
 
         public String getApiUrl() {
             return apiUrl;
@@ -442,6 +436,14 @@ public class ServiceNowComponentConfiguration
 
         public void setApiVersion(String apiVersion) {
             this.apiVersion = apiVersion;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
         }
 
         public String getPassword() {
@@ -639,14 +641,6 @@ public class ServiceNowComponentConfiguration
             this.inputDisplayValue = inputDisplayValue;
         }
 
-        public Map getRequestModels() {
-            return requestModels;
-        }
-
-        public void setRequestModels(Map requestModels) {
-            this.requestModels = requestModels;
-        }
-
         public ObjectMapper getMapper() {
             return mapper;
         }
@@ -759,6 +753,14 @@ public class ServiceNowComponentConfiguration
 
         public void setModels(Map models) {
             this.models = models;
+        }
+
+        public Map getRequestModels() {
+            return requestModels;
+        }
+
+        public void setRequestModels(Map requestModels) {
+            this.requestModels = requestModels;
         }
 
         public Map getResponseModels() {

@@ -28,8 +28,8 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
+import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.jsse.SSLContextParameters;
 
 @UriParams
 public class ConsulClientConfiguration implements Cloneable {
@@ -67,7 +67,7 @@ public class ConsulClientConfiguration implements Cloneable {
     @UriParam(label = "consumer,watch", defaultValue = "10")
     private Integer blockSeconds = 10;
     @UriParam(label = "consumer,watch", defaultValue = "0")
-    private BigInteger firstIndex;
+    private BigInteger firstIndex = BigInteger.valueOf(0L);
     @UriParam(label = "consumer,watch", defaultValue = "false")
     private boolean recursive;
 
@@ -171,7 +171,7 @@ public class ConsulClientConfiguration implements Cloneable {
     }
 
     /**
-     * SSL configuration using an org.apache.camel.util.jsse.SSLContextParameters
+     * SSL configuration using an org.apache.camel.support.jsse.SSLContextParameters
      * instance.
      */
     public void setSslContextParameters(SSLContextParameters sslContextParameters) {

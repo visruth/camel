@@ -23,11 +23,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.camel.InvokeOnHeader;
 import org.apache.camel.Message;
 import org.apache.camel.component.infinispan.remote.InfinispanRemoteOperation;
-import org.apache.camel.impl.HeaderSelectorProducer;
+import org.apache.camel.support.HeaderSelectorProducer;
 import org.apache.camel.util.ObjectHelper;
 import org.infinispan.commons.api.BasicCache;
 import org.infinispan.query.dsl.Query;
-import org.jgroups.util.NotifyingFuture;
 
 public class InfinispanProducer extends HeaderSelectorProducer {
     private final String cacheName;
@@ -59,7 +58,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     // ************************************
 
     @InvokeOnHeader("PUT")
-    @InvokeOnHeader(InfinispanConstants.PUT)
     void onPut(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -86,7 +84,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("PUTASYNC")
-    @InvokeOnHeader(InfinispanConstants.PUT_ASYNC)
     void onPutAsync(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -113,7 +110,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("PUTALL")
-    @InvokeOnHeader(InfinispanConstants.PUT_ALL)
     void onPutAll(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Map<Object, Object> map = message.getHeader(InfinispanConstants.MAP, Map.class);
@@ -136,7 +132,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("PUTALLASYNC")
-    @InvokeOnHeader(InfinispanConstants.PUT_ALL_ASYNC)
     void onPutAllAsync(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Map<Object, Object> map = message.getHeader(InfinispanConstants.MAP, Map.class);
@@ -162,7 +157,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("PUTIFABSENT")
-    @InvokeOnHeader(InfinispanConstants.PUT_IF_ABSENT)
     void onPutIfAbsent(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -189,7 +183,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("PUTIFABSENTASYNC")
-    @InvokeOnHeader(InfinispanConstants.PUT_IF_ABSENT_ASYNC)
     void onPutIfAbsentAsync(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -216,7 +209,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("GET")
-    @InvokeOnHeader(InfinispanConstants.GET)
     void onGet(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -237,7 +229,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
 
 
     @InvokeOnHeader("CONTAINSKEY")
-    @InvokeOnHeader(InfinispanConstants.CONTAINS_KEY)
     void onContainsKey(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -247,7 +238,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("CONTAINSVALUE")
-    @InvokeOnHeader(InfinispanConstants.CONTAINS_VALUE)
     void onContainsValue(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object value = message.getHeader(InfinispanConstants.VALUE);
@@ -257,7 +247,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("REMOVE")
-    @InvokeOnHeader(InfinispanConstants.REMOVE)
     void onRemove(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -274,7 +263,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("REMOVEASYNC")
-    @InvokeOnHeader(InfinispanConstants.REMOVE_ASYNC)
     void onRemoveAsync(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -292,7 +280,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("REPLACE")
-    @InvokeOnHeader(InfinispanConstants.REPLACE)
     void onReplace(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -332,7 +319,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("REPLACEASYNC")
-    @InvokeOnHeader(InfinispanConstants.REPLACE_ASYNC)
     void onReplaceAsync(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object key = message.getHeader(InfinispanConstants.KEY);
@@ -378,7 +364,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
    
     @InvokeOnHeader("SIZE")
-    @InvokeOnHeader(InfinispanConstants.SIZE)
     void onSize(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object result = cache.size();
@@ -386,7 +371,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("CLEAR")
-    @InvokeOnHeader(InfinispanConstants.CLEAR)
     void onClear(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
 
@@ -394,7 +378,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("CLEARASYNC")
-    @InvokeOnHeader(InfinispanConstants.CLEAR_ASYNC)
     void onCLearAsync(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final CompletableFuture<Void> result = cache.clearAsync();
@@ -403,7 +386,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("QUERY")
-    @InvokeOnHeader(InfinispanConstants.QUERY)
     void onQuery(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
 
@@ -419,7 +401,6 @@ public class InfinispanProducer extends HeaderSelectorProducer {
     }
 
     @InvokeOnHeader("STATS")
-    @InvokeOnHeader(InfinispanConstants.STATS)
     void onStats(Message message) {
         final BasicCache<Object, Object> cache = manager.getCache(message, this.cacheName);
         final Object result = InfinispanUtil.asAdvanced(cache).getStats();

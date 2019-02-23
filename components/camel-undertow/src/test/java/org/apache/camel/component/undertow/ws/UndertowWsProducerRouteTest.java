@@ -30,7 +30,7 @@ import org.apache.camel.component.undertow.UndertowConstants;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.ws.WebSocket;
-import org.asynchttpclient.ws.WebSocketTextListener;
+import org.asynchttpclient.ws.WebSocketListener;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 import org.junit.Test;
 
@@ -44,13 +44,13 @@ public class UndertowWsProducerRouteTest extends BaseUndertowTest {
 
         final CountDownLatch latch = new CountDownLatch(1);
         AsyncHttpClient c = new DefaultAsyncHttpClient();
-        final List<Object> received = Collections.synchronizedList(new ArrayList<Object>());
+        final List<Object> received = Collections.synchronizedList(new ArrayList<>());
 
         WebSocket websocket = c.prepareGet("ws://localhost:" + getPort() + "/shop")
-                .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener() {
+                .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketListener() {
 
                     @Override
-                    public void onMessage(String message) {
+                    public void onTextFrame(String message, boolean finalFragment, int rsv) {
                         received.add(message);
                         log.info("received --> " + message);
                         latch.countDown();
@@ -61,7 +61,7 @@ public class UndertowWsProducerRouteTest extends BaseUndertowTest {
                     }
 
                     @Override
-                    public void onClose(WebSocket websocket) {
+                    public void onClose(WebSocket websocket, int code, String reason) {
                     }
 
                     @Override
@@ -80,7 +80,7 @@ public class UndertowWsProducerRouteTest extends BaseUndertowTest {
         assertTrue(r instanceof String);
         assertEquals("Beer on stock at Apache Mall", r);
 
-        websocket.close();
+        websocket.sendCloseFrame();
         c.close();
     }
 

@@ -23,7 +23,7 @@ import com.amazonaws.services.simpledb.model.Item;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class BatchDeleteAttributesCommandTest {
 
     @Test
     public void execute() {
-        List<Item> deletableItems = new ArrayList<Item>();
+        List<Item> deletableItems = new ArrayList<>();
         deletableItems.add(new Item());
         exchange.getIn().setHeader(SdbConstants.DELETABLE_ITEMS, deletableItems);
         
@@ -63,7 +63,7 @@ public class BatchDeleteAttributesCommandTest {
     public void determineDeletableItems() {
         assertNull(this.command.determineDeletableItems());
         
-        List<Item> deletableItems = new ArrayList<Item>();
+        List<Item> deletableItems = new ArrayList<>();
         deletableItems.add(new Item());
         exchange.getIn().setHeader(SdbConstants.DELETABLE_ITEMS, deletableItems);
         

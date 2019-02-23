@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-cm-sms</artifactId>
@@ -34,15 +34,13 @@
   <description>Camel CM SMS Gateway Component</description>
 
   <properties>
-    <camel.osgi.export.pkg>org.apache.camel.component.cm.*</camel.osgi.export.pkg>
-    <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=cm-sms</camel.osgi.export.service>
   </properties>
 
   <dependencies>
 
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
+      <artifactId>camel-support</artifactId>
     </dependency>
 
     <dependency>
@@ -69,10 +67,10 @@
     <dependency>
       <groupId>javax.el</groupId>
       <artifactId>javax.el-api</artifactId>
-      <version>${javax.el-api-version}</version>
+      <version>${javax.el-api-hibernate-validator-version}</version>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
       <version>${hibernate-validator-version}</version>
     </dependency>
@@ -104,9 +102,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.glassfish.web</groupId>
+      <groupId>org.glassfish</groupId>
       <artifactId>javax.el</artifactId>
-      <version>${javax.el-version}</version>
+      <version>${javax.el-hibernate-validator-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

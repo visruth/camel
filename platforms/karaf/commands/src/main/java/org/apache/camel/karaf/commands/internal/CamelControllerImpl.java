@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.api.management.ManagedCamelContext;
 import org.apache.camel.commands.AbstractLocalCamelController;
+import org.apache.camel.support.ObjectHelper;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -47,7 +49,7 @@ public class CamelControllerImpl extends AbstractLocalCamelController {
 
     @Override
     public List<CamelContext> getLocalCamelContexts() {
-        List<CamelContext> camelContexts = new ArrayList<CamelContext>();
+        List<CamelContext> camelContexts = new ArrayList<>();
         try {
             ServiceReference<?>[] references = bundleContext.getServiceReferences(CamelContext.class.getName(), null);
             if (references != null) {
@@ -77,18 +79,18 @@ public class CamelControllerImpl extends AbstractLocalCamelController {
 
     @Override
     public List<Map<String, String>> getCamelContexts() throws Exception {
-        List<Map<String, String>> answer = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> answer = new ArrayList<>();
 
         List<CamelContext> camelContexts = getLocalCamelContexts();
         for (CamelContext camelContext : camelContexts) {
-            Map<String, String> row = new LinkedHashMap<String, String>();
+            Map<String, String> row = new LinkedHashMap<>();
             row.put("name", camelContext.getName());
             row.put("state", camelContext.getStatus().name());
             row.put("uptime", camelContext.getUptime());
-            if (camelContext.getManagedCamelContext() != null) {
-                row.put("exchangesTotal", "" + camelContext.getManagedCamelContext().getExchangesTotal());
-                row.put("exchangesInflight", "" + camelContext.getManagedCamelContext().getExchangesInflight());
-                row.put("exchangesFailed", "" + camelContext.getManagedCamelContext().getExchangesFailed());
+            if (camelContext.getExtension(ManagedCamelContext.class).getManagedCamelContext() != null) {
+                row.put("exchangesTotal", "" + camelContext.getExtension(ManagedCamelContext.class).getManagedCamelContext().getExchangesTotal());
+                row.put("exchangesInflight", "" + camelContext.getExtension(ManagedCamelContext.class).getManagedCamelContext().getExchangesInflight());
+                row.put("exchangesFailed", "" + camelContext.getExtension(ManagedCamelContext.class).getManagedCamelContext().getExchangesFailed());
             } else {
                 row.put("exchangesTotal", "0");
                 row.put("exchangesInflight", "0");
@@ -98,6 +100,59 @@ public class CamelControllerImpl extends AbstractLocalCamelController {
         }
 
         return answer;
+    }
+
+    @Override
+    public void startContext(String camelContextName) throws Exception {
+        final CamelContext context = getLocalCamelContext(camelContextName);
+        if (context != null) {
+            ObjectHelper.callWithTCCL(() -> {
+                context.start();
+                return null;
+            }, getClassLoader(context));
+        }
+    }
+
+    @Override
+    public void resumeContext(String camelContextName) throws Exception {
+        final CamelContext context = getLocalCamelContext(camelContextName);
+        if (context != null) {
+            ObjectHelper.callWithTCCL(() -> {
+                context.resume();
+                return null;
+            }, getClassLoader(context));
+        }
+    }
+
+    @Override
+    public void startRoute(String camelContextName, final String routeId) throws Exception {
+        final CamelContext context = getLocalCamelContext(camelContextName);
+        if (context != null) {
+            ObjectHelper.callWithTCCL(() -> {
+                context.getRouteController().startRoute(routeId);
+                return null;
+            }, getClassLoader(context));
+        }
+    }
+
+    @Override
+    public void resumeRoute(String camelContextName, final String routeId) throws Exception {
+        final CamelContext context = getLocalCamelContext(camelContextName);
+        if (context != null) {
+            ObjectHelper.callWithTCCL(() -> {
+                context.getRouteController().resumeRoute(routeId);
+                return null;
+            }, getClassLoader(context));
+        }
+    }
+
+    /**
+     * Gets classloader associated with {@link CamelContext}
+     * @param context
+     * @return
+     */
+    private ClassLoader getClassLoader(CamelContext context) {
+        return context.getApplicationContextClassLoader();
     }
 
 }

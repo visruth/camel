@@ -30,7 +30,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +77,7 @@ public class IgniteCacheComponentAutoConfiguration {
     @Lazy
     @Bean(name = "ignite-cache-component")
     @ConditionalOnMissingBean(IgniteCacheComponent.class)
-    public IgniteCacheComponent configureIgniteCacheComponent()
-            throws Exception {
+    public IgniteCacheComponent configureIgniteCacheComponent() throws Exception {
         IgniteCacheComponent component = new IgniteCacheComponent();
         component.setCamelContext(camelContext);
         Map<String, Object> parameters = new HashMap<>();

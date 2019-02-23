@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.smpp;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -25,7 +24,7 @@ import java.util.TimeZone;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.jsmpp.bean.Address;
 import org.jsmpp.bean.Alphabet;
 import org.jsmpp.bean.DataCodings;
@@ -79,6 +78,7 @@ public class SmppSubmitMultiCommandTest {
     public void setUp() {
         session = mock(SMPPSession.class);
         config = new SmppConfiguration();
+        config.setServiceType("CMT");
         
         command = new SmppSubmitMultiCommand(session, config);
     }
@@ -408,7 +408,7 @@ public class SmppSubmitMultiCommandTest {
         exchange.getIn().setHeader(SmppConstants.PRIORITY_FLAG, (byte) 2);
         exchange.getIn().setHeader(SmppConstants.REGISTERED_DELIVERY, new RegisteredDelivery(SMSCDeliveryReceipt.FAILURE).value());
         exchange.getIn().setHeader(SmppConstants.REPLACE_IF_PRESENT_FLAG, ReplaceIfPresentFlag.REPLACE.value());
-        Map<String, String> optionalParameters = new LinkedHashMap<String, String>();
+        Map<String, String> optionalParameters = new LinkedHashMap<>();
         optionalParameters.put("SOURCE_SUBADDRESS", "1292");
         optionalParameters.put("ADDITIONAL_STATUS_INFO_TEXT", "urgent");
         optionalParameters.put("DEST_ADDR_SUBUNIT", "4");
@@ -453,7 +453,7 @@ public class SmppSubmitMultiCommandTest {
         exchange.getIn().setHeader(SmppConstants.PRIORITY_FLAG, (byte) 2);
         exchange.getIn().setHeader(SmppConstants.REGISTERED_DELIVERY, new RegisteredDelivery(SMSCDeliveryReceipt.FAILURE).value());
         exchange.getIn().setHeader(SmppConstants.REPLACE_IF_PRESENT_FLAG, ReplaceIfPresentFlag.REPLACE.value());
-        Map<Short, Object> optionalParameters = new LinkedHashMap<Short, Object>();
+        Map<Short, Object> optionalParameters = new LinkedHashMap<>();
         // standard optional parameter
         optionalParameters.put(Short.valueOf((short) 0x0202), "1292".getBytes("UTF-8"));
         optionalParameters.put(Short.valueOf((short) 0x001D), "urgent");

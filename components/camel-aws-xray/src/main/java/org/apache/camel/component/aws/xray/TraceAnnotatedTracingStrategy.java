@@ -22,14 +22,14 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.NamedNode;
 import org.apache.camel.Processor;
 import org.apache.camel.component.bean.BeanProcessor;
 import org.apache.camel.model.BeanDefinition;
 import org.apache.camel.model.ProcessDefinition;
-import org.apache.camel.model.ProcessorDefinition;
-import org.apache.camel.processor.DelegateAsyncProcessor;
-import org.apache.camel.processor.DelegateSyncProcessor;
 import org.apache.camel.spi.InterceptStrategy;
+import org.apache.camel.support.processor.DelegateAsyncProcessor;
+import org.apache.camel.support.processor.DelegateSyncProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,24 +41,31 @@ public class TraceAnnotatedTracingStrategy implements InterceptStrategy {
 
     @Override
     public Processor wrapProcessorInInterceptors(CamelContext camelContext,
-        ProcessorDefinition<?> processorDefinition,
-        Processor target, Processor nextTarget)
+                                                 NamedNode processorDefinition,
+                                                 Processor target, Processor nextTarget)
         throws Exception {
 
         Class<?> processorClass = processorDefinition.getClass();
         String shortName = processorDefinition.getShortName();
 
         if (processorDefinition instanceof BeanDefinition) {
-            BeanProcessor beanProcessor = (BeanProcessor) nextTarget;
-            processorClass = beanProcessor.getBean().getClass();
+            BeanProcessor beanProcessor = (BeanProcessor) target;
+            if (null != beanProcessor && null != beanProcessor.getBean()) {
+                processorClass = beanProcessor.getBean().getClass();
+            }
         } else if (processorDefinition instanceof ProcessDefinition) {
-            DelegateSyncProcessor syncProcessor = (DelegateSyncProcessor) nextTarget;
-            processorClass = syncProcessor.getProcessor().getClass();
+            DelegateSyncProcessor syncProcessor = (DelegateSyncProcessor) target;
+            if (null != syncProcessor && null != syncProcessor.getProcessor()) {
+                processorClass = syncProcessor.getProcessor().getClass();
+            }
         }
 
-        if (!processorClass.isAnnotationPresent(XRayTrace.class)) {
-            LOG.trace("{} does not contain an @Trace annotation. Skipping interception",
-                processorClass.getSimpleName());
+        if (processorClass == null) {
+            LOG.trace("Could not identify processor class on target processor {}", target);
+            return new DelegateAsyncProcessor(target);
+        } else if (!processorClass.isAnnotationPresent(XRayTrace.class)) {
+            LOG.trace("{} does not contain an @XRayTrace annotation. Skipping interception",
+                    processorClass.getSimpleName());
             return new DelegateAsyncProcessor(target);
         }
 

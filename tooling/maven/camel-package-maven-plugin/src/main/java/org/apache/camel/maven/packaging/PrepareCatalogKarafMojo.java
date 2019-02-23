@@ -25,21 +25,25 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import static org.w3c.dom.Node.ELEMENT_NODE;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 
@@ -47,77 +51,64 @@ import static org.apache.camel.maven.packaging.PackageHelper.loadText;
 
 /**
  * Prepares the Karaf provider camel catalog to include component it supports
- *
- * @goal prepare-catalog-karaf
  */
+@Mojo(name = "prepare-catalog-karaf", threadSafe = true)
 public class PrepareCatalogKarafMojo extends AbstractMojo {
 
     public static final int BUFFER_SIZE = 128 * 1024;
 
     /**
      * The maven project.
-     *
-     * @parameter property="project"
-     * @required
-     * @readonly
      */
+    @Parameter(property = "project", required = true, readonly = true)
     protected MavenProject project;
 
     /**
      * The output directory for components catalog
-     *
-     * @parameter default-value="${project.build.directory}/classes/org/apache/camel/catalog/karaf/components"
      */
+    @Parameter(defaultValue = "${project.build.directory}/classes/org/apache/camel/catalog/karaf/components")
     protected File componentsOutDir;
 
     /**
      * The output directory for dataformats catalog
-     *
-     * @parameter default-value="${project.build.directory}/classes/org/apache/camel/catalog/karaf/dataformats"
      */
+    @Parameter(defaultValue = "${project.build.directory}/classes/org/apache/camel/catalog/karaf/dataformats")
     protected File dataFormatsOutDir;
 
     /**
      * The output directory for languages catalog
-     *
-     * @parameter default-value="${project.build.directory}/classes/org/apache/camel/catalog/karaf/languages"
      */
+    @Parameter(defaultValue = "${project.build.directory}/classes/org/apache/camel/catalog/karaf/languages")
     protected File languagesOutDir;
 
     /**
      * The output directory for others catalog
-     *
-     * @parameter default-value="${project.build.directory}/classes/org/apache/camel/catalog/karaf/others"
      */
+    @Parameter(defaultValue = "${project.build.directory}/classes/org/apache/camel/catalog/karaf/others")
     protected File othersOutDir;
 
     /**
      * The karaf features directory
-     *
-     * @parameter default-value="${project.build.directory}/../../../platforms/karaf/features/src/main/resources/"
      */
+    @Parameter(defaultValue = "${project.build.directory}/../../../platforms/karaf/features/src/main/resources/")
     protected File featuresDir;
 
     /**
      * The components directory where all the Apache Camel components are
-     *
-     * @parameter default-value="${project.build.directory}/../../../components"
      */
+    @Parameter(defaultValue = "${project.build.directory}/../../../components")
     protected File componentsDir;
 
     /**
      * The camel-core directory where camel-core components are
-     *
-     * @parameter default-value="${project.build.directory}/../../../camel-core"
      */
+    @Parameter(defaultValue = "${project.build.directory}/../../../core/camel-core")
     protected File coreDir;
 
     /**
      * Maven ProjectHelper.
-     *
-     * @component
-     * @readonly
      */
+    @Component
     private MavenProjectHelper projectHelper;
 
     /**
@@ -139,8 +130,8 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
         getLog().info("Copying all Camel component json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> componentFiles = new TreeSet<File>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> componentFiles = new TreeSet<>();
 
         // find all json files in components and camel-core
         if (componentsDir != null && componentsDir.isDirectory()) {
@@ -155,8 +146,12 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
                             continue;
                         }
 
-                        // special for camel-salesforce which is in a sub dir
-                        if ("camel-salesforce".equals(dir.getName())) {
+                        // special for some components which is in a sub dir
+                        if ("camel-as2".equals(dir.getName())) {
+                            target = new File(dir, "camel-as2-component/target/classes");
+                        } else if ("camel-box".equals(dir.getName())) {
+                            target = new File(dir, "camel-box-component/target/classes");
+                        } else if ("camel-salesforce".equals(dir.getName())) {
                             target = new File(dir, "camel-salesforce-component/target/classes");
                         } else if ("camel-linkedin".equals(dir.getName())) {
                             target = new File(dir, "camel-linkedin-component/target/classes");
@@ -180,8 +175,6 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
         // make sure to create out dir
         componentsOutDir.mkdirs();
 
-        Set<String> alternativeSchemes = new HashSet<>();
-
         for (File file : jsonFiles) {
             File to = new File(componentsOutDir, file.getName());
             try {
@@ -196,7 +189,7 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = componentsOutDir.list();
-            List<String> components = new ArrayList<String>();
+            List<String> components = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -223,8 +216,8 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
         getLog().info("Copying all Camel dataformat json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> dataFormatFiles = new TreeSet<File>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> dataFormatFiles = new TreeSet<>();
 
         // find all data formats from the components directory
         if (componentsDir != null && componentsDir.isDirectory()) {
@@ -267,7 +260,7 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = dataFormatsOutDir.list();
-            List<String> dataFormats = new ArrayList<String>();
+            List<String> dataFormats = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -294,8 +287,8 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
         getLog().info("Copying all Camel language json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> languageFiles = new TreeSet<File>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> languageFiles = new TreeSet<>();
 
         // find all languages from the components directory
         if (componentsDir != null && componentsDir.isDirectory()) {
@@ -338,7 +331,7 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = languagesOutDir.list();
-            List<String> languages = new ArrayList<String>();
+            List<String> languages = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -365,8 +358,8 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
         getLog().info("Copying all Camel other json descriptors");
 
         // lets use sorted set/maps
-        Set<File> jsonFiles = new TreeSet<File>();
-        Set<File> otherFiles = new TreeSet<File>();
+        Set<File> jsonFiles = new TreeSet<>();
+        Set<File> otherFiles = new TreeSet<>();
 
         // find all languages from the components directory
         if (componentsDir != null && componentsDir.isDirectory()) {
@@ -379,14 +372,13 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
                     }
 
                     // skip these special cases
-                    // (camel-jetty is a placeholder, as camel-jetty9 is the actual component)
                     boolean special = "camel-core-osgi".equals(dir.getName())
                         || "camel-core-xml".equals(dir.getName())
-                        || "camel-box".equals(dir.getName())
                         || "camel-http-common".equals(dir.getName())
-                        || "camel-jetty".equals(dir.getName())
                         || "camel-jetty-common".equals(dir.getName());
-                    boolean special2 = "camel-linkedin".equals(dir.getName())
+                    boolean special2 = "camel-as2".equals(dir.getName())
+                        || "camel-box".equals(dir.getName())
+                        || "camel-linkedin".equals(dir.getName())
                         || "camel-olingo2".equals(dir.getName())
                         || "camel-olingo4".equals(dir.getName())
                         || "camel-servicenow".equals(dir.getName())
@@ -422,7 +414,7 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
             FileOutputStream fos = new FileOutputStream(all, false);
 
             String[] names = othersOutDir.list();
-            List<String> others = new ArrayList<String>();
+            List<String> others = new ArrayList<>();
             // sort the names
             for (String name : names) {
                 if (name.endsWith(".json")) {
@@ -604,21 +596,23 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
     public static void copyFile(File from, File to) throws IOException {
         FileChannel in = null;
         FileChannel out = null;
-        try {
-            in = new FileInputStream(from).getChannel();
-            out = new FileOutputStream(to).getChannel();
+        try (FileInputStream fis = new FileInputStream(from); FileOutputStream fos = new FileOutputStream(to)) {
+            try {
+                in = fis.getChannel();
+                out = fos.getChannel();
 
-            long size = in.size();
-            long position = 0;
-            while (position < size) {
-                position += in.transferTo(position, BUFFER_SIZE, out);
-            }
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-            if (out != null) {
-                out.close();
+                long size = in.size();
+                long position = 0;
+                while (position < size) {
+                    position += in.transferTo(position, BUFFER_SIZE, out);
+                }
+            } finally {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
             }
         }
     }
@@ -628,7 +622,8 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
 
         Set<String> answer = new LinkedHashSet<>();
         try {
-            InputStream is = new FileInputStream(new File(featuresDir, "features.xml"));
+            File file = new File(featuresDir, "features.xml");
+            InputStream is = new FileInputStream(file);
 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setIgnoringComments(true);
@@ -636,6 +631,7 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
             dbf.setNamespaceAware(false);
             dbf.setValidating(false);
             dbf.setXIncludeAware(false);
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
             Document dom = dbf.newDocumentBuilder().parse(is);
 
             NodeList children = dom.getElementsByTagName("features");
@@ -654,6 +650,9 @@ public class PrepareCatalogKarafMojo extends AbstractMojo {
                     }
                 }
             }
+
+            getLog().info("Found " + answer.size() + " Camel features in file: " + file);
+
         } catch (Exception e) {
             throw new MojoExecutionException("Error reading features.xml file", e);
         }

@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>components</artifactId>
-        <version>2.21.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>camel-bindy</artifactId>
@@ -32,14 +32,6 @@
     <description>Camel Bindy data format support</description>
 
     <properties>
-        <camel.osgi.export.pkg>
-            org.apache.camel.dataformat.bindy.*;
-        </camel.osgi.export.pkg>
-        <camel.osgi.export.service>
-          org.apache.camel.spi.DataFormatResolver;dataformat=bindy-csv,
-          org.apache.camel.spi.DataFormatResolver;dataformat=bindy-fixed,
-          org.apache.camel.spi.DataFormatResolver;dataformat=bindy-kvp
-        </camel.osgi.export.service>
     </properties>
 
     <dependencies>
@@ -105,9 +97,9 @@
 
     <profiles>
         <profile>
-            <id>jdk9-build</id>
+            <id>jdk9+-build</id>
             <activation>
-                <jdk>9</jdk>
+                <jdk>[9,)</jdk>
             </activation>
             <build>
                 <plugins>

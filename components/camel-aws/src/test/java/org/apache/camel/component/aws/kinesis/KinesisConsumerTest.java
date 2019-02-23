@@ -46,7 +46,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,10 +65,13 @@ public class KinesisConsumerTest {
 
     @Before
     public void setup() throws Exception {
-        KinesisEndpoint endpoint = new KinesisEndpoint(null, "streamName", component);
-        endpoint.setAmazonKinesisClient(kinesisClient);
-        endpoint.setIteratorType(ShardIteratorType.LATEST);
-        endpoint.setShardClosed(KinesisShardClosedStrategyEnum.silent);
+        KinesisConfiguration configuration = new KinesisConfiguration();
+        configuration.setAmazonKinesisClient(kinesisClient);
+        configuration.setIteratorType(ShardIteratorType.LATEST);
+        configuration.setShardClosed(KinesisShardClosedStrategyEnum.silent);
+        configuration.setStreamName("streamName");
+        KinesisEndpoint endpoint = new KinesisEndpoint(null, configuration, component);
+        endpoint.start();
         undertest = new KinesisConsumer(endpoint, processor);
         
         SequenceNumberRange range = new SequenceNumberRange().withEndingSequenceNumber(null);
@@ -112,7 +114,7 @@ public class KinesisConsumerTest {
 
     @Test
     public void itDoesNotMakeADescribeStreamRequestIfShardIdIsSet() throws Exception {
-        undertest.getEndpoint().setShardId("shardIdPassedAsUrlParam");
+        undertest.getEndpoint().getConfiguration().setShardId("shardIdPassedAsUrlParam");
 
         undertest.poll();
 
@@ -126,8 +128,8 @@ public class KinesisConsumerTest {
 
     @Test
     public void itObtainsAShardIteratorOnFirstPollForSequenceNumber() throws Exception {
-        undertest.getEndpoint().setSequenceNumber("12345");
-        undertest.getEndpoint().setIteratorType(ShardIteratorType.AFTER_SEQUENCE_NUMBER);
+        undertest.getEndpoint().getConfiguration().setSequenceNumber("12345");
+        undertest.getEndpoint().getConfiguration().setIteratorType(ShardIteratorType.AFTER_SEQUENCE_NUMBER);
 
         undertest.poll();
 

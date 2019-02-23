@@ -29,16 +29,15 @@ import javax.net.ssl.SSLContext;
 
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.JdkSslContext;
-
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
+import org.apache.camel.support.jsse.KeyManagersParameters;
+import org.apache.camel.support.jsse.KeyStoreParameters;
+import org.apache.camel.support.jsse.SSLContextParameters;
+import org.apache.camel.support.jsse.SSLContextServerParameters;
+import org.apache.camel.support.jsse.TrustManagersParameters;
 import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.camel.util.jsse.KeyManagersParameters;
-import org.apache.camel.util.jsse.KeyStoreParameters;
-import org.apache.camel.util.jsse.SSLContextParameters;
-import org.apache.camel.util.jsse.SSLContextServerParameters;
-import org.apache.camel.util.jsse.TrustManagersParameters;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
@@ -52,7 +51,7 @@ import org.junit.Test;
 public class WebsocketSSLContextInUriRouteExampleTest extends CamelTestSupport {
 
     private static final String NULL_VALUE_MARKER = CamelTestSupport.class.getCanonicalName();
-    private static List<String> received = new ArrayList<String>();
+    private static List<String> received = new ArrayList<>();
     private static CountDownLatch latch = new CountDownLatch(10);
     private Properties originalValues = new Properties();
     private String pwd = "changeit";

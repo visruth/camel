@@ -20,10 +20,10 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+
 import org.apache.camel.dataformat.bindy.Format;
 import org.apache.camel.dataformat.bindy.FormattingOptions;
 import org.apache.camel.dataformat.bindy.PatternFormat;
-import org.apache.camel.dataformat.bindy.format.FormatException;
 import org.apache.camel.util.ObjectHelper;
 
 public class LocalTimeFormatFactory extends AbstractFormatFactory {

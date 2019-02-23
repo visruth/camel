@@ -18,8 +18,6 @@ package org.apache.camel.tools.apt.model;
 
 import java.util.Set;
 
-import org.apache.camel.tools.apt.helper.CollectionStringBuffer;
-
 import static org.apache.camel.tools.apt.helper.Strings.isNullOrEmpty;
 
 public final class EndpointOption {
@@ -27,7 +25,7 @@ public final class EndpointOption {
     private String name;
     private String displayName;
     private String type;
-    private String required;
+    private boolean required;
     private String defaultValue;
     private String defaultValueNote;
     private String documentation;
@@ -42,7 +40,7 @@ public final class EndpointOption {
     private boolean enumType;
     private Set<String> enums;
 
-    public EndpointOption(String name, String displayName, String type, String required, String defaultValue, String defaultValueNote,
+    public EndpointOption(String name, String displayName, String type, boolean required, String defaultValue, String defaultValueNote,
                           String documentation, String optionalPrefix, String prefix, boolean multiValue,
                           boolean deprecated, String deprecationNote, boolean secret, String group, String label,
                           boolean enumType, Set<String> enums) {
@@ -77,7 +75,7 @@ public final class EndpointOption {
         return type;
     }
 
-    public String getRequired() {
+    public boolean isRequired() {
         return required;
     }
 

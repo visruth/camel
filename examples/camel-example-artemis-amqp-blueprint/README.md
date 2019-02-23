@@ -1,7 +1,5 @@
 # Camel Artemis AMQP Messaging
 
-### Introduction
-
 This example shows how to produce/consume messages between Apache Camel and ActiveMQ Artemis using the AMQP component based on the JMS 2.0 Apache Qpid Proton client library.
 
 One benefit of using Camel's AMQP component is to allow connectivity to Qpid's Dispatch Router enabling flexible and scalable interconnect between any AMQP endpoints.
@@ -14,26 +12,23 @@ When deployed in a running environment, Camel will attempt to connect to an alre
 
 The JUnit with an included embedded Artemis Broker can be triggered using Maven.
 
-    mvn test
+    mvn test -P itest
 
 ### Install ActiveMQ Artemis
 
-You download and unzip Apache ActiveMQ Artemis from: http://activemq.apache.org/artemis/download.html
+To automate downloading, unpacking and configuration of Apache ActiveMQ Artemis with latest defined version a special profile is added.
+It's necessary to run following Maven command for do this during example install:
 
-After unzipping the download, you can then create a new broker with the name `mybroker`:
-
-    $ cd apache-artemis-2.4.0 
-    $ bin/artemis create mybroker
+    mvn install -P artemis
 
 ### Run ActiveMQ Artemis
 
-You start ActiveMQ in a shell by running:
+To start configured ActiveMQ Artemis instance in a shell use:
 
-    $ cd mybroker
-    $ bin/artemis run
+    $ target/artemis-instance/bin/artemis run
 
-Which startup Artemis in the foreground and keeps it running until you hit <kbd>ctrl</kbd>+<kbd>c</kbd>
-to shutdown Artemis.
+Which startup ActiveMQ Artemis in the foreground and keeps it running until you hit <kbd>ctrl</kbd>+<kbd>c</kbd>
+to shutdown ActiveMQ Artemis.
 
 ### Run Camel
 
@@ -41,15 +36,15 @@ Start the Camel application:
 
     mvn camel:run -DskipTests=true
 
-Once started, Camel will be listening for HTTP requests (default port 8080) as a trigger mechanism to fire AMQP messages to Artemis.
+Once started, Camel will be listening for HTTP requests (port 9090) as a trigger mechanism to fire AMQP messages to Artemis.
 
 From your prefered browser hit the following URL:
 
-    http://localhost:8080/message
+    http://localhost:9090/message
     
 Or alternatively, using cURL:
 
-    curl http://localhost:8080/message
+    curl http://localhost:9090/message
     
 The above actions should render on screen:
 
@@ -63,6 +58,7 @@ You can browse the Artemis web console: <http://localhost:8161/console>
 to see activity such as number of consumers and producers or acknoledged messages.
 
 ### Run with Karaf
+
 You will need to install this example first to your local maven repository with:
 
 	mvn install

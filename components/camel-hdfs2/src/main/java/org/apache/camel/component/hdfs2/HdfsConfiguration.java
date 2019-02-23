@@ -36,11 +36,11 @@ public class HdfsConfiguration {
     private boolean wantAppend;
     private List<HdfsProducer.SplitStrategy> splitStrategies;
 
-    @UriPath @Metadata(required = "true")
+    @UriPath @Metadata(required = true)
     private String hostName;
     @UriPath(defaultValue = "" + HdfsConstants.DEFAULT_PORT)
     private int port = HdfsConstants.DEFAULT_PORT;
-    @UriPath @Metadata(required = "true")
+    @UriPath @Metadata(required = true)
     private String path;
     @UriParam(label = "producer", defaultValue = "true")
     private boolean overwrite = true;
@@ -170,7 +170,7 @@ public class HdfsConfiguration {
     }
 
     private List<HdfsProducer.SplitStrategy> getSplitStrategies(Map<String, Object> hdfsSettings) {
-        List<HdfsProducer.SplitStrategy> strategies = new ArrayList<HdfsProducer.SplitStrategy>();
+        List<HdfsProducer.SplitStrategy> strategies = new ArrayList<>();
         for (Object obj : hdfsSettings.keySet()) {
             String key = (String) obj;
             if ("splitStrategy".equals(key)) {

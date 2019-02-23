@@ -20,7 +20,6 @@ import javax.annotation.Generated;
 import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
 import info.ganglia.gmetric4j.gmetric.GMetricSlope;
 import info.ganglia.gmetric4j.gmetric.GMetricType;
-import org.apache.camel.component.ganglia.GangliaComponent;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -36,6 +35,11 @@ public class GangliaComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the ganglia component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
     /**
      * To use the shared configuration
      */

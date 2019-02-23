@@ -23,7 +23,6 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.spi.UriPath;
-import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
@@ -42,7 +41,7 @@ import static org.apache.camel.component.pdf.PdfPageSizeConstant.PAGE_SIZE_LETTE
  */
 @UriParams
 public class PdfConfiguration {
-    private static final Map<String, PDRectangle> PAGE_MAP = new HashMap<String, PDRectangle>();
+    private static final Map<String, PDRectangle> PAGE_MAP = new HashMap<>();
 
     static {
         PAGE_MAP.put(PAGE_SIZE_A0, PDRectangle.A0);
@@ -56,7 +55,7 @@ public class PdfConfiguration {
     }
 
     @UriPath(description = "Operation type")
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private PdfOperation operation;
     @UriParam(defaultValue = "20")
     private int marginTop = 20;
@@ -68,7 +67,7 @@ public class PdfConfiguration {
     private int marginRight = 40;
     @UriParam(defaultValue = "14")
     private float fontSize = 14;
-    @UriParam(defaultValue = "PAGE_SIZE_A4", enums = "PAGE_SIZE_A0,PAGE_SIZE_A1,PAGE_SIZE_A2,PAGE_SIZE_A3,PAGE_SIZE_A4,PAGE_SIZE_A5,PAGE_SIZE_A6,PAGE_SIZE_LETTER")
+    @UriParam(defaultValue = "A4", enums = "LETTER,LEGAL,A0,A1,A2,A3,A4,A5,A6")
     private PDRectangle pageSize = PDRectangle.A4;
     @UriParam(defaultValue = "Helvetica")
     private PDFont font = PDType1Font.HELVETICA;

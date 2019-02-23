@@ -26,7 +26,7 @@ import com.google.api.services.bigquery.model.TableDataInsertAllRequest;
 import com.google.api.services.bigquery.model.TableDataInsertAllResponse;
 import com.google.api.services.bigquery.model.TableRow;
 import org.apache.camel.Exchange;
-import org.apache.camel.impl.DefaultProducer;
+import org.apache.camel.support.DefaultProducer;
 
 /**
  * Generic BigQuery Producer
@@ -137,8 +137,6 @@ public class GoogleBigQueryProducer extends DefaultProducer {
             return 0;
         }
 
-        GoogleBigQueryEndpoint endpoint = getEndpoint();
-
         TableDataInsertAllRequest apiRequestData = new TableDataInsertAllRequest().setRows(apiRequestRows);
 
         Bigquery.Tabledata.InsertAll apiRequest = bigquery
@@ -152,7 +150,7 @@ public class GoogleBigQueryProducer extends DefaultProducer {
         }
 
         if (log.isTraceEnabled()) {
-            log.trace("Sending {} messages to bigquery table {}, suffix, partition",
+            log.trace("Sending {} messages to bigquery table {}, suffix {}, partition {}",
                     apiRequestRows.size(), tableId, suffix, partitionDecorator);
         }
 
@@ -163,7 +161,7 @@ public class GoogleBigQueryProducer extends DefaultProducer {
         }
 
         if (log.isTraceEnabled()) {
-            log.trace("Sent {} messages to bigquery table {}, suffix, partition",
+            log.trace("Sent {} messages to bigquery table {}, suffix {}, partition {}",
                 apiRequestRows.size(), tableId, suffix, partitionDecorator);
         }
         if (log.isDebugEnabled()) {

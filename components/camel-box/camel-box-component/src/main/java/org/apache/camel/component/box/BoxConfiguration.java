@@ -27,7 +27,7 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.spi.UriPath;
-import org.apache.camel.util.jsse.SSLContextParameters;
+import org.apache.camel.support.jsse.SSLContextParameters;
 
 /**
  * Component configuration for Box component.
@@ -50,11 +50,11 @@ public class BoxConfiguration {
     public static final String RSA_SHA_256 = "RSA_SHA_256";
 
     @UriPath
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private BoxApiName apiName;
 
     @UriPath
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private String methodName;
 
     @UriParam
@@ -243,10 +243,14 @@ public class BoxConfiguration {
 
     /**
      * The maximum number of access tokens in cache.
-     * 
+     *
      * @param maxCacheEntries
      *            the maxCacheEntries to set
      */
+    public void setMaxCacheEntries(int maxCacheEntries) {
+        this.maxCacheEntries = maxCacheEntries;
+    }
+
     public void setMaxCacheEntries(String maxCacheEntries) {
         try {
             this.maxCacheEntries = Integer.decode(maxCacheEntries);
@@ -278,6 +282,10 @@ public class BoxConfiguration {
      * @param encryptionAlgorithm
      *            the encryptionAlgorithm to set
      */
+    public void setEncryptionAlgorithm(EncryptionAlgorithm encryptionAlgorithm) {
+        this.encryptionAlgorithm = encryptionAlgorithm;
+    }
+
     public void setEncryptionAlgorithm(String encryptionAlgorithm) {
         switch (encryptionAlgorithm) {
         case RSA_SHA_256:

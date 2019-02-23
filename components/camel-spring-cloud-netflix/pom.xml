@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Camel :: Spring Cloud Netflix</name>
@@ -32,7 +32,6 @@
   <description>Camel Cloud integration with Spring Cloud Netflix</description>
 
   <properties>
-    <!-- use by camel-catalog -->
     <firstVersion>2.19.0</firstVersion>
     <label>spring,microservice</label>
 
@@ -49,6 +48,11 @@
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter</artifactId>
       <version>${spring-cloud-commons-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-netflix-ribbon</artifactId>
+      <version>${spring-cloud-netflix-version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -69,6 +73,15 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring-boot</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-spring-cloud</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.reactivex</groupId>
+      <artifactId>rxjava</artifactId>
+      <version>${rxjava-version}</version>
     </dependency>
 
     <!-- Testing dependencies -->
@@ -111,7 +124,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-ribbon</artifactId>
+      <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
       <version>${spring-cloud-netflix-version}</version>
       <scope>test</scope>
     </dependency>

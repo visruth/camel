@@ -22,13 +22,10 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.support.DefaultConsumer;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.ServiceRegistration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 /**
  * Paxlogging consumer.
@@ -42,7 +39,6 @@ import org.slf4j.MDC;
  */
 public class PaxLoggingConsumer extends DefaultConsumer implements PaxAppender {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PaxLoggingConsumer.class);
     private final PaxLoggingEndpoint endpoint;
     private ExecutorService executor;
     private ServiceRegistration registration;
@@ -63,8 +59,8 @@ public class PaxLoggingConsumer extends DefaultConsumer implements PaxAppender {
         // TODO: populate exchange headers
         exchange.getIn().setBody(paxLoggingEvent);
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("PaxLogging {} is firing", endpoint.getAppender());
+        if (log.isTraceEnabled()) {
+            log.trace("PaxLogging {} is firing", endpoint.getAppender());
         }
         try {
             getProcessor().process(exchange);
@@ -84,7 +80,7 @@ public class PaxLoggingConsumer extends DefaultConsumer implements PaxAppender {
         // start the executor before the registration
         executor = endpoint.getCamelContext().getExecutorServiceManager().newSingleThreadExecutor(this, "PaxLoggingEventTask");
 
-        Dictionary<String, String> props = new Hashtable<String, String>();
+        Dictionary<String, String> props = new Hashtable<>();
         props.put("org.ops4j.pax.logging.appender.name", endpoint.getAppender());
         registration = endpoint.getComponent().getBundleContext().registerService(PaxAppender.class.getName(), this, props);
     }

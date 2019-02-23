@@ -18,6 +18,7 @@ package org.apache.camel.component.websocket;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.eclipse.jetty.server.Server;
@@ -125,7 +126,7 @@ public class WebsocketComponentTest {
 
     @Test
     public void testCreateEndpoint() throws Exception {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         Endpoint e1 = component.createEndpoint("websocket://foo", "foo", parameters);
         Endpoint e2 = component.createEndpoint("websocket://foo", "foo", parameters);
         Endpoint e3 = component.createEndpoint("websocket://bar", "bar", parameters);

@@ -36,8 +36,8 @@ import org.apache.camel.component.sjms.tx.BatchTransactionCommitStrategy;
 import org.apache.camel.component.sjms.tx.DefaultTransactionCommitStrategy;
 import org.apache.camel.component.sjms.tx.SessionBatchTransactionSynchronization;
 import org.apache.camel.component.sjms.tx.SessionTransactionSynchronization;
-import org.apache.camel.impl.DefaultConsumer;
 import org.apache.camel.spi.Synchronization;
+import org.apache.camel.support.DefaultConsumer;
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 
@@ -108,7 +108,7 @@ public class SjmsConsumer extends DefaultConsumer {
 
         this.executor = getEndpoint().getCamelContext().getExecutorServiceManager().newDefaultThreadPool(this, "SjmsConsumer");
         if (consumers == null) {
-            consumers = new GenericObjectPool<MessageConsumerResources>(new MessageConsumerResourcesFactory());
+            consumers = new GenericObjectPool<>(new MessageConsumerResourcesFactory());
             consumers.setMaxActive(getConsumerCount());
             consumers.setMaxIdle(getConsumerCount());
             if (getEndpoint().isAsyncStartListener()) {
@@ -225,13 +225,13 @@ public class SjmsConsumer extends DefaultConsumer {
 
         AbstractMessageHandler messageHandler;
         if (getEndpoint().getExchangePattern().equals(ExchangePattern.InOnly)) {
-            if (isTransacted()) {
+            if (isTransacted() || isSynchronous()) {
                 messageHandler = new InOnlyMessageHandler(getEndpoint(), executor, synchronization);
             } else {
                 messageHandler = new InOnlyMessageHandler(getEndpoint(), executor);
             }
         } else {
-            if (isTransacted()) {
+            if (isTransacted() || isSynchronous()) {
                 messageHandler = new InOutMessageHandler(getEndpoint(), executor, synchronization);
             } else {
                 messageHandler = new InOutMessageHandler(getEndpoint(), executor);

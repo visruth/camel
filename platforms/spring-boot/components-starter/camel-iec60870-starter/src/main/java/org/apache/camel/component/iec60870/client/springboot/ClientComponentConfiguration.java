@@ -18,6 +18,7 @@ package org.apache.camel.component.iec60870.client.springboot;
 
 import javax.annotation.Generated;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
+import org.eclipse.neoscada.protocol.iec60870.client.data.DataModuleOptions;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -33,6 +34,11 @@ public class ClientComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the iec60870-client component.
+     * This is enabled by default.
+     */
+    private Boolean enabled;
     /**
      * Default connection options
      */
@@ -64,11 +70,26 @@ public class ClientComponentConfiguration
 
     public static class ClientOptionsNestedConfiguration {
         public static final Class CAMEL_NESTED_CLASS = org.apache.camel.component.iec60870.client.ClientOptions.class;
+        /**
+         * Whether to include the source address
+         */
+        private DataModuleOptions dataModuleOptions;
+        /**
+         * Whether to include the source address
+         */
         private Byte causeSourceAddress;
         /**
-         * Whether background scan transmissions should be ignored.
+         * Whether to include the source address
          */
         private Boolean ignoreBackgroundScan = true;
+
+        public DataModuleOptions getDataModuleOptions() {
+            return dataModuleOptions;
+        }
+
+        public void setDataModuleOptions(DataModuleOptions dataModuleOptions) {
+            this.dataModuleOptions = dataModuleOptions;
+        }
 
         public Byte getCauseSourceAddress() {
             return causeSourceAddress;

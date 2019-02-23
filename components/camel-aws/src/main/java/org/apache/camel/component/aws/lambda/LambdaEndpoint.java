@@ -20,15 +20,16 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
+import org.apache.camel.support.DefaultEndpoint;
 import org.apache.camel.util.ObjectHelper;
 
 /**
@@ -65,6 +66,16 @@ public class LambdaEndpoint extends DefaultEndpoint {
         super.doStart();
         awsLambdaClient = configuration.getAwsLambdaClient() != null ? configuration.getAwsLambdaClient() : createLambdaClient();
     }
+    
+    @Override
+    public void doStop() throws Exception {
+        if (ObjectHelper.isEmpty(configuration.getAwsLambdaClient())) {
+            if (awsLambdaClient != null) {
+                awsLambdaClient.shutdown();
+            }
+        }
+        super.doStop();
+    }
 
     public LambdaConfiguration getConfiguration() {
         return configuration;
@@ -84,8 +95,8 @@ public class LambdaEndpoint extends DefaultEndpoint {
             builder = builder.withClientConfiguration(clientConfiguration);
         }
 
-        if (ObjectHelper.isNotEmpty(configuration.getAwsLambdaEndpoint())) {
-            builder = builder.withRegion(configuration.getAwsLambdaEndpoint());
+        if (ObjectHelper.isNotEmpty(configuration.getRegion())) {
+            builder = builder.withRegion(Regions.valueOf(configuration.getRegion()));
         }
 
         if (configuration.getAccessKey() != null && configuration.getSecretKey() != null) {

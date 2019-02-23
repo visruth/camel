@@ -17,24 +17,20 @@
 package org.apache.camel.component.ignite.events;
 
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.ignite.AbstractIgniteComponent;
+import org.apache.camel.spi.annotations.Component;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.URISupport;
 import org.apache.ignite.Ignite;
-import org.apache.ignite.Ignition;
 import org.apache.ignite.configuration.IgniteConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The Ignite Events Component.
  */
+@Component("ignite-events")
 public class IgniteEventsComponent extends AbstractIgniteComponent {
 
     public static IgniteEventsComponent fromIgnite(Ignite ignite) {

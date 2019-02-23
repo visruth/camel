@@ -1,3 +1,4 @@
+[[box-component]]
 == Box Component
 
 *Available as of Camel version 2.14*
@@ -47,7 +48,7 @@ The Box component supports three different types of authenticated connections.
 === Box Options
 
 // component options: START
-The Box component supports 2 options which are listed below.
+The Box component supports 2 options, which are listed below.
 
 
 
@@ -70,6 +71,7 @@ with the following path and query parameters:
 
 ==== Path Parameters (2 parameters):
 
+
 [width="100%",cols="2,5,^1,2",options="header"]
 |===
 | Name | Description | Default | Type
@@ -77,7 +79,9 @@ with the following path and query parameters:
 | *methodName* | *Required* What sub operation to use for the selected operation |  | String
 |===
 
+
 ==== Query Parameters (20 parameters):
+
 
 [width="100%",cols="2,5,^1,2",options="header"]
 |===
@@ -86,11 +90,11 @@ with the following path and query parameters:
 | *enterpriseId* (common) | The enterprise ID to use for an App Enterprise. |  | String
 | *inBody* (common) | Sets the name of a parameter to be passed in the exchange In Body |  | String
 | *userId* (common) | The user ID to use for an App User. |  | String
-| *bridgeErrorHandler* (consumer) | Allows for bridging the consumer to the Camel routing Error Handler which mean any exceptions occurred while the consumer is trying to pickup incoming messages or the likes will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions that will be logged at WARN or ERROR level and ignored. | false | boolean
-| *exceptionHandler* (consumer) | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN or ERROR level and ignored. |  | ExceptionHandler
+| *bridgeErrorHandler* (consumer) | Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions occurred while the consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored. | false | boolean
+| *exceptionHandler* (consumer) | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this option is not in use. By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored. |  | ExceptionHandler
 | *exchangePattern* (consumer) | Sets the exchange pattern when the consumer creates an exchange. |  | ExchangePattern
 | *httpParams* (advanced) | Custom HTTP params for settings like proxy host |  | Map
-| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported). | false | boolean
+| *synchronous* (advanced) | Sets whether synchronous processing should be strictly used, or Camel is allowed to use asynchronous processing (if supported). | false | boolean
 | *accessTokenCache* (security) | Custom Access Token Cache for storing and retrieving access tokens. |  | IAccessTokenCache
 | *clientSecret* (security) | Box application client secret |  | String
 | *encryptionAlgorithm* (security) | The type of encryption algorithm for JWT. Supported Algorithms: RSA_SHA_256 RSA_SHA_384 RSA_SHA_512 | RSA_SHA_256 | EncryptionAlgorithm
@@ -100,10 +104,54 @@ with the following path and query parameters:
 | *privateKeyPassword* (security) | The password for the private key. |  | String
 | *publicKeyId* (security) | The ID for public key for validating the JWT signature. |  | String
 | *sslContextParameters* (security) | To configure security using SSLContextParameters. |  | SSLContextParameters
-| *userName* (security) | Box user name MUST be provided |  | String
-| *userPassword* (security) | Box user password MUST be provided if authSecureStorage is not set or returns null on first call |  | String
+| *userName* (security) | Box user name, MUST be provided |  | String
+| *userPassword* (security) | Box user password, MUST be provided if authSecureStorage is not set, or returns null on first call |  | String
 |===
 // endpoint options: END
+// spring-boot-auto-configure options: START
+=== Spring Boot Auto-Configuration
+
+When using Spring Boot make sure to use the following Maven dependency to have support for auto configuration:
+
+[source,xml]
+----
+<dependency>
+  <groupId>org.apache.camel</groupId>
+  <artifactId>camel-box-starter</artifactId>
+  <version>x.x.x</version>
+  <!-- use the same version as your Camel core version -->
+</dependency>
+----
+
+
+The component supports 19 options, which are listed below.
+
+
+
+[width="100%",cols="2,5,^1,2",options="header"]
+|===
+| Name | Description | Default | Type
+| *camel.component.box.configuration.access-token-cache* | Custom Access Token Cache for storing and retrieving access tokens. |  | IAccessTokenCache
+| *camel.component.box.configuration.api-name* | What kind of operation to perform |  | BoxApiName
+| *camel.component.box.configuration.authentication-type* | The type of authentication for connection. <p> Types of Authentication: <ul> <li>STANDARD_AUTHENTICATION - OAuth 2.0 (3-legged)</li> <li>SERVER_AUTHENTICATION - OAuth 2.0 with JSON Web Tokens</li> </ul> | APP_USER_AUTHENTICATION | String
+| *camel.component.box.configuration.client-id* | Box application client ID |  | String
+| *camel.component.box.configuration.client-secret* | Box application client secret |  | String
+| *camel.component.box.configuration.encryption-algorithm* | The type of encryption algorithm for JWT. <p> Supported Algorithms: <ul> <li>RSA_SHA_256</li> <li>RSA_SHA_384</li> <li>RSA_SHA_512</li> </ul> |  | EncryptionAlgorithm
+| *camel.component.box.configuration.enterprise-id* | The enterprise ID to use for an App Enterprise. |  | String
+| *camel.component.box.configuration.http-params* | Custom HTTP params for settings like proxy host |  | Map
+| *camel.component.box.configuration.max-cache-entries* | The maximum number of access tokens in cache. | 100 | Integer
+| *camel.component.box.configuration.method-name* | What sub operation to use for the selected operation |  | String
+| *camel.component.box.configuration.private-key-file* | The private key for generating the JWT signature. |  | String
+| *camel.component.box.configuration.private-key-password* | The password for the private key. |  | String
+| *camel.component.box.configuration.public-key-id* | The ID for public key for validating the JWT signature. |  | String
+| *camel.component.box.configuration.ssl-context-parameters* | To configure security using SSLContextParameters. |  | SSLContextParameters
+| *camel.component.box.configuration.user-id* | The user ID to use for an App User. |  | String
+| *camel.component.box.configuration.user-name* | Box user name, MUST be provided |  | String
+| *camel.component.box.configuration.user-password* | Box user password, MUST be provided if authSecureStorage is not set, or returns null on first call |  | String
+| *camel.component.box.enabled* | Enable box component | true | Boolean
+| *camel.component.box.resolve-property-placeholders* | Whether the component should resolve property placeholders on itself when starting. Only properties which are of String type can use property placeholders. | true | Boolean
+|===
+// spring-boot-auto-configure options: END
 
 === URI format
 
@@ -253,7 +301,7 @@ URI Options for _collaborations_
 
 For more information on Box event logs see
 https://developer.box.com/reference#events[https://developer.box.com/reference#events].
-The following endpoints can be invoked with the prefix *`events`* as follows:
+The following endpoints can be invoked with the prefix *`event-logs`* as follows:
 
 [source]
 ----
@@ -318,7 +366,7 @@ box:files/endpoint?[options]
 
 |getFileVersions |versions |fileId |java.util.Collection
 
-|downloadPreviousFileVersions |downloadVersion |fileId, version, output, [listener] |java.io.OutputStream
+|downloadPreviousFileVersion |downloadVersion |fileId, version, output, [listener] |java.io.OutputStream
 
 |deleteFileVersion |deleteVersion |fileId, version |
 
@@ -422,6 +470,8 @@ box:folders/endpoint?[options]
 
 |createFolder |create |parentFolderId, folderName |com.box.sdk.BoxFolder
 
+|createFolder |create |parentFolderId, path |com.box.sdk.BoxFolder
+
 |copyFolder |copy |folderId, destinationfolderId, [newName] |com.box.sdk.BoxFolder 
 
 |moveFolder |move |folderId, destinationFolderId, newName |com.box.sdk.BoxFolder
@@ -436,7 +486,7 @@ box:folders/endpoint?[options]
 
 |getFolderInfo |info |folderId, fields |com.box.sdk.BoxFolder.Info
 
-|getFolderItems |items |folderId, offset, limit, fields |com.box.sdk.BoxFolder
+|getFolderItems |items |folderId, offset, limit, fields |java.util.List
 
 |updateFolderInfo |updateInfo |folderId, info |com.box.sdk.BoxFolder
 |===
@@ -666,25 +716,31 @@ URI Options for _users_
 |===
 |Name |Type
 
-|defaultRequest |com.box.restclientv2.requestsbase.BoxDefaultRequestObject
+|email |String
 
-|emailAliasRequest |com.box.boxjavalibv2.requests.requestobjects.BoxEmailAliasRequestObject
+|emailAliasId |String
 
-|emailId |String
+|fields |String[]
 
 |filterTerm |String
 
 |folderId |String
 
-|simpleUserRequest |com.box.boxjavalibv2.requests.requestobjects.BoxSimpleUserRequestObject
+|force |boolean
 
-|userDeleteRequest |com.box.boxjavalibv2.requests.requestobjects.BoxUserDeleteRequestObject
+|info |com.box.sdk.BoxUser.Info
+
+|login |String
+
+|name |String
+
+|notifyUser |boolean
+
+|params |com.box.sdk.CreateUserParams
+
+|sourceUserId |String
 
 |userId |String
-
-|userRequest |com.box.boxjavalibv2.requests.requestobjects.BoxUserRequestObject
-
-|userUpdateLoginRequest |com.box.boxjavalibv2.requests.requestobjects.BoxUserUpdateLoginRequestObject
 |===
 
 === Consumer Endpoints:

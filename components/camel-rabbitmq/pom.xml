@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-rabbitmq</artifactId>
@@ -32,10 +32,6 @@
   <description>Camel RabbitMQ Component</description>
 
   <properties>
-    <camel.osgi.export.pkg>
-      org.apache.camel.component.rabbitmq.*
-    </camel.osgi.export.pkg>
-    <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=rabbitmq</camel.osgi.export.service>
   </properties>
 
   <dependencies>
@@ -51,7 +47,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
+      <artifactId>camel-support</artifactId>
     </dependency>
 
     <!-- testing -->
@@ -63,6 +59,30 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.qpid</groupId>
+      <artifactId>qpid-broker-core</artifactId>
+      <version>${qpid-broker-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.qpid</groupId>
+      <artifactId>qpid-broker-plugins-amqp-0-8-protocol</artifactId>
+      <version>${qpid-broker-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.qpid</groupId>
+      <artifactId>qpid-broker-plugins-memory-store</artifactId>
+      <version>${qpid-broker-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.qpid</groupId>
+      <artifactId>qpid-broker-plugins-access-control</artifactId>
+      <version>${qpid-broker-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

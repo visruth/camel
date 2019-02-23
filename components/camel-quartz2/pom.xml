@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-quartz2</artifactId>
@@ -31,23 +31,8 @@
   <name>Camel :: Quartz2</name>
   <description>Camel Quartz2 support</description>
 
-  <properties>
-    <camel.osgi.export.pkg>
-      org.apache.camel.component.quartz2.*;${camel.osgi.version},
-      org.apache.camel.pollconsumer.quartz2.*,
-      org.apache.camel.routepolicy.quartz2.*
-    </camel.osgi.export.pkg>
-    <camel.osgi.import.pkg>
-      !org.apache.camel.component.quartz2.*,
-      !org.apache.camel.pollconsumer.quartz2.*,
-      !org.apache.camel.routepolicy.quartz2.*,
-      ${camel.osgi.import.defaults},
-      *
-    </camel.osgi.import.pkg>
-    <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=quartz2</camel.osgi.export.service>
-  </properties>
-
   <dependencies>
+    <!-- core required: org.apache.camel.processor.loadbalancer -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>

@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 package org.apache.camel.component.jms;
-
 import java.io.File;
-import java.io.InputStream;
+
 import javax.jms.ConnectionFactory;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.util.FileUtil;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
@@ -31,11 +31,13 @@ import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknow
 public class JmsStreamMessageTypeTest extends CamelTestSupport {
 
     @Override
+    @Before
     public void setUp() throws Exception {
         deleteDirectory("target/stream");
         super.setUp();
     }
 
+    @Override
     protected CamelContext createCamelContext() throws Exception {
         CamelContext camelContext = super.createCamelContext();
 
@@ -55,8 +57,8 @@ public class JmsStreamMessageTypeTest extends CamelTestSupport {
 
         assertMockEndpointsSatisfied();
 
-        StreamMessageInputStream is = getMockEndpoint("mock:result").getReceivedExchanges().get(0).getIn().getBody(StreamMessageInputStream.class);
-        assertNotNull(is);
+        Object body = getMockEndpoint("mock:result").getReceivedExchanges().get(0).getIn().getBody();
+        StreamMessageInputStream is = assertIsInstanceOf(StreamMessageInputStream.class, body);
 
         // no more bytes should be available on the inputstream
         assertEquals(0, is.available());

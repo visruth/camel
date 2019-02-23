@@ -18,9 +18,15 @@ package org.apache.camel.component.aws.xray;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.camel.RoutesBuilder;
+import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 
 public class TwoServiceWithExcludeTest extends CamelAwsXRayTestSupport {
 
@@ -40,9 +46,13 @@ public class TwoServiceWithExcludeTest extends CamelAwsXRayTestSupport {
 
     @Test
     public void testRoute() throws Exception {
+        NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
+
         template.requestBody("direct:ServiceA", "Hello");
 
-        Thread.sleep(500);
+        assertThat("Not all exchanges were fully processed",
+                notify.matches(10, TimeUnit.SECONDS), is(equalTo(true)));
+
         verify();
     }
 

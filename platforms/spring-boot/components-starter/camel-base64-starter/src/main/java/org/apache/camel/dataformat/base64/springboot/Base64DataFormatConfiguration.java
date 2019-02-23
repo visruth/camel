@@ -32,6 +32,11 @@ public class Base64DataFormatConfiguration
             DataFormatConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the base64 data format. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * To specific a maximum line length for the encoded data. By default 76 is
      * used.
      */
@@ -49,7 +54,7 @@ public class Base64DataFormatConfiguration
     /**
      * Whether the data format should set the Content-Type header with the type
      * from the data format if the data format is capable of doing so. For
-     * example application/xml for data formats marshalling to XML or
+     * example application/xml for data formats marshalling to XML, or
      * application/json for data formats marshalling to JSon etc.
      */
     private Boolean contentTypeHeader = false;

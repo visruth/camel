@@ -17,10 +17,8 @@
 package org.apache.camel.component.guava.eventbus.springboot;
 
 import javax.annotation.Generated;
-import com.google.common.eventbus.EventBus;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * The guava-eventbus component provides integration bridge between Camel and
@@ -35,10 +33,15 @@ public class GuavaEventBusComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
-     * To use the given Guava EventBus instance
+     * Whether to enable auto configuration of the guava-eventbus component.
+     * This is enabled by default.
      */
-    @NestedConfigurationProperty
-    private EventBus eventBus;
+    private Boolean enabled;
+    /**
+     * To use the given Guava EventBus instance. The option is a
+     * com.google.common.eventbus.EventBus type.
+     */
+    private String eventBus;
     /**
      * The interface with method(s) marked with the Subscribe annotation.
      * Dynamic proxy will be created over the interface so it could be
@@ -46,7 +49,7 @@ public class GuavaEventBusComponentConfiguration
      * multi-event listeners and for handling DeadEvent properly. This option
      * cannot be used together with eventClass option.
      */
-    private Class listenerInterface;
+    private Class<?> listenerInterface;
     /**
      * Whether the component should resolve property placeholders on itself when
      * starting. Only properties which are of String type can use property
@@ -54,19 +57,19 @@ public class GuavaEventBusComponentConfiguration
      */
     private Boolean resolvePropertyPlaceholders = true;
 
-    public EventBus getEventBus() {
+    public String getEventBus() {
         return eventBus;
     }
 
-    public void setEventBus(EventBus eventBus) {
+    public void setEventBus(String eventBus) {
         this.eventBus = eventBus;
     }
 
-    public Class getListenerInterface() {
+    public Class<?> getListenerInterface() {
         return listenerInterface;
     }
 
-    public void setListenerInterface(Class listenerInterface) {
+    public void setListenerInterface(Class<?> listenerInterface) {
         this.listenerInterface = listenerInterface;
     }
 

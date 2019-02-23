@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>maven-plugins</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-package-maven-plugin</artifactId>
@@ -49,7 +49,7 @@
     <!-- use our patched ordered json-simple parser -->
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>json-simple-ordered</artifactId>
+      <artifactId>camel-util-json</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -72,12 +72,12 @@
       <artifactId>maven-plugin-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-descriptor</artifactId>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
+      <artifactId>maven-compat</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
@@ -143,11 +143,24 @@
       <version>${spring-boot-version}</version>
     </dependency>
 
+    <!-- jandex for annotation processing -->
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jandex</artifactId>
+      <version>${jandex-version}</version>
+    </dependency>
+
     <!-- Freemarker for xml templating -->
     <dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
       <version>${freemarker-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-tree</artifactId>
+      <version>7.0</version>
     </dependency>
 
     <!-- logging -->
@@ -171,6 +184,26 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>spi-annotations</artifactId>
+    </dependency>
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit-jupiter-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit-jupiter-version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

@@ -21,8 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.camel.util.EndpointHelper;
-import org.apache.camel.util.JsonSchemaHelper;
+import org.apache.camel.support.JSonSchemaHelper;
+import org.apache.camel.support.PatternHelper;
 import org.apache.camel.util.URISupport;
 
 /**
@@ -51,7 +51,7 @@ public class EndpointExplainCommand extends AbstractContextCommand {
             Iterator<Map<String, String>> it = endpoints.iterator();
             while (it.hasNext()) {
                 Map<String, String> row = it.next();
-                if (!EndpointHelper.matchPattern(row.get("uri"), filter)) {
+                if (!PatternHelper.matchPattern(row.get("uri"), filter)) {
                     // did not match
                     it.remove();
                 }
@@ -76,7 +76,7 @@ public class EndpointExplainCommand extends AbstractContextCommand {
             out.println();
 
             // use a basic json parser
-            List<Map<String, String>> options = JsonSchemaHelper.parseJsonSchema("properties", json, true);
+            List<Map<String, String>> options = JSonSchemaHelper.parseJsonSchema("properties", json, true);
 
             for (Map<String, String> option : options) {
                 out.print("Option:        ");

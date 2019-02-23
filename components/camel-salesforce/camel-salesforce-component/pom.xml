@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>camel-salesforce-parent</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-salesforce</artifactId>
@@ -34,11 +34,6 @@
   <description>Camel Salesforce support</description>
 
   <properties>
-    <camel.osgi.export.pkg>
-      org.apache.camel.component.salesforce,
-      org.apache.camel.component.salesforce.api.*
-    </camel.osgi.export.pkg>
-    <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=salesforce</camel.osgi.export.service>
     <camel.osgi.private.pkg>org.apache.camel.component.salesforce.internal.*</camel.osgi.private.pkg>
     <salesforce.component.root>..</salesforce.component.root>
   </properties>
@@ -90,6 +85,11 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>${jackson2-version}</version>
     </dependency>
     <!-- json schema -->
     <dependency>
@@ -199,6 +199,12 @@
       <version>${okclient-version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>${awaitility-version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -211,7 +217,7 @@
           <execution>
             <goals>
               <goal>addTestSources</goal>
-              <goal>testCompile</goal>
+              <goal>compileTests</goal>
             </goals>
           </execution>
         </executions>
@@ -266,7 +272,7 @@ https://developer.salesforce.com/page/Force.com_Migration_Tool]]></message>
           </plugin>
           <plugin>
             <artifactId>maven-resources-plugin</artifactId>
-            <version>3.0.2</version>
+            <version>${maven-resources-plugin-version}</version>
             <executions>
               <execution>
                 <id>copy-test-salesforce-login-properties</id>

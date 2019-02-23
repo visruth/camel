@@ -30,7 +30,7 @@ public class SwaggerRestApiProcessorFactory implements RestApiProcessorFactory {
     public Processor createApiProcessor(CamelContext camelContext, String contextPath, String contextIdPattern, boolean contextIdListing,
                                         RestConfiguration configuration, Map<String, Object> parameters) throws Exception {
 
-        Map<String, Object> options = new HashMap<String, Object>(parameters);
+        Map<String, Object> options = new HashMap<>(parameters);
         if (configuration.getApiProperties() != null) {
             options.putAll(configuration.getApiProperties());
         }
@@ -54,6 +54,14 @@ public class SwaggerRestApiProcessorFactory implements RestApiProcessorFactory {
                 } else {
                     options.put("host", "localhost");
                 }
+            }
+        }
+        // and include the default scheme as well if not explicit configured
+        if (!options.containsKey("schemes") && !options.containsKey("schemas")) {
+            // NOTE schemas is a typo but kept for backwards compatible
+            String scheme = configuration.getScheme();
+            if (scheme != null) {
+                options.put("schemes", scheme);
             }
         }
         // and context path is the base.path

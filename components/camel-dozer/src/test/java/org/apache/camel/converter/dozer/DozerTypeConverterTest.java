@@ -15,22 +15,22 @@
  * limitations under the License.
  */
 package org.apache.camel.converter.dozer;
-
 import java.util.Arrays;
 
+import com.github.dozermapper.core.Mapper;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.converter.dozer.service.Customer;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.dozer.Mapper;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.apache.camel.converter.dozer.DozerTestArtifactsFactory.createMapper;
 import static org.apache.camel.converter.dozer.DozerTestArtifactsFactory.createServiceCustomer;
 
 public class DozerTypeConverterTest extends CamelTestSupport {
 
     @Override
+    @Before
     public void setUp() throws Exception {
         super.setUp();
 

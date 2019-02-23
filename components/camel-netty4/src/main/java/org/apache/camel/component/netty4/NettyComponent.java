@@ -23,16 +23,18 @@ import java.util.concurrent.ThreadFactory;
 
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.SSLContextParametersAware;
-import org.apache.camel.impl.UriEndpointComponent;
 import org.apache.camel.spi.Metadata;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.spi.annotations.Component;
+import org.apache.camel.support.DefaultComponent;
+import org.apache.camel.support.IntrospectionSupport;
+import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.camel.util.concurrent.CamelThreadFactory;
 
-public class NettyComponent extends UriEndpointComponent implements SSLContextParametersAware {
+@Component("netty,netty4")
+public class NettyComponent extends DefaultComponent implements SSLContextParametersAware {
 
     @Metadata(label = "advanced")
     private NettyConfiguration configuration;
@@ -44,15 +46,14 @@ public class NettyComponent extends UriEndpointComponent implements SSLContextPa
     private boolean useGlobalSslContextParameters;
 
     public NettyComponent() {
-        super(NettyEndpoint.class);
     }
 
     public NettyComponent(Class<? extends Endpoint> endpointClass) {
-        super(endpointClass);
+        super();
     }
 
     public NettyComponent(CamelContext context) {
-        super(context, NettyEndpoint.class);
+        super(context);
     }
 
     public int getMaximumPoolSize() {
@@ -81,7 +82,7 @@ public class NettyComponent extends UriEndpointComponent implements SSLContextPa
         // merge any custom bootstrap configuration on the config
         NettyServerBootstrapConfiguration bootstrapConfiguration = resolveAndRemoveReferenceParameter(parameters, "bootstrapConfiguration", NettyServerBootstrapConfiguration.class);
         if (bootstrapConfiguration != null) {
-            Map<String, Object> options = new HashMap<String, Object>();
+            Map<String, Object> options = new HashMap<>();
             if (IntrospectionSupport.getProperties(bootstrapConfiguration, options, null, false)) {
                 IntrospectionSupport.setProperties(getCamelContext().getTypeConverter(), config, options);
             }
@@ -121,7 +122,7 @@ public class NettyComponent extends UriEndpointComponent implements SSLContextPa
     }
 
     /**
-     * To use the given EventExecutorGroup
+     * To use the given EventExecutorGroup.
      */
     public void setExecutorService(EventExecutorGroup executorService) {
         this.executorService = executorService;
@@ -138,6 +139,15 @@ public class NettyComponent extends UriEndpointComponent implements SSLContextPa
     @Override
     public void setUseGlobalSslContextParameters(boolean useGlobalSslContextParameters) {
         this.useGlobalSslContextParameters = useGlobalSslContextParameters;
+    }
+
+    @Metadata(description = "To configure security using SSLContextParameters", label = "security")
+    public void setSslContextParameters(final SSLContextParameters sslContextParameters) {
+        if (configuration == null) {
+            configuration = new NettyConfiguration();
+        }
+
+        configuration.setSslContextParameters(sslContextParameters);
     }
 
     public EventExecutorGroup getExecutorService() {

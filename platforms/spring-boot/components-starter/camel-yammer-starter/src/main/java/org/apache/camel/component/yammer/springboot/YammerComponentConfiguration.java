@@ -35,6 +35,11 @@ public class YammerComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the yammer component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * The consumer key
      */
     private String consumerKey;
@@ -129,6 +134,10 @@ public class YammerComponentConfiguration
          * POJOs.
          */
         private Boolean useJson = false;
+        /**
+         * Set to true if you want to use raw JSON rather than converting to
+         * POJOs.
+         */
         private ApiRequestor requestor;
         /**
          * Return only the specified number of messages. Works for threaded=true

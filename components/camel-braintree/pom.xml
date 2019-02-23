@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-braintree</artifactId>
@@ -41,20 +41,24 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <camel.osgi.export.pkg>${componentPackage}</camel.osgi.export.pkg>
     <camel.osgi.private.pkg>${outPackage}</camel.osgi.private.pkg>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
-      <version>${project.version}</version>
+      <artifactId>camel-support</artifactId>
     </dependency>
     <dependency>
       <groupId>com.braintreepayments.gateway</groupId>
       <artifactId>braintree-java</artifactId>
       <version>${braintree-gateway-version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Component API javadoc in provided scope to read API signatures -->
@@ -62,9 +66,15 @@
       <groupId>com.braintreepayments.gateway</groupId>
       <artifactId>braintree-java</artifactId>
       <version>${braintree-gateway-version}</version>
-      <classifier>javadoc</classifier>
+      <type>javadoc</type>
       <scope>provided</scope>
       <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- logging -->
@@ -148,9 +158,35 @@
                   <fromJavadoc/>
                 </api>
                 <api>
+                  <apiName>dispute</apiName>
+                  <proxyClass>com.braintreegateway.DisputeGateway</proxyClass>
+                  <fromJavadoc/>
+                </api>
+                <api>
+                  <apiName>documentUpload</apiName>
+                  <proxyClass>com.braintreegateway.DocumentUploadGateway</proxyClass>
+                  <fromJavadoc/>
+                </api>
+                <api>
                   <apiName>merchantAccount</apiName>
                   <proxyClass>com.braintreegateway.MerchantAccountGateway</proxyClass>
                   <fromJavadoc/>
+                  <substitutions>
+                    <substitution>
+                      <method>^.+$</method>
+                      <argName>^.+$</argName>
+                      <argType>com.braintreegateway.MerchantAccountRequest</argType>
+                      <replacement>request</replacement>
+                      <replaceWithType>false</replaceWithType>
+                    </substitution>
+                    <substitution>
+                      <method>^.+$</method>
+                      <argName>^.+$</argName>
+                      <argType>com.braintreegateway.MerchantAccountCreateForCurrencyRequest</argType>
+                      <replacement>currencyRequest</replacement>
+                      <replaceWithType>false</replaceWithType>
+                    </substitution>
+                  </substitutions>
                 </api>
                 <api>
                   <apiName>paymentMethod</apiName>
@@ -158,6 +194,22 @@
                   <fromJavadoc>
                     <excludeMethods>.*parse.*</excludeMethods>
                   </fromJavadoc>
+                  <substitutions>
+                    <substitution>
+                      <method>^.+$</method>
+                      <argName>^.+$</argName>
+                      <argType>com.braintreegateway.PaymentMethodRequest</argType>
+                      <replacement>request</replacement>
+                      <replaceWithType>false</replaceWithType>
+                    </substitution>
+                    <substitution>
+                      <method>^.+$</method>
+                      <argName>^.+$</argName>
+                      <argType>com.braintreegateway.PaymentMethodDeleteRequest</argType>
+                      <replacement>deleteRequest</replacement>
+                      <replaceWithType>false</replaceWithType>
+                    </substitution>
+                  </substitutions>
                 </api>
                 <api>
                   <apiName>paymentMethodNonce</apiName>
@@ -169,6 +221,11 @@
                 <api>
                   <apiName>plan</apiName>
                   <proxyClass>com.braintreegateway.PlanGateway</proxyClass>
+                  <fromJavadoc/>
+                </api>
+                <api>
+                  <apiName>report</apiName>
+                  <proxyClass>com.braintreegateway.ReportGateway</proxyClass>
                   <fromJavadoc/>
                 </api>
                 <api>
@@ -193,6 +250,13 @@
                       <argName>^.+$</argName>
                       <argType>com.braintreegateway.TransactionRequest</argType>
                       <replacement>request</replacement>
+                      <replaceWithType>false</replaceWithType>
+                    </substitution>
+                    <substitution>
+                      <method>^.+$</method>
+                      <argName>^.+$</argName>
+                      <argType>com.braintreegateway.TransactionRefundRequest</argType>
+                      <replacement>refundRequest</replacement>
                       <replaceWithType>false</replaceWithType>
                     </substitution>
                     <substitution>
@@ -288,6 +352,37 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+              <systemPropertyVariables>
+                <braintreeAuthenticationType>PUBLIC_PRIVATE_KEYS</braintreeAuthenticationType>
+              </systemPropertyVariables>
+              <childDelegation>false</childDelegation>
+              <useFile>true</useFile>
+              <forkCount>1</forkCount>
+              <reuseForks>true</reuseForks>
+              <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
+              <includes>
+                <include>**/*Test.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/*XXXTest.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>braintree-access-token-test</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <braintreeAuthenticationType>ACCESS_TOKEN</braintreeAuthenticationType>
+              </systemPropertyVariables>
               <childDelegation>false</childDelegation>
               <useFile>true</useFile>
               <forkCount>1</forkCount>

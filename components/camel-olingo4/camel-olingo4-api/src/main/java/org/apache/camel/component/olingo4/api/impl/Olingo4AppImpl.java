@@ -194,7 +194,7 @@ public final class Olingo4AppImpl implements Olingo4App {
     @Override
     public void setServiceUri(String serviceUri) {
         if (serviceUri == null || serviceUri.isEmpty()) {
-            throw new IllegalArgumentException("serviceUri");
+            throw new IllegalArgumentException("serviceUri is not set");
         }
         this.serviceUri = serviceUri.endsWith(SEPARATOR) ? serviceUri.substring(0, serviceUri.length() - 1) : serviceUri;
     }
@@ -651,7 +651,7 @@ public final class Olingo4AppImpl implements Olingo4App {
                 OutputStream os = new ByteArrayOutputStream();
                 ODataBatchUtilities.readBatchPart(batchController, os, false);
                 Object content = null;
-                final Olingo4BatchRequest batchPartRequest = (Olingo4BatchRequest)batchRequest.get(batchRequestIndex);
+                final Olingo4BatchRequest batchPartRequest = batchRequest.get(batchRequestIndex);
                 final HttpResponse batchPartHttpResponse = constructBatchPartHttpResponse(new ByteArrayInputStream(((ByteArrayOutputStream)os).toByteArray()));
                 final StatusLine batchPartStatusLine = batchPartHttpResponse.getStatusLine();
                 final int batchPartLineStatusCode = batchPartStatusLine.getStatusCode();
@@ -778,7 +778,7 @@ public final class Olingo4AppImpl implements Olingo4App {
 
         final StringBuilder absolutUri = new StringBuilder(resourceUri).append(SEPARATOR).append(resourcePath);
         if (queryOptions != null && !queryOptions.isEmpty()) {
-            absolutUri.append("/?" + queryOptions);
+            absolutUri.append("?" + queryOptions);
         }
         return absolutUri.toString();
 

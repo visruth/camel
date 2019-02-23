@@ -17,13 +17,12 @@
 package org.apache.camel.component.olingo4;
 
 import java.util.Map;
-
 import org.apache.camel.component.olingo4.internal.Olingo4ApiName;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.spi.UriPath;
-import org.apache.camel.util.jsse.SSLContextParameters;
+import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.http.HttpHost;
 import org.apache.http.entity.ContentType;
@@ -40,9 +39,9 @@ public class Olingo4Configuration {
     private static final int DEFAULT_TIMEOUT = 30 * 1000;
 
     @UriPath
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private Olingo4ApiName apiName;
-    @UriPath @Metadata(required = "true")
+    @UriPath @Metadata(required = true)
     private String methodName;
     @UriParam
     private String serviceUri;
@@ -62,6 +61,8 @@ public class Olingo4Configuration {
     private HttpAsyncClientBuilder httpAsyncClientBuilder;
     @UriParam
     private HttpClientBuilder httpClientBuilder;
+    @UriParam
+    private boolean filterAlreadySeen;
 
     public Olingo4ApiName getApiName() {
         return apiName;
@@ -184,6 +185,21 @@ public class Olingo4Configuration {
      */
     public void setHttpClientBuilder(HttpClientBuilder httpClientBuilder) {
         this.httpClientBuilder = httpClientBuilder;
+    }
+
+    /**
+     * Filter flag for filtering out already seen results
+     */
+    public boolean getFilterAlreadySeen() {
+        return filterAlreadySeen;
+    }
+
+    /**
+     * Set this to true to filter out results that have already been communicated by this component.
+     * @param filterAlreadySeen
+     */
+    public void setFilterAlreadySeen(boolean filterAlreadySeen) {
+        this.filterAlreadySeen = filterAlreadySeen;
     }
 
     @Override

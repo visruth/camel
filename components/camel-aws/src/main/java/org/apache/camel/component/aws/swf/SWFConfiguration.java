@@ -25,22 +25,23 @@ import com.amazonaws.services.simpleworkflow.flow.WorkflowTypeRegistrationOption
 import com.amazonaws.services.simpleworkflow.flow.worker.ActivityTypeExecutionOptions;
 import com.amazonaws.services.simpleworkflow.flow.worker.ActivityTypeRegistrationOptions;
 
+import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.spi.UriPath;
 
 @UriParams
-public class SWFConfiguration {
+public class SWFConfiguration implements Cloneable {
 
     @UriPath(enums = "activity,workflow")
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private String type;
     @UriParam
     private AmazonSimpleWorkflowClient amazonSWClient;
-    @UriParam
+    @UriParam(label = "security", secret = true)
     private String accessKey;
-    @UriParam
+    @UriParam(label = "security", secret = true)
     private String secretKey;
     @UriParam(label = "producer,workflow", defaultValue = "START", enums = "SIGNAL,CANCEL,TERMINATE,GET_STATE,START,DESCRIBE,GET_HISTORY")
     private String operation = "START";
@@ -369,25 +370,37 @@ public class SWFConfiguration {
         this.activityThreadPoolSize = activityThreadPoolSize;
     }
 
-    /**
-     * Set the execution start to close timeout.
-     */
     public String getExecutionStartToCloseTimeout() {
         return executionStartToCloseTimeout;
     }
 
+    /**
+     * Set the execution start to close timeout.
+     */
     public void setExecutionStartToCloseTimeout(String executionStartToCloseTimeout) {
         this.executionStartToCloseTimeout = executionStartToCloseTimeout;
+    }
+
+    public String getTaskStartToCloseTimeout() {
+        return taskStartToCloseTimeout;
     }
 
     /**
      * Set the task start to close timeout.
      */
-    public String getTaskStartToCloseTimeout() {
-        return taskStartToCloseTimeout;
-    }
-
     public void setTaskStartToCloseTimeout(String taskStartToCloseTimeout) {
         this.taskStartToCloseTimeout = taskStartToCloseTimeout;
+    }
+    
+    // *************************************************
+    //
+    // *************************************************
+
+    public SWFConfiguration copy() {
+        try {
+            return (SWFConfiguration)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeCamelException(e);
+        }
     }
 }

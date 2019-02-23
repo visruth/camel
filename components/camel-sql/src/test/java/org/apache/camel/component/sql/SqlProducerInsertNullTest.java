@@ -30,9 +30,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-/**
- * @version 
- */
 public class SqlProducerInsertNullTest extends CamelTestSupport {
 
     private EmbeddedDatabase db;
@@ -54,7 +51,7 @@ public class SqlProducerInsertNullTest extends CamelTestSupport {
 
     @Test
     public void testInsertNull() throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("id", 4);
         map.put("project", "Foo");
         map.put("lic", "ASF");

@@ -34,7 +34,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +79,7 @@ public class CryptoDataFormatAutoConfiguration {
 
     @Bean(name = "crypto-dataformat-factory")
     @ConditionalOnMissingBean(CryptoDataFormat.class)
-    public DataFormatFactory configureCryptoDataFormatFactory()
-            throws Exception {
+    public DataFormatFactory configureCryptoDataFormatFactory() throws Exception {
         return new DataFormatFactory() {
             @Override
             public DataFormat newInstance() {

@@ -16,7 +16,6 @@
  */
 package org.apache.camel.component.kubernetes;
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
 import org.apache.camel.RuntimeCamelException;
@@ -29,7 +28,7 @@ import org.apache.camel.spi.UriPath;
 public class KubernetesConfiguration implements Cloneable {
 
     @UriPath
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private String masterUrl;
 
     @Deprecated
@@ -44,21 +43,7 @@ public class KubernetesConfiguration implements Cloneable {
     @UriParam(label = "security", secret = true)
     private String password;
 
-    @UriParam(label = "producer", enums = "listNamespaces,listNamespacesByLabels,getNamespace,createNamespace,deleteNamespace,"
-            + "listServices,listServicesByLabels,getService,createService,"
-            + "deleteService,listReplicationControllers,listReplicationControllersByLabels,getReplicationController,"
-            + "createReplicationController,deleteReplicationController,scaleReplicationController,"
-            + "listPods,listPodsByLabels,getPod,createPod,deletePod,listPersistentVolumes,"
-            + "listPersistentVolumesByLabels,getPersistentVolume,listPersistentVolumesClaims,"
-            + "listPersistentVolumesClaimsByLabels,"
-            + "getPersistentVolumeClaim,createPersistentVolumeClaim,deletePersistentVolumeClaim,listSecrets,"
-            + "listSecretsByLabels,getSecret,createSecret,deleteSecret,"
-            + "listResourcesQuota,listResourcesQuotaByLabels,getResourceQuota,"
-            + "createResourceQuota,deleteResourceQuota,listServiceAccounts,listServiceAccountsByLabels,"
-            + "getServiceAccount,createServiceAccount,"
-            + "deleteServiceAccount,listNodes,listNodesByLabels,getNode,listConfigMaps,"
-            + "listConfigMapsByLabels,getConfigMap,createConfigMap,deleteConfigMap,listBuilds,listBuildsByLabels," 
-            + "getBuild,listBuildConfigs,listBuildConfigsByLabels,getBuildConfig")
+    @UriParam(label = "producer")
     private String operation;
 
     @UriParam
@@ -108,6 +93,9 @@ public class KubernetesConfiguration implements Cloneable {
 
     @UriParam
     private String portName;
+
+    @UriParam(defaultValue = "tcp")
+    private String portProtocol = "tcp";
 
     @UriParam
     private String dnsDomain;
@@ -325,6 +313,17 @@ public class KubernetesConfiguration implements Cloneable {
      */
     public void setPortName(String portName) {
         this.portName = portName;
+    }
+
+    public String getPortProtocol() {
+        return portProtocol;
+    }
+
+    /**
+     * The port protocol, used for ServiceCall EIP
+     */
+    public void setPortProtocol(String portProtocol) {
+        this.portProtocol = portProtocol;
     }
 
     public String getDnsDomain() {

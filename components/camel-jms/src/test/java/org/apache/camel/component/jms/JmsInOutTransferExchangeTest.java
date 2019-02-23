@@ -28,7 +28,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.impl.DefaultExchangeHolder;
+import org.apache.camel.support.DefaultExchangeHolder;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
@@ -60,7 +60,7 @@ public class JmsInOutTransferExchangeTest extends CamelTestSupport {
             public void process(Exchange exchange) throws Exception {
                 exchange.getIn().setBody(new SerializableRequestDto("Restless Camel"));
                 
-                Map<String, Object> map = new HashMap<String, Object>();
+                Map<String, Object> map = new HashMap<>();
                 map.put("boolean", Boolean.TRUE);
                 map.put("string", "hello");
                 map.put("long", new Long(123));

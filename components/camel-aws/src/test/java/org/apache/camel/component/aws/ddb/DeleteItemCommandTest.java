@@ -24,7 +24,7 @@ import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -47,12 +47,12 @@ public class DeleteItemCommandTest {
 
     @Test
     public void execute() {
-        Map<String, AttributeValue> key = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> key = new HashMap<>();
         key.put("1", new AttributeValue("Key_1"));
         exchange.getIn().setHeader(DdbConstants.KEY, key);
 
 
-        Map<String, ExpectedAttributeValue> updateCondition = new HashMap<String, ExpectedAttributeValue>();
+        Map<String, ExpectedAttributeValue> updateCondition = new HashMap<>();
         updateCondition
                 .put("name", new ExpectedAttributeValue(new AttributeValue("expected value")));
         exchange.getIn().setHeader(DdbConstants.UPDATE_CONDITION, updateCondition);

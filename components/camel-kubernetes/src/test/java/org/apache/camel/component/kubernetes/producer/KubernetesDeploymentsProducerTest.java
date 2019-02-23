@@ -20,13 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.api.model.SecretBuilder;
-import io.fabric8.kubernetes.api.model.extensions.Deployment;
-import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder;
-import io.fabric8.kubernetes.api.model.extensions.DeploymentListBuilder;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
+import io.fabric8.kubernetes.api.model.apps.DeploymentListBuilder;
 import io.fabric8.kubernetes.client.server.mock.KubernetesServer;
 
 import org.apache.camel.Exchange;
@@ -67,7 +63,7 @@ public class KubernetesDeploymentsProducerTest extends KubernetesTestSupport {
 
             @Override
             public void process(Exchange exchange) throws Exception {
-                Map<String, String> labels = new HashMap<String, String>();
+                Map<String, String> labels = new HashMap<>();
                 labels.put("key1", "value1");
                 labels.put("key2", "value2");
                 exchange.getIn()
@@ -120,6 +116,29 @@ public class KubernetesDeploymentsProducerTest extends KubernetesTestSupport {
 
         assertTrue(deDeleted);
     }
+    
+    @Test
+    public void createScaleAndDeleteDeployment() throws Exception {
+        server.expect().withPath("/apis/extensions/v1beta1/namespaces/test/deployments/de1").andReturn(200, new DeploymentBuilder().withNewMetadata().withName("de1")
+            .withResourceVersion("1").endMetadata().withNewSpec().withReplicas(5).endSpec().withNewStatus().withReplicas(1).endStatus().build()).once();
+
+        server.expect().withPath("/apis/extensions/v1beta1/namespaces/test/deployments/de1").andReturn(200, new DeploymentBuilder().withNewMetadata().withName("de1")
+            .withResourceVersion("1").endMetadata().withNewSpec().withReplicas(5).endSpec().withNewStatus().withReplicas(5).endStatus().build()).always();
+        Exchange ex = template.request("direct:scaleDeployment", new Processor() {
+
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                exchange.getIn().setHeader(KubernetesConstants.KUBERNETES_NAMESPACE_NAME, "test");
+                exchange.getIn().setHeader(KubernetesConstants.KUBERNETES_DEPLOYMENT_NAME, "de1");
+                exchange.getIn().setHeader(KubernetesConstants.KUBERNETES_DEPLOYMENT_REPLICAS, 1);
+            }
+        });
+
+        //Thread.sleep(3000);
+        int replicas = ex.getOut().getBody(Integer.class);
+
+        assertEquals(5, replicas);
+    }
 
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
@@ -134,6 +153,8 @@ public class KubernetesDeploymentsProducerTest extends KubernetesTestSupport {
                         .toF("kubernetes-deployments:///?kubernetesClient=#kubernetesClient&operation=deleteDeployment");
                 from("direct:createDeployment")
                         .toF("kubernetes-deployments:///?kubernetesClient=#kubernetesClient&operation=createDeployment");
+                from("direct:scaleDeployment")
+                        .toF("kubernetes-deployments:///?kubernetesClient=#kubernetesClient&operation=scaleDeployment");
             }
         };
     }

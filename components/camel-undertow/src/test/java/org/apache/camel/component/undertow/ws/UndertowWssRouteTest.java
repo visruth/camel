@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.undertow.ws;
-
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -28,23 +27,22 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.SSLContextParametersAware;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.undertow.BaseUndertowTest;
 import org.apache.camel.component.undertow.UndertowHttpsSpringTest;
-import org.apache.camel.util.jsse.KeyManagersParameters;
-import org.apache.camel.util.jsse.KeyStoreParameters;
-import org.apache.camel.util.jsse.SSLContextParameters;
-import org.apache.camel.util.jsse.SSLContextServerParameters;
-import org.apache.camel.util.jsse.TrustManagersParameters;
+import org.apache.camel.support.jsse.KeyManagersParameters;
+import org.apache.camel.support.jsse.KeyStoreParameters;
+import org.apache.camel.support.jsse.SSLContextParameters;
+import org.apache.camel.support.jsse.SSLContextServerParameters;
+import org.apache.camel.support.jsse.TrustManagersParameters;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.ws.WebSocket;
-import org.asynchttpclient.ws.WebSocketTextListener;
+import org.asynchttpclient.ws.WebSocketListener;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -105,7 +103,7 @@ public class UndertowWssRouteTest extends BaseUndertowTest {
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)
                 .build();
         builder.setSslContext(sslContext);
-        builder.setAcceptAnyCertificate(true);
+        builder.setUseInsecureTrustManager(true);
         config = builder.build();
         c = new DefaultAsyncHttpClient(config);
 
@@ -114,15 +112,15 @@ public class UndertowWssRouteTest extends BaseUndertowTest {
 
     @Test
     public void testWSHttpCall() throws Exception {
-        final List<String> received = new ArrayList<String>();
+        final List<String> received = new ArrayList<>();
         final CountDownLatch latch = new CountDownLatch(10);
 
         AsyncHttpClient c = createAsyncHttpSSLClient();
         WebSocket websocket = c.prepareGet("wss://localhost:" + getPort() + "/test").execute(
                 new WebSocketUpgradeHandler.Builder()
-                        .addWebSocketListener(new WebSocketTextListener() {
+                        .addWebSocketListener(new WebSocketListener() {
                             @Override
-                            public void onMessage(String message) {
+                            public void onTextFrame(String message, boolean finalFragment, int rsv) {
                                 received.add(message);
                                 log.info("received --> " + message);
                                 latch.countDown();
@@ -133,7 +131,7 @@ public class UndertowWssRouteTest extends BaseUndertowTest {
                             }
 
                             @Override
-                            public void onClose(WebSocket websocket) {
+                            public void onClose(WebSocket websocket, int code, String reason) {
                             }
 
                             @Override
@@ -144,7 +142,7 @@ public class UndertowWssRouteTest extends BaseUndertowTest {
 
         getMockEndpoint("mock:client").expectedBodiesReceived("Hello from WS client");
 
-        websocket.sendMessage("Hello from WS client");
+        websocket.sendTextFrame("Hello from WS client");
         assertTrue(latch.await(10, TimeUnit.SECONDS));
 
         assertMockEndpointsSatisfied();
@@ -154,7 +152,7 @@ public class UndertowWssRouteTest extends BaseUndertowTest {
             assertEquals(">> Welcome on board!", received.get(i));
         }
 
-        websocket.close();
+        websocket.sendCloseFrame();
         c.close();
     }
 

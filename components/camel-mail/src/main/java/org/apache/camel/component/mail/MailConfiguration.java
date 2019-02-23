@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.net.ssl.SSLContext;
@@ -30,24 +31,22 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.spi.UriPath;
+import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.jsse.SSLContextParameters;
 
 /**
  * Represents the configuration data for communicating over email
- *
- * @version
  */
 @UriParams
 public class MailConfiguration implements Cloneable {
 
     private ClassLoader applicationClassLoader;
     private Properties javaMailProperties;
-    private Map<Message.RecipientType, String> recipients = new HashMap<Message.RecipientType, String>();
+    private Map<Message.RecipientType, String> recipients = new HashMap<>();
 
     // protocol is implied by component name so it should not be in UriPath
     private String protocol;
-    @UriPath @Metadata(required = "true")
+    @UriPath @Metadata(required = true)
     private String host;
     @UriPath
     private int port = -1;
@@ -132,7 +131,7 @@ public class MailConfiguration implements Cloneable {
         try {
             MailConfiguration copy = (MailConfiguration) clone();
             // must set a new recipients map as clone just reuse the same reference
-            copy.recipients = new HashMap<Message.RecipientType, String>();
+            copy.recipients = new HashMap<>();
             copy.recipients.putAll(this.recipients);
             return copy;
         } catch (CloneNotSupportedException e) {
@@ -272,7 +271,7 @@ public class MailConfiguration implements Cloneable {
 
     private SSLContext createSSLContext() {
         try {
-            return sslContextParameters.createSSLContext();
+            return sslContextParameters.createSSLContext(null);
         } catch (Exception e) {
             throw new RuntimeCamelException("Error initializing SSLContext.", e);
         }
@@ -510,7 +509,7 @@ public class MailConfiguration implements Cloneable {
      * Sets the To email address. Separate multiple email addresses with comma.
      */
     public void setTo(String address) {
-        this.to = to;
+        this.to = address;
         recipients.put(Message.RecipientType.TO, address);
     }
 

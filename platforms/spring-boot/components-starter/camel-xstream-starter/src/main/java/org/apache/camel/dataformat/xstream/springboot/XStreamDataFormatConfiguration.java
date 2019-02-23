@@ -17,7 +17,6 @@
 package org.apache.camel.dataformat.xstream.springboot;
 
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Generated;
 import org.apache.camel.spring.boot.DataFormatConfigurationPropertiesCommon;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -35,15 +34,20 @@ public class XStreamDataFormatConfiguration
             DataFormatConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the xstream data format. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * Adds permissions that controls which Java packages and classes XStream is
      * allowed to use during unmarshal from xml/json to Java beans. A permission
      * must be configured either here or globally using a JVM system property.
-     * The permission can be specified in a syntax where a plus sign is allow
+     * The permission can be specified in a syntax where a plus sign is allow,
      * and minus sign is deny. Wildcards is supported by using . as prefix. For
      * example to allow com.foo and all subpackages then specfy com.foo..
-     * Multiple permissions can be configured separated by comma such as
-     * com.foo.-com.foo.bar.MySecretBean. The following default permission is
-     * always included: -java.lang.java.util. unless its overridden by
+     * Multiple permissions can be configured separated by comma, such as
+     * com.foo.,-com.foo.bar.MySecretBean. The following default permission is
+     * always included: -,java.lang.,java.util. unless its overridden by
      * specifying a JVM system property with they key
      * org.apache.camel.xstream.permissions.
      */
@@ -76,24 +80,27 @@ public class XStreamDataFormatConfiguration
      */
     private List<String> converters;
     /**
-     * Alias a Class to a shorter name to be used in XML elements.
+     * Alias a Class to a shorter name to be used in XML elements. The option is
+     * a java.util.Map<java.lang.String,java.lang.String> type.
      */
-    private Map<String, String> aliases;
+    private String aliases;
     /**
      * Prevents a field from being serialized. To omit a field you must always
      * provide the declaring type and not necessarily the type that is
-     * converted.
+     * converted. The option is a
+     * java.util.Map<java.lang.String,java.lang.String[]> type.
      */
-    private Map<String, String[]> omitFields;
+    private String omitFields;
     /**
      * Adds a default implicit collection which is used for any unmapped XML
-     * tag.
+     * tag. The option is a java.util.Map<java.lang.String,java.lang.String[]>
+     * type.
      */
-    private Map<String, String[]> implicitCollections;
+    private String implicitCollections;
     /**
      * Whether the data format should set the Content-Type header with the type
      * from the data format if the data format is capable of doing so. For
-     * example application/xml for data formats marshalling to XML or
+     * example application/xml for data formats marshalling to XML, or
      * application/json for data formats marshalling to JSon etc.
      */
     private Boolean contentTypeHeader = false;
@@ -146,27 +153,27 @@ public class XStreamDataFormatConfiguration
         this.converters = converters;
     }
 
-    public Map<String, String> getAliases() {
+    public String getAliases() {
         return aliases;
     }
 
-    public void setAliases(Map<String, String> aliases) {
+    public void setAliases(String aliases) {
         this.aliases = aliases;
     }
 
-    public Map<String, String[]> getOmitFields() {
+    public String getOmitFields() {
         return omitFields;
     }
 
-    public void setOmitFields(Map<String, String[]> omitFields) {
+    public void setOmitFields(String omitFields) {
         this.omitFields = omitFields;
     }
 
-    public Map<String, String[]> getImplicitCollections() {
+    public String getImplicitCollections() {
         return implicitCollections;
     }
 
-    public void setImplicitCollections(Map<String, String[]> implicitCollections) {
+    public void setImplicitCollections(String implicitCollections) {
         this.implicitCollections = implicitCollections;
     }
 

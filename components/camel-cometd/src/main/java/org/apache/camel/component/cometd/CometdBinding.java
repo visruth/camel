@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.support.DefaultMessage;
 import org.cometd.bayeux.server.ServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
@@ -121,7 +121,7 @@ public class CometdBinding {
 
     //TODO: do something in the style of JMS where they have header Strategies?
     private Object filterHeaders(Map<String, Object> headers) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         for (Entry<String, Object> entry : headers.entrySet()) {
             if (entry != null && entry.getKey() != null) {
                 map.put(entry.getKey(), entry.getValue());

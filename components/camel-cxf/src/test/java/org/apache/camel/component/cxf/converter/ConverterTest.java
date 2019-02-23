@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.apache.cxf.message.MessageContentsList;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class ConverterTest extends Assert {
     
     @Test
     public void testToArray() throws Exception {
-        List<String> testList = new ArrayList<String>();
+        List<String> testList = new ArrayList<>();
         testList.add("string 1");
         testList.add("string 2");
         
@@ -91,7 +91,7 @@ public class ConverterTest extends Assert {
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         Document document = documentBuilder.parse(file);
         document.getDocumentElement().normalize();
-        List<Element> elements = new ArrayList<Element>();
+        List<Element> elements = new ArrayList<>();
         elements.add(document.getDocumentElement());
         nl = new NodeListWrapper(elements);
         list.clear();

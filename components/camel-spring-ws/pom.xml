@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-spring-ws</artifactId>
@@ -36,21 +36,28 @@
   <properties>
     <camel.osgi.import.before.defaults>
       org.springframework.beans.*;version="${spring-version-range}",
-      org.springframework.util.*;version="${spring-version-range}"
+      org.springframework.util.*;version="${spring-version-range}",
+      org.springframework.ws.*;version="[3,4)",
+      org.springframework.xml.*;version="[3,4)"
     </camel.osgi.import.before.defaults>
-    <camel.osgi.export.pkg>org.apache.camel.component.spring.ws.*</camel.osgi.export.pkg>
-    <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=spring-ws</camel.osgi.export.service>
+    <!-- for some weird reason org.springframework.ws and org.springframework.xml
+          will have import-ranges of [2,3) by the bundle plugin, so we
+          need to override it here -->
   </properties>
 
   <dependencies>
 
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
+      <artifactId>camel-support</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-xslt</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -188,9 +195,9 @@
 
   <profiles>
     <profile>
-      <id>java9</id>
+      <id>java9+</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <build>
         <plugins>

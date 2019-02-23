@@ -19,7 +19,6 @@ package org.apache.camel.spring.boot;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -31,15 +30,17 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.StartupListener;
 import org.apache.camel.main.MainDurationEventNotifier;
-import org.apache.camel.management.event.CamelContextStartedEvent;
+import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.model.rest.RestDefinition;
 import org.apache.camel.model.rest.RestsDefinition;
+import org.apache.camel.spi.CamelEvent;
+import org.apache.camel.spi.CamelEvent.Type;
 import org.apache.camel.spi.EventNotifier;
 import org.apache.camel.support.EventNotifierSupport;
+import org.apache.camel.support.service.ServiceHelper;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.ServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -73,7 +74,7 @@ public class RoutesCollector implements ApplicationListener<ContextRefreshedEven
     public RoutesCollector(ApplicationContext applicationContext, List<CamelContextConfiguration> camelContextConfigurations,
                            CamelConfigurationProperties configurationProperties) {
         this.applicationContext = applicationContext;
-        this.camelContextConfigurations = new ArrayList<CamelContextConfiguration>(camelContextConfigurations);
+        this.camelContextConfigurations = new ArrayList<>(camelContextConfigurations);
         this.configurationProperties = configurationProperties;
     }
 
@@ -84,7 +85,8 @@ public class RoutesCollector implements ApplicationListener<ContextRefreshedEven
         CamelContext camelContext = applicationContext.getBean(CamelContext.class);
 
         // only add and start Camel if its stopped (initial state)
-        if (camelContext.getStatus().isStopped()) {
+        if (event.getApplicationContext() == this.applicationContext
+                && camelContext.getStatus().isStopped()) {
             LOG.debug("Post-processing CamelContext bean: {}", camelContext.getName());
 
             final AntPathMatcher matcher = new AntPathMatcher();
@@ -102,6 +104,24 @@ public class RoutesCollector implements ApplicationListener<ContextRefreshedEven
                     boolean match = !"false".equals(include);
                     // exclude take precedence over include
                     if (match && ObjectHelper.isNotEmpty(exclude)) {
+                        // there may be multiple separated by comma
+                        String[] parts = exclude.split(",");
+                        for (String part : parts) {
+                            // must negate when excluding, and hence !
+                            match = !matcher.match(part, name);
+                            LOG.trace("Java RoutesBuilder: {} exclude filter: {} -> {}", name, part, match);
+                            if (!match) {
+                                break;
+                            }
+                        }
+                    }
+                    // special support for testing with @ExcludeRoutes annotation with camel-test-spring
+                    exclude = System.getProperty("CamelTestSpringExcludeRoutes");
+                    // exclude take precedence over include
+                    if (match && ObjectHelper.isNotEmpty(exclude)) {
+                        // this property is a comma separated list of FQN class names, so we need to make
+                        // name as path so we can use ant patch matcher
+                        exclude = exclude.replace('.', '/');
                         // there may be multiple separated by comma
                         String[] parts = exclude.split(",");
                         for (String part : parts) {
@@ -229,20 +249,20 @@ public class RoutesCollector implements ApplicationListener<ContextRefreshedEven
                     // so use an event notifier to trigger when this happens
                     camelContext.getManagementStrategy().addEventNotifier(new EventNotifierSupport() {
                         @Override
-                        public void notify(EventObject eventObject) throws Exception {
+                        public void notify(CamelEvent eventObject) throws Exception {
                             for (CamelContextConfiguration camelContextConfiguration : camelContextConfigurations) {
-                                LOG.debug("CamelContextConfiguration found. Invoking afterApplicationStart: {}", camelContextConfiguration);
+                                log.debug("CamelContextConfiguration found. Invoking afterApplicationStart: {}", camelContextConfiguration);
                                 try {
                                     camelContextConfiguration.afterApplicationStart(camelContext);
                                 } catch (Exception e) {
-                                    LOG.warn("Error during calling afterApplicationStart due " + e.getMessage() + ". This exception is ignored", e);
+                                    log.warn("Error during calling afterApplicationStart due " + e.getMessage() + ". This exception is ignored", e);
                                 }
                             }
                         }
 
                         @Override
-                        public boolean isEnabled(EventObject eventObject) {
-                            return eventObject instanceof CamelContextStartedEvent;
+                        public boolean isEnabled(CamelEvent eventObject) {
+                            return eventObject.getType() == Type.CamelContextStarted;
                         }
                     });
                 }
@@ -273,35 +293,39 @@ public class RoutesCollector implements ApplicationListener<ContextRefreshedEven
     // Helpers
 
     private void loadXmlRoutes(ApplicationContext applicationContext, CamelContext camelContext, String directory) throws Exception {
-        LOG.info("Loading additional Camel XML routes from: {}", directory);
-        try {
-            Resource[] xmlRoutes = applicationContext.getResources(directory);
-            for (Resource xmlRoute : xmlRoutes) {
-                LOG.debug("Found XML route: {}", xmlRoute);
-                RoutesDefinition xmlDefinition = camelContext.loadRoutesDefinition(xmlRoute.getInputStream());
-                camelContext.addRouteDefinitions(xmlDefinition.getRoutes());
+        String[] parts = directory.split(",");
+        for (String part : parts) {
+            LOG.info("Loading additional Camel XML routes from: {}", part);
+            try {
+                Resource[] xmlRoutes = applicationContext.getResources(part);
+                for (Resource xmlRoute : xmlRoutes) {
+                    LOG.debug("Found XML route: {}", xmlRoute);
+                    RoutesDefinition xmlDefinition = camelContext.adapt(ModelCamelContext.class).loadRoutesDefinition(xmlRoute.getInputStream());
+                    camelContext.adapt(ModelCamelContext.class).addRouteDefinitions(xmlDefinition.getRoutes());
+                }
+            } catch (FileNotFoundException e) {
+                LOG.debug("No XML routes found in {}. Skipping XML routes detection.", part);
             }
-        } catch (FileNotFoundException e) {
-            LOG.debug("No XML routes found in {}. Skipping XML routes detection.", directory);
         }
     }
 
-    private void loadXmlRests(ApplicationContext applicationContext, CamelContext camelContext, String directory) {
-        LOG.info("Loading additional Camel XML rests from: {}", directory);
-        try {
-            final Resource[] xmlRests = applicationContext.getResources(directory);
-            for (final Resource xmlRest : xmlRests) {
-                final RestsDefinition xmlDefinitions = camelContext.loadRestsDefinition(xmlRest.getInputStream());
-                camelContext.addRestDefinitions(xmlDefinitions.getRests());
-                for (final RestDefinition xmlDefinition : xmlDefinitions.getRests()) {
-                    final List<RouteDefinition> routeDefinitions = xmlDefinition.asRouteDefinition(camelContext);
-                    camelContext.addRouteDefinitions(routeDefinitions);
+    private void loadXmlRests(ApplicationContext applicationContext, CamelContext camelContext, String directory) throws Exception {
+        String[] parts = directory.split(",");
+        for (String part : parts) {
+            LOG.info("Loading additional Camel XML rests from: {}", part);
+            try {
+                final Resource[] xmlRests = applicationContext.getResources(part);
+                for (final Resource xmlRest : xmlRests) {
+                    final RestsDefinition xmlDefinitions = camelContext.adapt(ModelCamelContext.class).loadRestsDefinition(xmlRest.getInputStream());
+                    camelContext.adapt(ModelCamelContext.class).addRestDefinitions(xmlDefinitions.getRests());
+                    for (final RestDefinition xmlDefinition : xmlDefinitions.getRests()) {
+                        final List<RouteDefinition> routeDefinitions = xmlDefinition.asRouteDefinition(camelContext);
+                        camelContext.adapt(ModelCamelContext.class).addRouteDefinitions(routeDefinitions);
+                    }
                 }
+            } catch (FileNotFoundException e) {
+                LOG.debug("No XML rests found in {}. Skipping XML rests detection.", part);
             }
-        } catch (FileNotFoundException e) {
-            LOG.debug("No XML rests found in {}. Skipping XML rests detection.", directory);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 

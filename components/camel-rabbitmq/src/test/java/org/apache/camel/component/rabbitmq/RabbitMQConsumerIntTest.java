@@ -46,7 +46,7 @@ public class RabbitMQConsumerIntTest extends AbstractRabbitMQIntTest {
     @EndpointInject(uri = "mock:result")
     private MockEndpoint to;
 
-    @EndpointInject(uri = "rabbitmq:localhost:5672/" + HEADERS_EXCHANGE + "?username=cameltest&password=cameltest&exchangeType=headers&queue=" + QUEUE + "&bindingArgs=#bindArgs")
+    @EndpointInject(uri = "rabbitmq:localhost:5672/" + HEADERS_EXCHANGE + "?username=cameltest&password=cameltest&exchangeType=headers&queue=" + QUEUE + "&args=#args")
     private Endpoint headersExchangeWithQueue;
 
     @EndpointInject(uri = "rabbitmq:localhost:5672/" + "ex7" + "?username=cameltest&password=cameltest&exchangeType=headers&autoDelete=false&durable=true&queue=q7&arg.binding.fizz=buzz")
@@ -70,7 +70,7 @@ public class RabbitMQConsumerIntTest extends AbstractRabbitMQIntTest {
         JndiRegistry jndi = super.createRegistry();
 
         Map<String, Object> bindingArgs = new HashMap<>();
-        jndi.bind("bindArgs", bindingArgs);
+        jndi.bind("args", bindingArgs);
 
         return jndi;
     }
@@ -83,6 +83,21 @@ public class RabbitMQConsumerIntTest extends AbstractRabbitMQIntTest {
 
         AMQP.BasicProperties.Builder properties = new AMQP.BasicProperties.Builder();
         properties.replyTo("myReply");
+
+        Channel channel = connection().createChannel();
+        channel.basicPublish(EXCHANGE, "", properties.build(), MSG.getBytes());
+
+        to.assertIsSatisfied();
+    }
+
+    @Test
+    public void sentMessageIsDeliveryModeSet() throws InterruptedException, IOException, TimeoutException {
+
+        to.expectedMessageCount(1);
+        to.expectedHeaderReceived(RabbitMQConstants.DELIVERY_MODE, 1);
+
+        AMQP.BasicProperties.Builder properties = new AMQP.BasicProperties.Builder();
+        properties.deliveryMode(1);
 
         Channel channel = connection().createChannel();
         channel.basicPublish(EXCHANGE, "", properties.build(), MSG.getBytes());

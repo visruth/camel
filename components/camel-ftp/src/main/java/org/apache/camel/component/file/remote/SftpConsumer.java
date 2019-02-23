@@ -19,7 +19,6 @@ package org.apache.camel.component.file.remote;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
@@ -28,10 +27,11 @@ import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileOperationFailedException;
+import org.apache.camel.component.file.GenericFileProcessStrategy;
 import org.apache.camel.util.FileUtil;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.URISupport;
-import org.apache.commons.net.ftp.FTPFile;
 
 /**
  * Secure FTP consumer
@@ -42,8 +42,8 @@ public class SftpConsumer extends RemoteFileConsumer<SftpRemoteFile> {
 
     private transient String sftpConsumerToString;
 
-    public SftpConsumer(RemoteFileEndpoint<SftpRemoteFile> endpoint, Processor processor, RemoteFileOperations<SftpRemoteFile> operations) {
-        super(endpoint, processor, operations);
+    public SftpConsumer(RemoteFileEndpoint<SftpRemoteFile> endpoint, Processor processor, RemoteFileOperations<SftpRemoteFile> operations, GenericFileProcessStrategy<SftpRemoteFile> processStrategy) {
+        super(endpoint, processor, operations, processStrategy);
         this.endpointPath = endpoint.getConfiguration().getDirectory();
     }
 
@@ -108,31 +108,40 @@ public class SftpConsumer extends RemoteFileConsumer<SftpRemoteFile> {
 
         // remove trailing /
         dirName = FileUtil.stripTrailingSeparator(dirName);
-        // compute dir depending on stepwise is enabled or not
-        String dir;
-        if (isStepwise()) {
-            dir = ObjectHelper.isNotEmpty(dirName) ? dirName : absolutePath;
-            operations.changeCurrentDirectory(dir);
-        } else {
-            dir = absolutePath;
-        }
 
-        log.trace("Polling directory: {}", dir);
+        // compute dir depending on stepwise is enabled or not
+        String dir = null;
         List<SftpRemoteFile> files = null;
-        if (isUseList()) {
+        try {
             if (isStepwise()) {
-                files = operations.listFiles();
+                dir = ObjectHelper.isNotEmpty(dirName) ? dirName : absolutePath;
+                operations.changeCurrentDirectory(dir);
             } else {
-                files = operations.listFiles(dir);
+                dir = absolutePath;
             }
-        } else {
-            // we cannot use the LIST command(s) so we can only poll a named file
-            // so created a pseudo file with that name
-            fileExpressionResult = evaluateFileExpression();
-            if (fileExpressionResult != null) {
-                SftpRemoteFile file = new SftpRemoteFileSingle(fileExpressionResult);
-                files = new ArrayList<SftpRemoteFile>(1);
-                files.add(file);
+
+            log.trace("Polling directory: {}", dir);
+            if (isUseList()) {
+                if (isStepwise()) {
+                    files = operations.listFiles();
+                } else {
+                    files = operations.listFiles(dir);
+                }
+            } else {
+                // we cannot use the LIST command(s) so we can only poll a named file
+                // so created a pseudo file with that name
+                fileExpressionResult = evaluateFileExpression();
+                if (fileExpressionResult != null) {
+                    SftpRemoteFile file = new SftpRemoteFileSingle(fileExpressionResult);
+                    files = new ArrayList<>(1);
+                    files.add(file);
+                }
+            }
+        } catch (GenericFileOperationFailedException e) {
+            if (ignoreCannotRetrieveFile(null, null, e)) {
+                log.debug("Cannot list files in directory {} due directory does not exists or file permission error.", dir);
+            } else {
+                throw e;
             }
         }
 
@@ -152,7 +161,7 @@ public class SftpConsumer extends RemoteFileConsumer<SftpRemoteFile> {
         for (SftpRemoteFile file : files) {
 
             if (log.isTraceEnabled()) {
-                log.trace("SftpFile[fileName={}, longName={}, dir={}]", new Object[]{file.getFilename(), file.getLongname(), file.isDirectory()});
+                log.trace("SftpFile[fileName={}, longName={}, dir={}]", file.getFilename(), file.getLongname(), file.isDirectory());
             }
 
             // check if we can continue polling in files
@@ -211,7 +220,7 @@ public class SftpConsumer extends RemoteFileConsumer<SftpRemoteFile> {
     }
 
     private RemoteFile<SftpRemoteFile> asRemoteFile(String absolutePath, SftpRemoteFile file, String charset) {
-        RemoteFile<SftpRemoteFile> answer = new RemoteFile<SftpRemoteFile>();
+        RemoteFile<SftpRemoteFile> answer = new RemoteFile<>();
 
         answer.setCharset(charset);
         answer.setEndpointPath(endpointPath);
@@ -236,7 +245,7 @@ public class SftpConsumer extends RemoteFileConsumer<SftpRemoteFile> {
         answer.setAbsoluteFilePath(absoluteFileName);
 
         // the relative filename, skip the leading endpoint configured path
-        String relativePath = ObjectHelper.after(absoluteFileName, endpointPath);
+        String relativePath = StringHelper.after(absoluteFileName, endpointPath);
         // skip trailing /
         relativePath = FileUtil.stripLeadingSeparator(relativePath);
         answer.setRelativeFilePath(relativePath);

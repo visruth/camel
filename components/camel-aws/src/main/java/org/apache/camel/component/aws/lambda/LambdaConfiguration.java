@@ -17,22 +17,22 @@
 package org.apache.camel.component.aws.lambda;
 
 import com.amazonaws.services.lambda.AWSLambda;
+
+import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.spi.UriPath;
 
 @UriParams
-public class LambdaConfiguration {
+public class LambdaConfiguration implements Cloneable {
 
     @UriPath
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private String function;
     @UriParam
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private LambdaOperations operation;
-    @UriParam
-    private String awsLambdaEndpoint;
     @UriParam(label = "security", secret = true)
     private String accessKey;
     @UriParam(label = "security", secret = true)
@@ -101,17 +101,6 @@ public class LambdaConfiguration {
         this.region = region;
     }
 
-    public String getAwsLambdaEndpoint() {
-        return awsLambdaEndpoint;
-    }
-
-    /**
-     * The region with which the AWS-Lambda client wants to work with.
-     */
-    public void setAwsLambdaEndpoint(String awsLambdaEndpoint) {
-        this.awsLambdaEndpoint = awsLambdaEndpoint;
-    }
-
     public LambdaOperations getOperation() {
         return operation;
     }
@@ -123,26 +112,38 @@ public class LambdaConfiguration {
         this.operation = operation;
     }
 
-    /**
-     * To define a proxy host when instantiating the Lambda client
-     */
     public String getProxyHost() {
         return proxyHost;
     }
 
+    /**
+     * To define a proxy host when instantiating the Lambda client
+     */
     public void setProxyHost(String proxyHost) {
         this.proxyHost = proxyHost;
+    }
+
+    public Integer getProxyPort() {
+        return proxyPort;
     }
 
     /**
      * To define a proxy port when instantiating the Lambda client
      */
-    public Integer getProxyPort() {
-        return proxyPort;
-    }
-
     public void setProxyPort(Integer proxyPort) {
         this.proxyPort = proxyPort;
+    }
+    
+    // *************************************************
+    //
+    // *************************************************
+
+    public LambdaConfiguration copy() {
+        try {
+            return (LambdaConfiguration)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeCamelException(e);
+        }
     }
 
 }

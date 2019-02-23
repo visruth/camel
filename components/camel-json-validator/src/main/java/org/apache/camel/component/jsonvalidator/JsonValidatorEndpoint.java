@@ -17,36 +17,31 @@
 package org.apache.camel.component.jsonvalidator;
 
 import java.io.InputStream;
+import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.ValidationMessage;
 import org.apache.camel.Component;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
+import org.apache.camel.StreamCache;
+import org.apache.camel.ValidationException;
 import org.apache.camel.api.management.ManagedResource;
 import org.apache.camel.component.ResourceEndpoint;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
-import org.apache.camel.util.IOHelper;
-import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.Schema;
-import org.everit.json.schema.ValidationException;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Validates the payload of a message using Everit JSON schema validator.
+ * Validates the payload of a message using NetworkNT JSON Schema library.
  */
 @ManagedResource(description = "Managed JsonValidatorEndpoint")
 @UriEndpoint(scheme = "json-validator", firstVersion = "2.20.0", title = "JSON Schema Validator", syntax = "json-validator:resourceUri",
     producerOnly = true, label = "validation")
 public class JsonValidatorEndpoint extends ResourceEndpoint {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JsonValidatorEndpoint.class);
-
-    private volatile Schema schema;
+    private volatile JsonSchema schema;
 
     @UriParam(defaultValue = "true")
     private boolean failOnNullBody = true;
@@ -76,46 +71,76 @@ public class JsonValidatorEndpoint extends ResourceEndpoint {
     
     @Override
     protected void onExchange(Exchange exchange) throws Exception {
-        Object jsonPayload;
-        InputStream is = null;
+        StreamCache cache = null;
+
+        // if the content is an input stream then its likely not re-readable so we need to make it stream cached
+        Object content = getContentToValidate(exchange);
+        if (!(content instanceof StreamCache) && content instanceof InputStream) {
+            cache = exchange.getContext().getTypeConverter().convertTo(StreamCache.class, exchange, content);
+            if (cache != null) {
+                if (shouldUseHeader()) {
+                    exchange.getIn().setHeader(headerName, cache);
+                } else {
+                    exchange.getIn().setBody(cache);
+                }
+            }
+        }
+
         // Get a local copy of the current schema to improve concurrency.
-        Schema localSchema = this.schema;
+        JsonSchema localSchema = this.schema;
         if (localSchema == null) {
             localSchema = getOrCreateSchema();
         }
         try {
-            is = getContentToValidate(exchange, InputStream.class);
             if (shouldUseHeader()) {
-                if (is == null && isFailOnNullHeader()) {
+                if (content == null && isFailOnNullHeader()) {
                     throw new NoJsonHeaderValidationException(exchange, headerName);
                 }
             } else {
-                if (is == null && isFailOnNullBody()) {
+                if (content == null && isFailOnNullBody()) {
                     throw new NoJsonBodyValidationException(exchange);
                 }
             }
-            if (is != null) {
-                if (schema instanceof ObjectSchema) {
-                    jsonPayload = new JSONObject(new JSONTokener(is));
-                } else { 
-                    jsonPayload = new JSONArray(new JSONTokener(is));
+            if (content != null) {
+                // favour using stream caching
+                if (cache == null) {
+                    cache = exchange.getContext().getTypeConverter().convertTo(StreamCache.class, exchange, content);
                 }
-                // throws a ValidationException if this object is invalid
-                schema.validate(jsonPayload); 
-                LOG.debug("JSON is valid");
+                ObjectMapper mapper = new ObjectMapper();
+                InputStream is = exchange.getContext().getTypeConverter().mandatoryConvertTo(InputStream.class, exchange, cache != null ? cache : content);
+                JsonNode node = mapper.readTree(is);
+                if (node == null) {
+                    throw new NoJsonBodyValidationException(exchange);
+                }
+                Set<ValidationMessage> errors = localSchema.validate(node);
+
+                if (errors.size() > 0) {
+                    this.log.debug("Validated JSon has {} errors", errors.size());
+                    this.errorHandler.handleErrors(exchange, schema, errors);
+                } else {
+                    this.log.debug("Validated JSon success");
+                }
             }
-        } catch (ValidationException | JSONException e) {
-            this.errorHandler.handleErrors(exchange, schema, e);
+        } catch (Exception e) {
+            if (e instanceof ValidationException) {
+                // already as validation error
+                throw e;
+            } else {
+                // general error
+                this.errorHandler.handleErrors(exchange, schema, e);
+            }
         } finally {
-            IOHelper.close(is);
+            if (cache != null) {
+                cache.reset();
+            }
         }
     }
     
-    private <T> T getContentToValidate(Exchange exchange, Class<T> clazz) {
+    private Object getContentToValidate(Exchange exchange) {
         if (shouldUseHeader()) {
-            return exchange.getIn().getHeader(headerName, clazz);
+            return exchange.getIn().getHeader(headerName);
         } else {
-            return exchange.getIn().getBody(clazz);
+            return exchange.getIn().getBody();
         }
     }
 
@@ -128,7 +153,7 @@ public class JsonValidatorEndpoint extends ResourceEndpoint {
      * 
      * @return The currently loaded schema
      */
-    private Schema getOrCreateSchema() throws Exception {
+    private JsonSchema getOrCreateSchema() throws Exception {
         synchronized (this) {
             if (this.schema == null) {
                 this.schema = this.schemaLoader.createSchema(getCamelContext(), this.getResourceAsInputStream());
@@ -160,8 +185,7 @@ public class JsonValidatorEndpoint extends ResourceEndpoint {
     }
     
     /**
-     * To use a custom schema loader allowing for adding custom format validation. See Everit JSON Schema documentation.
-     * The default implementation will create a schema loader builder with draft v6 support.
+     * To use a custom schema loader allowing for adding custom format validation. The default implementation will create a schema loader with draft v4 support.
      */
     public void setSchemaLoader(JsonSchemaLoader schemaLoader) {
         this.schemaLoader = schemaLoader;

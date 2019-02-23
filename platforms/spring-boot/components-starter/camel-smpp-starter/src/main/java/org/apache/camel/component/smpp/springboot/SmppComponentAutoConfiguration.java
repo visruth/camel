@@ -30,7 +30,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class SmppComponentAutoConfiguration {
     }
 
     @Lazy
-    @Bean(name = {"smpp-component", "smpps-component"})
+    @Bean({"smpp-component", "smpps-component"})
     @ConditionalOnMissingBean(SmppComponent.class)
     public SmppComponent configureSmppComponent() throws Exception {
         SmppComponent component = new SmppComponent();

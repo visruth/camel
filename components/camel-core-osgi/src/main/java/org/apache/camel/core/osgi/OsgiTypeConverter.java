@@ -36,8 +36,8 @@ import org.apache.camel.spi.FactoryFinder;
 import org.apache.camel.spi.Injector;
 import org.apache.camel.spi.TypeConverterLoader;
 import org.apache.camel.spi.TypeConverterRegistry;
-import org.apache.camel.support.ServiceSupport;
-import org.apache.camel.util.ServiceHelper;
+import org.apache.camel.support.service.ServiceHelper;
+import org.apache.camel.support.service.ServiceSupport;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -61,7 +61,7 @@ public class OsgiTypeConverter extends ServiceSupport implements TypeConverter, 
         this.camelContext = camelContext;
         this.injector = injector;
         this.factoryFinder = factoryFinder;
-        this.tracker = new ServiceTracker<TypeConverterLoader, Object>(bundleContext, TypeConverterLoader.class.getName(), this);
+        this.tracker = new ServiceTracker<>(bundleContext, TypeConverterLoader.class.getName(), this);
     }
 
     public Object addingService(ServiceReference<TypeConverterLoader> serviceReference) {
@@ -225,7 +225,7 @@ public class OsgiTypeConverter extends ServiceSupport implements TypeConverter, 
         ServiceReference<TypeConverterLoader>[] serviceReferences = this.tracker.getServiceReferences();
         if (serviceReferences != null) {
             ArrayList<ServiceReference<TypeConverterLoader>> servicesList = 
-                new ArrayList<ServiceReference<TypeConverterLoader>>(Arrays.asList(serviceReferences));
+                new ArrayList<>(Arrays.asList(serviceReferences));
             // Just make sure we install the high ranking fallback converter at last
             Collections.sort(servicesList);
             for (ServiceReference<TypeConverterLoader> sr : servicesList) {

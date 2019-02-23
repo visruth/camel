@@ -30,7 +30,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +77,7 @@ public class IgniteIdGenComponentAutoConfiguration {
     @Lazy
     @Bean(name = "ignite-idgen-component")
     @ConditionalOnMissingBean(IgniteIdGenComponent.class)
-    public IgniteIdGenComponent configureIgniteIdGenComponent()
-            throws Exception {
+    public IgniteIdGenComponent configureIgniteIdGenComponent() throws Exception {
         IgniteIdGenComponent component = new IgniteIdGenComponent();
         component.setCamelContext(camelContext);
         Map<String, Object> parameters = new HashMap<>();

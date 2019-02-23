@@ -33,9 +33,6 @@ import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.jvnet.mock_javamail.Mailbox;
 
-/**
- * @version 
- */
 public class MailRouteTest extends CamelTestSupport {
 
     @Test
@@ -45,7 +42,7 @@ public class MailRouteTest extends CamelTestSupport {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         resultEndpoint.expectedBodiesReceived("hello world!");
 
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("reply-to", "route-test-reply@localhost");
         template.sendBodyAndHeaders("smtp://route-test-james@localhost", "hello world!", headers);
 

@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>components</artifactId>
-        <version>2.21.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>camel-test-blueprint</artifactId>
@@ -32,11 +32,9 @@
     <description>Camel unit testing with OSGi Blueprint</description>
 
     <properties>
-        <!-- use by camel-catalog -->
         <firstVersion>2.10.0</firstVersion>
         <label>testing,java,osgi</label>
 
-        <camel.osgi.export.pkg>org.apache.camel.test.blueprint*</camel.osgi.export.pkg>
     </properties>
 
     <dependencies>
@@ -66,13 +64,8 @@
              with felix-connect, and you may get a weird error if wrong order -->
         <dependency>
             <groupId>org.apache.aries.proxy</groupId>
-            <artifactId>org.apache.aries.proxy.api</artifactId>
+            <artifactId>org.apache.aries.proxy</artifactId>
             <version>${aries-blueprint-proxy-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.aries.proxy</groupId>
-            <artifactId>org.apache.aries.proxy.impl</artifactId>
-            <version>${aries-blueprint-proxy-impl-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.aries.blueprint</groupId>
@@ -99,11 +92,11 @@
                 <!-- felix-connect includes osgi.core and osgi.compendium version 5.0.0 -->
                 <exclusion>
                     <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.core</artifactId>
+                    <artifactId>osgi.core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.osgi</groupId>
-                    <artifactId>org.osgi.compendium</artifactId>
+                    <artifactId>osgi.cmpn</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -131,11 +124,11 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
-                        <artifactId>org.osgi.core</artifactId>
+                        <artifactId>osgi.core</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
-                        <artifactId>org.osgi.compendium</artifactId>
+                        <artifactId>osgi.cmpn</artifactId>
                     </exclusion>
                 </exclusions>
         </dependency>
@@ -152,11 +145,11 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
-                        <artifactId>org.osgi.core</artifactId>
+                        <artifactId>osgi.core</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
-                        <artifactId>org.osgi.compendium</artifactId>
+                        <artifactId>osgi.cmpn</artifactId>
                     </exclusion>
                 </exclusions>
         </dependency>
@@ -183,9 +176,9 @@
 
     <profiles>
         <profile>
-            <id>jdk9-build</id>
+            <id>jdk9+-build</id>
             <activation>
-                <jdk>9</jdk>
+                <jdk>[9,)</jdk>
             </activation>
             <build>
                 <plugins>

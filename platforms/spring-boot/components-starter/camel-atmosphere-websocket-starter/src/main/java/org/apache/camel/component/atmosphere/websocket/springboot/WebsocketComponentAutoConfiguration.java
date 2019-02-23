@@ -30,7 +30,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,16 +107,15 @@ public class WebsocketComponentAutoConfiguration {
         if (ObjectHelper.isNotEmpty(customizers)) {
             for (ComponentCustomizer<WebsocketComponent> customizer : customizers) {
                 boolean useCustomizer = (customizer instanceof HasId)
-                        ? HierarchicalPropertiesEvaluator
-                                .evaluate(
-                                        applicationContext.getEnvironment(),
-                                        "camel.component.customizer",
-                                        "camel.component.atmosphere-websocket.customizer",
-                                        ((HasId) customizer).getId())
-                        : HierarchicalPropertiesEvaluator
-                                .evaluate(applicationContext.getEnvironment(),
-                                        "camel.component.customizer",
-                                        "camel.component.atmosphere-websocket.customizer");
+                        ? HierarchicalPropertiesEvaluator.evaluate(
+                                applicationContext.getEnvironment(),
+                                "camel.component.customizer",
+                                "camel.component.atmosphere-websocket.customizer",
+                                ((HasId) customizer).getId())
+                        : HierarchicalPropertiesEvaluator.evaluate(
+                                applicationContext.getEnvironment(),
+                                "camel.component.customizer",
+                                "camel.component.atmosphere-websocket.customizer");
                 if (useCustomizer) {
                     LOGGER.debug("Configure component {}, with customizer {}",
                             component, customizer);

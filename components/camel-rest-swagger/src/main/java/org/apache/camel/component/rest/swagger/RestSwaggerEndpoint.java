@@ -49,14 +49,14 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.RestConfiguration;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
+import org.apache.camel.support.DefaultEndpoint;
+import org.apache.camel.support.ResourceHelper;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.ResourceHelper;
 import org.apache.camel.util.StringHelper;
 import org.apache.camel.util.UnsafeUriCharactersEncoder;
 
@@ -87,14 +87,14 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
         description = "API basePath, for example \"`/v2`\". Default is unset, if set overrides the value present in"
             + " Swagger specification and in the component configuration.",
         defaultValue = "", label = "producer")
-    @Metadata(required = "false")
+    @Metadata(required = false)
     private String basePath;
 
     @UriParam(description = "Name of the Camel component that will perform the requests. The compnent must be present"
         + " in Camel registry and it must implement RestProducerFactory service provider interface. If not set"
         + " CLASSPATH is searched for single component that implements RestProducerFactory SPI. Overrides"
         + " component configuration.", label = "producer")
-    @Metadata(required = "false")
+    @Metadata(required = false)
     private String componentName;
 
     @UriParam(
@@ -114,7 +114,7 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
     private String host;
 
     @UriPath(description = "ID of the operation from the Swagger specification.", label = "producer")
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private String operationId;
 
     @UriParam(description = "What payload type this component is producing. For example `application/json`"
@@ -124,10 +124,14 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
 
     @UriPath(
         description = "Path to the Swagger specification file. The scheme, host base path are taken from this"
-            + " specification, but these can be overriden with properties on the component or endpoint level. If not"
-            + " given the component tries to load `swagger.json` resource. Note that the `host` defined on the"
+            + " specification, but these can be overridden with properties on the component or endpoint level. If not"
+            + " given the component tries to load `swagger.json` resource from the classpath. Note that the `host` defined on the"
             + " component and endpoint of this Component should contain the scheme, hostname and optionally the"
-            + " port in the URI syntax (i.e. `https://api.example.com:8080`). Overrides component configuration.",
+            + " port in the URI syntax (i.e. `http://api.example.com:8080`). Overrides component configuration."
+            + " The Swagger specification can be loaded from different sources by prefixing with file: classpath: http: https:."
+            + " Support for https is limited to using the JDK installed UrlHandler, and as such it can be cumbersome to setup"
+            + " TLS/SSL certificates for https (such as setting a number of javax.net.ssl JVM system properties)."
+            + " How to do that consult the JDK documentation for UrlHandler.",
         defaultValue = RestSwaggerComponent.DEFAULT_SPECIFICATION_URI_STR,
         defaultValueNote = "By default loads `swagger.json` file", label = "producer")
     private URI specificationUri = RestSwaggerComponent.DEFAULT_SPECIFICATION_URI;
@@ -329,10 +333,12 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
             parameters.put("host", host);
         }
 
+        final RestSwaggerComponent component = component();
+
         // what we consume is what the API defined by Swagger specification
         // produces
         final String determinedConsumes = determineOption(swagger.getProduces(), operation.getProduces(),
-            component().getConsumes(), consumes);
+            component.getConsumes(), consumes);
 
         if (isNotEmpty(determinedConsumes)) {
             parameters.put("consumes", determinedConsumes);
@@ -341,7 +347,7 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
         // what we produce is what the API defined by Swagger specification
         // consumes
         final String determinedProducers = determineOption(swagger.getConsumes(), operation.getConsumes(),
-            component().getProduces(), produces);
+            component.getProduces(), produces);
 
         if (isNotEmpty(determinedProducers)) {
             parameters.put("produces", determinedProducers);
@@ -351,6 +357,26 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
             .map(this::queryParameter).collect(Collectors.joining("&"));
         if (isNotEmpty(queryParameters)) {
             parameters.put("queryParameters", queryParameters);
+        }
+
+        // pass properties that might be applied if the delegate component is created, i.e. if it's not
+        // present in the Camel Context already
+        final Map<String, Object> componentParameters = new HashMap<>();
+
+        if (component.isUseGlobalSslContextParameters()) {
+            // by default it's false
+            componentParameters.put("useGlobalSslContextParameters", component.isUseGlobalSslContextParameters());
+        }
+        if (component.getSslContextParameters() != null) {
+            componentParameters.put("sslContextParameters", component.getSslContextParameters());
+        }
+
+        if (!componentParameters.isEmpty()) {
+            final Map<Object, Object> nestedParameters = new HashMap<>();
+            nestedParameters.put("component", componentParameters);
+
+            // we're trying to set RestEndpoint.parameters['component']
+            parameters.put("parameters", nestedParameters);
         }
 
         return parameters;
@@ -406,7 +432,7 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
 
         final boolean areTheSame = "rest-swagger".equals(assignedComponentName);
 
-        throw new IllegalStateException("Unable to determine destionation host for requests. The Swagger specification"
+        throw new IllegalStateException("Unable to determine destination host for requests. The Swagger specification"
             + " does not specify `scheme` and `host` parameters, the specification URI is not absolute with `http` or"
             + " `https` scheme, and no RestConfigurations configured with `scheme`, `host` and `port` were found for `"
             + (areTheSame ? "rest-swagger` component" : assignedComponentName + "` or `rest-swagger` components")
@@ -472,8 +498,12 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
                 resolved.append('{').append(name).append('}');
             }
 
-            pos = end;
+            pos = end + 1;
             start = uriTemplate.indexOf('{', pos);
+        }
+
+        if (pos < uriTemplate.length()) {
+            resolved.append(uriTemplate.substring(pos));
         }
 
         return resolved.toString();
@@ -543,7 +573,7 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
             final JsonNode node = mapper.readTree(stream);
 
             return swaggerParser.read(node);
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             // try Swaggers loader
             final Swagger swagger = swaggerParser.read(uriAsString);
 
@@ -554,7 +584,7 @@ public final class RestSwaggerEndpoint extends DefaultEndpoint {
             throw new IllegalArgumentException("The given Swagger specification could not be loaded from `" + uri
                 + "`. Tried loading using Camel's resource resolution and using Swagger's own resource resolution."
                 + " Swagger tends to swallow exceptions while parsing, try specifying Java system property `debugParser`"
-                + " (e.g. `-DdebugParser=true`), the exception that occured when loading using Camel's resource"
+                + " (e.g. `-DdebugParser=true`), the exception that occurred when loading using Camel's resource"
                 + " loader follows", e);
         }
     }

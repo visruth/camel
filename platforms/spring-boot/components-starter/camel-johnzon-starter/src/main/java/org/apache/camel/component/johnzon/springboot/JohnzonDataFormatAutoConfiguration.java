@@ -34,7 +34,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +79,7 @@ public class JohnzonDataFormatAutoConfiguration {
 
     @Bean(name = "json-johnzon-dataformat-factory")
     @ConditionalOnMissingBean(JohnzonDataFormat.class)
-    public DataFormatFactory configureJohnzonDataFormatFactory()
-            throws Exception {
+    public DataFormatFactory configureJohnzonDataFormatFactory() throws Exception {
         return new DataFormatFactory() {
             @Override
             public DataFormat newInstance() {
@@ -105,18 +104,15 @@ public class JohnzonDataFormatAutoConfiguration {
                 if (ObjectHelper.isNotEmpty(customizers)) {
                     for (DataFormatCustomizer<JohnzonDataFormat> customizer : customizers) {
                         boolean useCustomizer = (customizer instanceof HasId)
-                                ? HierarchicalPropertiesEvaluator
-                                        .evaluate(
-                                                applicationContext
-                                                        .getEnvironment(),
-                                                "camel.dataformat.customizer",
-                                                "camel.dataformat.json-johnzon.customizer",
-                                                ((HasId) customizer).getId())
-                                : HierarchicalPropertiesEvaluator
-                                        .evaluate(applicationContext
-                                                .getEnvironment(),
-                                                "camel.dataformat.customizer",
-                                                "camel.dataformat.json-johnzon.customizer");
+                                ? HierarchicalPropertiesEvaluator.evaluate(
+                                        applicationContext.getEnvironment(),
+                                        "camel.dataformat.customizer",
+                                        "camel.dataformat.json-johnzon.customizer",
+                                        ((HasId) customizer).getId())
+                                : HierarchicalPropertiesEvaluator.evaluate(
+                                        applicationContext.getEnvironment(),
+                                        "camel.dataformat.customizer",
+                                        "camel.dataformat.json-johnzon.customizer");
                         if (useCustomizer) {
                             LOGGER.debug(
                                     "Configure dataformat {}, with customizer {}",

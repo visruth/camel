@@ -20,12 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.ComponentConfiguration;
-import org.apache.camel.EndpointConfiguration;
-import org.apache.camel.component.dataformat.DataFormatComponent;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.support.JSonSchemaHelper;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.camel.util.JsonSchemaHelper;
 import org.junit.Test;
 
 public class DataFormatComponentConfigurationAndDocumentationTest extends CamelTestSupport {
@@ -33,23 +30,6 @@ public class DataFormatComponentConfigurationAndDocumentationTest extends CamelT
     @Override
     public boolean isUseRouteBuilder() {
         return false;
-    }
-
-    @Test
-    public void testComponentConfiguration() throws Exception {
-        DataFormatComponent comp = context.getComponent("dataformat", DataFormatComponent.class);
-        EndpointConfiguration conf = comp.createConfiguration("dataformaat:marshal:string?charset=iso-8859-1");
-
-        assertEquals("iso-8859-1", conf.getParameter("charset"));
-
-        ComponentConfiguration compConf = comp.createComponentConfiguration();
-        String json = compConf.createParameterJsonSchema();
-        assertNotNull(json);
-
-        assertTrue(json.contains("\"name\": { \"kind\": \"path\", \"displayName\": \"Name\", \"group\": \"producer\", \"required\": true, \"type\": \"string\", \"javaType\": \"java.lang.String\","
-            + " \"deprecated\": false, \"secret\": false, \"description\": \"Name of data format\" }"));
-        assertTrue(json.contains("\"operation\": { \"kind\": \"path\", \"displayName\": \"Operation\", \"group\": \"producer\", \"required\": true, \"type\": \"string\""));
-        assertTrue(json.contains("\"synchronous\": { \"kind\": \"parameter\", \"displayName\": \"Synchronous\", \"group\": \"advanced\", \"label\": \"advanced\", \"type\": \"boolean\""));
     }
 
     @Test
@@ -64,7 +44,7 @@ public class DataFormatComponentConfigurationAndDocumentationTest extends CamelT
         assertTrue(json.contains("\"textQualifier\": { \"kind\": \"attribute\", \"displayName\": \"Text Qualifier\", \"required\": false, \"type\": \"string\""
             + ", \"javaType\": \"java.lang.String\", \"deprecated\": false, \"secret\": false"));
 
-        List<Map<String, String>> rows = JsonSchemaHelper.parseJsonSchema("properties", json, true);
+        List<Map<String, String>> rows = JSonSchemaHelper.parseJsonSchema("properties", json, true);
         assertEquals(10, rows.size());
 
         Map<String, String> found = null;
@@ -97,7 +77,7 @@ public class DataFormatComponentConfigurationAndDocumentationTest extends CamelT
         assertTrue(json.contains("\"escapeChar\": { \"kind\": \"attribute\", \"displayName\": \"Escape Char\", \"required\": false, \"type\": \"string\", \"javaType\": \"java.lang.String\","
             + " \"deprecated\": false, \"secret\": false, \"defaultValue\": \"\\\\\", \"description\": \"The escape character.\""));
 
-        List<Map<String, String>> rows = JsonSchemaHelper.parseJsonSchema("properties", json, true);
+        List<Map<String, String>> rows = JSonSchemaHelper.parseJsonSchema("properties", json, true);
         assertEquals(16, rows.size());
 
         Map<String, String> found = null;

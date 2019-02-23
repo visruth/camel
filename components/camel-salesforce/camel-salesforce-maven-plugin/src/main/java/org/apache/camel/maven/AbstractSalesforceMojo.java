@@ -32,10 +32,10 @@ import org.apache.camel.component.salesforce.internal.SalesforceSession;
 import org.apache.camel.component.salesforce.internal.client.DefaultRestClient;
 import org.apache.camel.component.salesforce.internal.client.RestClient;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.util.IntrospectionSupport;
-import org.apache.camel.util.ServiceHelper;
+import org.apache.camel.support.IntrospectionSupport;
+import org.apache.camel.support.jsse.SSLContextParameters;
+import org.apache.camel.support.service.ServiceHelper;
 import org.apache.camel.util.StringHelper;
-import org.apache.camel.util.jsse.SSLContextParameters;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -175,6 +175,8 @@ abstract class AbstractSalesforceMojo extends AbstractMojo {
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
+        setup();
+
         final RestClient restClient = connectToSalesforce();
         try {
             executeWithClient(restClient);
@@ -314,4 +316,7 @@ abstract class AbstractSalesforceMojo extends AbstractMojo {
     }
 
     protected abstract void executeWithClient(RestClient client) throws MojoExecutionException;
+
+    protected void setup() {
+    }
 }

@@ -29,7 +29,7 @@ import org.apache.camel.component.http4.HttpEndpoint;
 import org.apache.camel.http.common.HttpHelper;
 import org.apache.camel.http.common.HttpMethods;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -42,7 +42,7 @@ public class HttpHelperTest {
 
     @Test
     public void testAppendHeader() throws Exception {
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         HttpHelper.appendHeader(headers, "foo", "a");
         HttpHelper.appendHeader(headers, "bar", "b");
         HttpHelper.appendHeader(headers, "baz", "c");
@@ -55,7 +55,7 @@ public class HttpHelperTest {
 
     @Test
     public void testAppendHeaderMultipleValues() throws Exception {
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         HttpHelper.appendHeader(headers, "foo", "a");
         HttpHelper.appendHeader(headers, "bar", "b");
         HttpHelper.appendHeader(headers, "bar", "c");

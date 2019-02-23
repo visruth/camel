@@ -25,7 +25,7 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -47,7 +47,7 @@ public class GetItemCommandTest {
 
     @Test
     public void execute() {
-        Map<String, AttributeValue> key = new HashMap<String, AttributeValue>();
+        Map<String, AttributeValue> key = new HashMap<>();
         key.put("1", new AttributeValue("Key_1"));
         exchange.getIn().setHeader(DdbConstants.KEY, key);
 

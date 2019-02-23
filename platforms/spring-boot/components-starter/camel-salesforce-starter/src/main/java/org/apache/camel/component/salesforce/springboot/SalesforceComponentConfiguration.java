@@ -18,7 +18,6 @@ package org.apache.camel.component.salesforce.springboot;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.component.salesforce.AuthenticationType;
@@ -32,10 +31,8 @@ import org.apache.camel.component.salesforce.internal.PayloadFormat;
 import org.apache.camel.component.salesforce.internal.dto.NotifyForFieldsEnum;
 import org.apache.camel.component.salesforce.internal.dto.NotifyForOperationsEnum;
 import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
-import org.apache.camel.util.jsse.KeyStoreParameters;
-import org.apache.camel.util.jsse.SSLContextParameters;
+import org.apache.camel.support.jsse.KeyStoreParameters;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * The salesforce component is used for integrating Camel with the massive
@@ -50,24 +47,29 @@ public class SalesforceComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
-     * Explicit authentication method to be used one of USERNAME_PASSWORD
+     * Whether to enable auto configuration of the salesforce component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
+     * Explicit authentication method to be used, one of USERNAME_PASSWORD,
      * REFRESH_TOKEN or JWT. Salesforce component can auto-determine the
-     * authentication method to use from the properties set set this property to
-     * eliminate any ambiguity.
+     * authentication method to use from the properties set, set this property
+     * to eliminate any ambiguity.
      */
     private AuthenticationType authenticationType;
     /**
-     * All authentication configuration in one nested bean all properties set
+     * All authentication configuration in one nested bean, all properties set
      * there can be set directly on the component as well
      */
     private SalesforceLoginConfigNestedConfiguration loginConfig;
     /**
-     * URL of the Salesforce instance used after authantication by default
+     * URL of the Salesforce instance used after authentication, by default
      * received from Salesforce on successful authentication
      */
     private String instanceUrl;
     /**
-     * URL of the Salesforce instance used for authentication by default set to
+     * URL of the Salesforce instance used for authentication, by default set to
      * https://login.salesforce.com
      */
     private String loginUrl = "https://login.salesforce.com";
@@ -85,16 +87,16 @@ public class SalesforceComponentConfiguration
     /**
      * KeyStore parameters to use in OAuth JWT flow. The KeyStore should contain
      * only one entry with private key and certificate. Salesforce does not
-     * verify the certificate chain so this can easily be a selfsigned
+     * verify the certificate chain, so this can easily be a selfsigned
      * certificate. Make sure that you upload the certificate to the
-     * corresponding connected app.
+     * corresponding connected app. The option is a
+     * org.apache.camel.support.jsse.KeyStoreParameters type.
      */
-    @NestedConfigurationProperty
-    private KeyStoreParameters keystore;
+    private String keystore;
     /**
      * Refresh token already obtained in the refresh token OAuth flow. One needs
      * to setup a web application and configure a callback URL to receive the
-     * refresh token or configure using the builtin callback at
+     * refresh token, or configure using the builtin callback at
      * https://login.salesforce.com/services/oauth2/success or
      * https://test.salesforce.com/services/oauth2/success and then retrive the
      * refresh_token from the URL at the end of the flow. Note that in
@@ -104,20 +106,20 @@ public class SalesforceComponentConfiguration
     private String refreshToken;
     /**
      * Username used in OAuth flow to gain access to access token. It's easy to
-     * get started with password OAuth flow but in general one should avoid it
+     * get started with password OAuth flow, but in general one should avoid it
      * as it is deemed less secure than other flows.
      */
     private String userName;
     /**
      * Password used in OAuth flow to gain access to access token. It's easy to
-     * get started with password OAuth flow but in general one should avoid it
+     * get started with password OAuth flow, but in general one should avoid it
      * as it is deemed less secure than other flows. Make sure that you append
      * security token to the end of the password if using one.
      */
     private String password;
     /**
      * If set to true prevents the component from authenticating to Salesforce
-     * with the start of the component. You would generaly set this to the
+     * with the start of the component. You would generally set this to the
      * (default) false and authenticate early and be immediately aware of any
      * authentication issues.
      */
@@ -130,15 +132,23 @@ public class SalesforceComponentConfiguration
     /**
      * Used to set any properties that can be configured on the underlying HTTP
      * client. Have a look at properties of SalesforceHttpClient and the Jetty
-     * HttpClient for all available options.
+     * HttpClient for all available options. The option is a
+     * java.util.Map<java.lang.String,java.lang.Object> type.
      */
-    private Map<String, Object> httpClientProperties;
+    private String httpClientProperties;
     /**
-     * SSL parameters to use see SSLContextParameters class for all available
-     * options.
+     * Used to set any properties that can be configured on the
+     * LongPollingTransport used by the BayeuxClient (CometD) used by the
+     * streaming api. The option is a
+     * java.util.Map<java.lang.String,java.lang.Object> type.
      */
-    @NestedConfigurationProperty
-    private SSLContextParameters sslContextParameters;
+    private String longPollingTransportProperties;
+    /**
+     * SSL parameters to use, see SSLContextParameters class for all available
+     * options. The option is a
+     * org.apache.camel.support.jsse.SSLContextParameters type.
+     */
+    private String sslContextParameters;
     /**
      * Enable usage of global SSL context parameters
      */
@@ -168,27 +178,29 @@ public class SalesforceComponentConfiguration
      */
     private Boolean isHttpProxySecure = true;
     /**
-     * A list of addresses for which HTTP proxy server should be used.
+     * A list of addresses for which HTTP proxy server should be used. The
+     * option is a java.util.Set<java.lang.String> type.
      */
-    private Set<String> httpProxyIncludedAddresses;
+    private String httpProxyIncludedAddresses;
     /**
-     * A list of addresses for which HTTP proxy server should not be used.
+     * A list of addresses for which HTTP proxy server should not be used. The
+     * option is a java.util.Set<java.lang.String> type.
      */
-    private Set<String> httpProxyExcludedAddresses;
+    private String httpProxyExcludedAddresses;
     /**
-     * Used in authentication against the HTTP proxy server needs to match the
+     * Used in authentication against the HTTP proxy server, needs to match the
      * URI of the proxy server in order for the httpProxyUsername and
      * httpProxyPassword to be used for authentication.
      */
     private String httpProxyAuthUri;
     /**
-     * Realm of the proxy server used in preemptive Basic/Digest authentication
+     * Realm of the proxy server, used in preemptive Basic/Digest authentication
      * methods against the HTTP proxy server.
      */
     private String httpProxyRealm;
     /**
      * If set to true Digest authentication will be used when authenticating to
-     * the HTTP proxyotherwise Basic authorization method will be used
+     * the HTTP proxy,otherwise Basic authorization method will be used
      */
     private Boolean httpProxyUseDigestAuth = false;
     /**
@@ -254,11 +266,11 @@ public class SalesforceComponentConfiguration
         this.clientSecret = clientSecret;
     }
 
-    public KeyStoreParameters getKeystore() {
+    public String getKeystore() {
         return keystore;
     }
 
-    public void setKeystore(KeyStoreParameters keystore) {
+    public void setKeystore(String keystore) {
         this.keystore = keystore;
     }
 
@@ -302,20 +314,28 @@ public class SalesforceComponentConfiguration
         this.config = config;
     }
 
-    public Map<String, Object> getHttpClientProperties() {
+    public String getHttpClientProperties() {
         return httpClientProperties;
     }
 
-    public void setHttpClientProperties(Map<String, Object> httpClientProperties) {
+    public void setHttpClientProperties(String httpClientProperties) {
         this.httpClientProperties = httpClientProperties;
     }
 
-    public SSLContextParameters getSslContextParameters() {
+    public String getLongPollingTransportProperties() {
+        return longPollingTransportProperties;
+    }
+
+    public void setLongPollingTransportProperties(
+            String longPollingTransportProperties) {
+        this.longPollingTransportProperties = longPollingTransportProperties;
+    }
+
+    public String getSslContextParameters() {
         return sslContextParameters;
     }
 
-    public void setSslContextParameters(
-            SSLContextParameters sslContextParameters) {
+    public void setSslContextParameters(String sslContextParameters) {
         this.sslContextParameters = sslContextParameters;
     }
 
@@ -376,21 +396,19 @@ public class SalesforceComponentConfiguration
         this.isHttpProxySecure = isHttpProxySecure;
     }
 
-    public Set<String> getHttpProxyIncludedAddresses() {
+    public String getHttpProxyIncludedAddresses() {
         return httpProxyIncludedAddresses;
     }
 
-    public void setHttpProxyIncludedAddresses(
-            Set<String> httpProxyIncludedAddresses) {
+    public void setHttpProxyIncludedAddresses(String httpProxyIncludedAddresses) {
         this.httpProxyIncludedAddresses = httpProxyIncludedAddresses;
     }
 
-    public Set<String> getHttpProxyExcludedAddresses() {
+    public String getHttpProxyExcludedAddresses() {
         return httpProxyExcludedAddresses;
     }
 
-    public void setHttpProxyExcludedAddresses(
-            Set<String> httpProxyExcludedAddresses) {
+    public void setHttpProxyExcludedAddresses(String httpProxyExcludedAddresses) {
         this.httpProxyExcludedAddresses = httpProxyExcludedAddresses;
     }
 
@@ -437,11 +455,14 @@ public class SalesforceComponentConfiguration
 
     public static class SalesforceLoginConfigNestedConfiguration {
         public static final Class CAMEL_NESTED_CLASS = org.apache.camel.component.salesforce.SalesforceLoginConfig.class;
+        /**
+         * Configuration object for Salesforce login properties
+         */
         private String instanceUrl;
         /**
          * Salesforce login URL, defaults to https://login.salesforce.com
          */
-        private String loginUrl;
+        private String loginUrl = "https://login.salesforce.com";
         /**
          * Salesforce connected application Consumer Key
          */
@@ -454,12 +475,14 @@ public class SalesforceComponentConfiguration
          * Keystore parameters for keystore containing certificate and private
          * key needed for OAuth 2.0 JWT Bearer Token Flow.
          */
-        @NestedConfigurationProperty
         private KeyStoreParameters keystore;
         /**
          * Salesforce connected application Consumer token
          */
         private String refreshToken;
+        /**
+         * Salesforce connected application Consumer token
+         */
         private AuthenticationType type;
         /**
          * Salesforce account user name
@@ -474,7 +497,7 @@ public class SalesforceComponentConfiguration
          * OAuth token retrieval or generation is not done until the first API
          * call
          */
-        private Boolean lazyLogin;
+        private Boolean lazyLogin = false;
 
         public String getInstanceUrl() {
             return instanceUrl;
@@ -566,7 +589,7 @@ public class SalesforceComponentConfiguration
         private PayloadFormat format;
         /**
          * Use raw payload {@link String} for request and response (either JSON
-         * or XML depending on {@code format} ), instead of DTOs, false by
+         * or XML depending on {@code format}), instead of DTOs, false by
          * default
          */
         private Boolean rawPayload = false;
@@ -613,6 +636,11 @@ public class SalesforceComponentConfiguration
          */
         private String sObjectSearch;
         /**
+         * Should the NULL values of given DTO be serialized with empty (NULL)
+         * values. This affects only JSON data format.
+         */
+        private Boolean serializeNulls = false;
+        /**
          * APEX method name
          */
         private String apexMethod;
@@ -626,10 +654,7 @@ public class SalesforceComponentConfiguration
         private Map apexQueryParams;
         /**
          * The approval request for Approval API.
-         * 
-         * @param approval
          */
-        @NestedConfigurationProperty
         private ApprovalRequest approval;
         /**
          * Bulk API content type, one of XML, CSV, ZIP_XML, ZIP_CSV
@@ -689,7 +714,6 @@ public class SalesforceComponentConfiguration
         /**
          * Salesforce1 Analytics report metadata for filtering
          */
-        @NestedConfigurationProperty
         private ReportMetadata reportMetadata;
         /**
          * Salesforce1 Analytics report execution instance ID
@@ -698,14 +722,7 @@ public class SalesforceComponentConfiguration
         /**
          * Custom Jetty Http Client to use to connect to Salesforce.
          */
-        @NestedConfigurationProperty
         private SalesforceHttpClient httpClient;
-        /**
-         * Custom Jackson ObjectMapper to use when serializing/deserializing
-         * Salesforce objects.
-         */
-        @NestedConfigurationProperty
-        private ObjectMapper objectMapper;
         /**
          * Backoff interval increment for Streaming connection restart attempts
          * for failures beyond CometD auto-reconnect.
@@ -717,10 +734,13 @@ public class SalesforceComponentConfiguration
          */
         private Long maxBackoff;
         /**
-         * Default replayId setting if no value is found in
-         * {@link #initialReplayIdMap}
-         * 
-         * @param defaultReplayId
+         * Custom Jackson ObjectMapper to use when serializing/deserializing
+         * Salesforce objects.
+         */
+        private ObjectMapper objectMapper;
+        /**
+         * Default replayId setting if no value is found in {@link
+         * #initialReplayIdMap}
          */
         private Long defaultReplayId;
         /**
@@ -730,45 +750,31 @@ public class SalesforceComponentConfiguration
         /**
          * Limit on number of returned records. Applicable to some of the API,
          * check the Salesforce documentation.
-         * 
-         * @param limit
          */
         private Integer limit;
         /**
          * Represents the kind of action to take: Submit, Approve, or Reject.
-         * 
-         * @param actionType
          */
         private Action approvalActionType;
         /**
          * The comment to add to the history step associated with this request.
-         * 
-         * @param comments
          */
         private String approvalComments;
         /**
          * The ID of the submitter who’s requesting the approval record.
-         * 
-         * @param contextActorId
          */
         private String approvalContextActorId;
         /**
          * The ID of the item that is being acted upon.
-         * 
-         * @param contextId
          */
         private String approvalContextId;
         /**
          * If the process requires specification of the next approval, the ID of
          * the user to be assigned the next request.
-         * 
-         * @param nextApproverIds
          */
         private List approvalNextApproverIds;
         /**
          * The developer name or ID of the process definition.
-         * 
-         * @param processDefinitionNameOrId
          */
         private String approvalProcessDefinitionNameOrId;
         /**
@@ -778,15 +784,13 @@ public class SalesforceComponentConfiguration
          * argument is ignored, and standard evaluation is followed based on
          * process order. By default, the entry criteria isn’t skipped if it’s
          * not set by this request.
-         * 
-         * @param skipEntryCriteria
          */
         private Boolean approvalSkipEntryCriteria;
         /**
          * Sets the behaviour of 404 not found status received from Salesforce
          * API. Should the body be set to NULL {@link NotFoundBehaviour#NULL} or
-         * should a exception be signaled on the exchange
-         * {@link NotFoundBehaviour#EXCEPTION} - the default.
+         * should a exception be signaled on the exchange {@link
+         * NotFoundBehaviour#EXCEPTION} - the default.
          */
         private NotFoundBehaviour notFoundBehaviour;
 
@@ -884,6 +888,14 @@ public class SalesforceComponentConfiguration
 
         public void setSObjectSearch(String sObjectSearch) {
             this.sObjectSearch = sObjectSearch;
+        }
+
+        public Boolean getSerializeNulls() {
+            return serializeNulls;
+        }
+
+        public void setSerializeNulls(Boolean serializeNulls) {
+            this.serializeNulls = serializeNulls;
         }
 
         public String getApexMethod() {
@@ -1048,14 +1060,6 @@ public class SalesforceComponentConfiguration
             this.httpClient = httpClient;
         }
 
-        public ObjectMapper getObjectMapper() {
-            return objectMapper;
-        }
-
-        public void setObjectMapper(ObjectMapper objectMapper) {
-            this.objectMapper = objectMapper;
-        }
-
         public Long getBackoffIncrement() {
             return backoffIncrement;
         }
@@ -1070,6 +1074,14 @@ public class SalesforceComponentConfiguration
 
         public void setMaxBackoff(Long maxBackoff) {
             this.maxBackoff = maxBackoff;
+        }
+
+        public ObjectMapper getObjectMapper() {
+            return objectMapper;
+        }
+
+        public void setObjectMapper(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
         }
 
         public Long getDefaultReplayId() {

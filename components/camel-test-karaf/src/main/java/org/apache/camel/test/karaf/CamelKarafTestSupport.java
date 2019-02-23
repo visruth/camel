@@ -41,8 +41,8 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.security.auth.Subject;
 
+import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.camel.util.ObjectHelper;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.features.Feature;
@@ -135,10 +135,10 @@ public class CamelKarafTestSupport extends CamelTestSupport {
 
         FutureTask<String> commandFuture;
         if (principals.length == 0) {
-            commandFuture = new FutureTask<String>(commandCallable);
+            commandFuture = new FutureTask<>(commandCallable);
         } else {
             // If principals are defined, run the command callable via Subject.doAs()
-            commandFuture = new FutureTask<String>(new Callable<String>() {
+            commandFuture = new FutureTask<>(new Callable<String>() {
                 @Override
                 public String call() throws Exception {
                     Subject subject = new Subject();
@@ -304,7 +304,7 @@ public class CamelKarafTestSupport extends CamelTestSupport {
             }
             fail("Feature " + featureName + " should be installed but is not");
         } catch (Exception e) {
-            throw ObjectHelper.wrapRuntimeCamelException(e);
+            throw RuntimeCamelException.wrapRuntimeCamelException(e);
         }
     }
 
@@ -318,7 +318,7 @@ public class CamelKarafTestSupport extends CamelTestSupport {
             }
             fail("Feature " + featureName + "/" + featureVersion + " should be installed but is not");
         } catch (Exception e) {
-            throw ObjectHelper.wrapRuntimeCamelException(e);
+            throw RuntimeCamelException.wrapRuntimeCamelException(e);
         }
     }
     
@@ -333,7 +333,7 @@ public class CamelKarafTestSupport extends CamelTestSupport {
     }
 
     protected void installAssertAndUninstallFeature(String feature) throws Exception {
-        Set<Feature> featuresBefore = new HashSet<Feature>(Arrays.asList(featuresService.listInstalledFeatures()));
+        Set<Feature> featuresBefore = new HashSet<>(Arrays.asList(featuresService.listInstalledFeatures()));
         try {
             featuresService.installFeature(feature);
             assertFeatureInstalled(feature);
@@ -343,7 +343,7 @@ public class CamelKarafTestSupport extends CamelTestSupport {
     }
 
     protected void installAssertAndUninstallFeature(String feature, String version) throws Exception {
-        Set<Feature> featuresBefore = new HashSet<Feature>(Arrays.asList(featuresService.listInstalledFeatures()));
+        Set<Feature> featuresBefore = new HashSet<>(Arrays.asList(featuresService.listInstalledFeatures()));
         try {
             featuresService.installFeature(feature, version);
             assertFeatureInstalled(feature, version);
@@ -353,7 +353,7 @@ public class CamelKarafTestSupport extends CamelTestSupport {
     }
 
     protected void installAssertAndUninstallFeatures(String... feature) throws Exception {
-        Set<Feature> featuresBefore = new HashSet<Feature>(Arrays.asList(featuresService.listInstalledFeatures()));
+        Set<Feature> featuresBefore = new HashSet<>(Arrays.asList(featuresService.listInstalledFeatures()));
         try {
             for (String curFeature : feature) {
                 featuresService.installFeature(curFeature);
@@ -382,7 +382,7 @@ public class CamelKarafTestSupport extends CamelTestSupport {
                 }
             }
         } catch (Exception e) {
-            throw ObjectHelper.wrapRuntimeCamelException(e);
+            throw RuntimeCamelException.wrapRuntimeCamelException(e);
         }
     }
 

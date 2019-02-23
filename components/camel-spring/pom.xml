@@ -23,51 +23,13 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-spring</artifactId>
   <name>Camel :: Spring</name>
   <description>Camel Spring with XML DSL</description>
   <packaging>jar</packaging>
-
-  <properties>
-    <camel.osgi.import>
-      !org.springframework.boot.*,
-      !org.springframework.context.annotation.*;resolution:=optional,
-      !org.apache.camel.spring.*,
-      !org.apache.camel.component,
-      !org.apache.camel.component.event,
-      !org.apache.camel.language.spel,
-      !org.apache.camel.core.xml*,
-      org.apache.camel.model;${camel.osgi.import.strict.version},
-      org.apache.camel.model.cloud;${camel.osgi.import.strict.version},
-      org.apache.camel.model.config;${camel.osgi.import.strict.version},
-      org.apache.camel.model.dataformat;${camel.osgi.import.strict.version},
-      org.apache.camel.model.language;${camel.osgi.import.strict.version},
-      org.apache.camel.model.loadbalancer;${camel.osgi.import.strict.version},
-      org.apache.camel.model.rest;${camel.osgi.import.strict.version},
-      org.apache.camel.model.transformer;${camel.osgi.import.strict.version},
-      org.apache.camel.model.validator;${camel.osgi.import.strict.version},
-      org.apache.camel.*;${camel.osgi.import.strict.version},
-      org.springframework*;version="${spring-all-version-range}",
-      org.osgi.service.event;resolution:=optional,
-      ${camel.osgi.import.defaults},
-      *
-    </camel.osgi.import>
-    <camel.osgi.export>
-      org.apache.camel.spring.*;${camel.osgi.version},
-      org.apache.camel.util.spring.*;${camel.osgi.version},
-      org.apache.camel.component.event;${camel.osgi.split.pkg};${camel.osgi.version},
-      org.apache.camel.language.spel;${camel.osgi.split.pkg};${camel.osgi.version}
-    </camel.osgi.export>
-    <camel.osgi.export.service>
-      org.apache.camel.spi.ComponentResolver;component=spring-event,
-      org.apache.camel.spi.LanguageResolver;language=spel
-    </camel.osgi.export.service>
-    <!-- do not skip any tests by default -->
-    <platform.skip.tests/>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -76,8 +38,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
+      <artifactId>camel-management-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
       <artifactId>camel-core-xml</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -137,6 +102,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-management-impl</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
       <scope>test</scope>
@@ -156,7 +127,7 @@
       <artifactId>log4j-core</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- todo: remove log4j loggin if possible -->
+    <!-- todo: remove log4j 1.x logging if possible -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-1.2-api</artifactId>
@@ -221,33 +192,6 @@
 
     <plugins>
 
-      <!-- Inline the contents of camel-core-xml into this jar. -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.10</version>
-        <executions>
-          <execution>
-            <id>unpack</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.apache.camel</groupId>
-                  <artifactId>camel-core-xml</artifactId>
-                  <version>${project.version}</version>
-                  <includes>org/apache/camel/**</includes>
-                  <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Push the execution order of the maven-bundle-plugin further to the end. That's why we add it here again. -->
       <plugin>
         <groupId>org.apache.felix</groupId>
@@ -263,7 +207,6 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <!-- skip file stress tests as they are intended to run manually -->
           <excludes>
             <exclude>${platform.skip.tests}</exclude>
           </excludes>
@@ -316,16 +259,18 @@
                     <include name="org/apache/camel/core/xml/*.java" />
                     <include name="org/apache/camel/core/xml/util/**/*.java" />
                   </fileset>
-                  <fileset dir="${basedir}/../../camel-core/src/main/java">
+                  <fileset dir="${basedir}/../../core/camel-core/src/main/java">
                     <include name="org/apache/camel/model/**/*.java" />
                     <include name="org/apache/camel/ExchangePattern.java" />
                     <include name="org/apache/camel/LoggingLevel.java" />
                     <include name="org/apache/camel/ManagementStatisticsLevel.java" />
                     <include name="org/apache/camel/ShutdownRoute.java" />
                     <include name="org/apache/camel/ShutdownRunningTask.java" />
-                    <include name="org/apache/camel/ThreadPoolRejectedPolicy.java" />
                     <include name="org/apache/camel/WaitForTaskToComplete.java" />
                     <include name="org/apache/camel/package-info.java" />
+                  </fileset>
+                  <fileset dir="${basedir}/../../core/camel-util/src/main/java">
+                    <include name="org/apache/camel/concurrent/ThreadPoolRejectedPolicy.java" />
                   </fileset>
                 </copy>
               </target>
@@ -343,6 +288,7 @@
                 <jar destfile="${project.build.directory}/${project.artifactId}-${project.version}-sources.jar" update="true">
                   <fileset dir="${basedir}/../camel-core-osgi/src/main/java" includes="**/*" />
                   <fileset dir="${basedir}/../camel-core-xml/src/main/java" includes="**/*" />
+                  <fileset dir="${basedir}/src/main/java" includes="**/*" />
                 </jar>
               </target>
             </configuration>
@@ -427,8 +373,9 @@
               <goal>eip-documentation-enricher</goal>
             </goals>
             <configuration>
-              <inputCamelSchemaFile>${project.build.directory}/schema/camel-spring.xsd</inputCamelSchemaFile>
+              <inputCamelSchemaFile>${project.build.directory}/schema/schema1.xsd</inputCamelSchemaFile>
               <outputCamelSchemaFile>${project.build.directory}/classes/camel-spring.xsd</outputCamelSchemaFile>
+              <deleteFilesAfterRun>${project.build.directory}/schema/schema1.xsd,${project.build.directory}/schema/schema2.xsd</deleteFilesAfterRun>
             </configuration>
           </execution>
         </executions>
@@ -572,30 +519,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.8</version>
-            <executions>
-              <execution>
-                <id>cpy-schema</id>
-                <phase>process-test-sources</phase>
-                <configuration>
-                  <target>
-                    <echo>Copying XSD schema to be included in JAR</echo>
-                    <move file="${project.build.directory}/schema/schema1.xsd" tofile="${project.build.directory}/schema/camel-spring.xsd" />
-                    <delete file="${project.build.directory}/schema/schema2.xsd"/>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>jaxb2-maven-plugin</artifactId>
-            <version>2.3.1</version>
             <executions>
               <execution>
                 <id>generate schema</id>
@@ -618,9 +543,9 @@
     </profile>
 
     <profile>
-      <id>jdk9-build</id>
+      <id>jdk9+-build</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <dependencies>
         <!-- xmltokenizer using woodstox -->
@@ -634,51 +559,8 @@
       <build>
         <plugins>
           <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>--add-modules java.xml.bind,java.xml.ws --add-opens java.base/java.lang=ALL-UNNAMED --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED --add-exports=java.xml.bind/com.sun.xml.internal.bind=ALL-UNNAMED --add-exports=java.xml.bind/com.sun.xml.internal.bind.v2=ALL-UNNAMED --add-exports=java.xml.bind/com.sun.xml.internal.bind.v2.runtime.reflect=ALL-UNNAMED</argLine>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.8</version>
-            <executions>
-              <execution>
-                <id>cpy-schema</id>
-                <phase>process-test-sources</phase>
-                <configuration>
-                  <target>
-                    <echo>Copying XSD schema to be included in JAR</echo>
-                    <replace file="${project.build.directory}/schema/schema1.xsd"
-                      token="xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;"
-                      value="xmlns=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;"/>
-                    <move file="${project.build.directory}/schema/schema1.xsd" tofile="${project.build.directory}/schema/camel-spring.xsd" />
-                    <delete file="${project.build.directory}/schema/schema2.xsd"/>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>jaxb2-maven-plugin</artifactId>
-            <version>2.3.1</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.glassfish.jaxb</groupId>
-                <artifactId>jaxb-jxc-jdk9</artifactId>
-                <version>2.3.0</version>
-              </dependency>
-              <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>javax.activation-api</artifactId>
-                <version>1.2.0</version>
-              </dependency>
-            </dependencies>
             <executions>
               <execution>
                 <id>generate schema</id>
@@ -718,11 +600,11 @@
 
           <groups>
             <group>
-              <title>Camel Spring Classes</title>
+              <title>Camel Spring classes</title>
               <packages>org.apache.camel.spring</packages>
             </group>
             <group>
-              <title>Spring Remoting Classes</title>
+              <title>Spring remoting classes</title>
               <packages>org.apache.camel.spring.remoting</packages>
             </group>
             <group>
@@ -730,16 +612,28 @@
               <packages>org.apache.camel.component:org.apache.camel.component.*</packages>
             </group>
             <group>
+              <title>Camel Languages</title>
+              <packages>org.apache.camel.language:org.apache.camel.language.*</packages>
+            </group>
+            <group>
               <title>Camel SPI implementations for Spring</title>
               <packages>org.apache.camel.spring.spi</packages>
             </group>
             <group>
-              <title>Spring Namespace Handling Code</title>
+              <title>Camel Spring Scheduler Polling Consumer support</title>
+              <packages>org.apache.camel.spring.pollingconsumer</packages>
+            </group>
+            <group>
+              <title>Camel Spring Idempotent Repository</title>
+              <packages>org.apache.camel.spring.processor.idempotent</packages>
+            </group>
+            <group>
+              <title>Spring XML Namespace handling code</title>
               <packages>org.apache.camel.spring.handler</packages>
             </group>
             <group>
               <title>Utility classes</title>
-              <packages>org.apache.camel.spring.util:org.apache.camel.spring.factory</packages>
+              <packages>org.apache.camel.spring.util</packages>
             </group>
           </groups>
         </configuration>

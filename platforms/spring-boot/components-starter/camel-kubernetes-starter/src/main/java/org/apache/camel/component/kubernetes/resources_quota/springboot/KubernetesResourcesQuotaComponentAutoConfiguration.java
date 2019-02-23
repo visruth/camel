@@ -30,7 +30,7 @@ import org.apache.camel.spring.boot.util.CamelPropertiesHelper;
 import org.apache.camel.spring.boot.util.ConditionalOnCamelContextAndAutoConfigurationBeans;
 import org.apache.camel.spring.boot.util.GroupCondition;
 import org.apache.camel.spring.boot.util.HierarchicalPropertiesEvaluator;
-import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.support.IntrospectionSupport;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +50,7 @@ import org.springframework.context.annotation.Lazy;
  */
 @Generated("org.apache.camel.maven.packaging.SpringBootAutoConfigurationMojo")
 @Configuration
-@Conditional({
-        ConditionalOnCamelContextAndAutoConfigurationBeans.class,
+@Conditional({ConditionalOnCamelContextAndAutoConfigurationBeans.class,
         KubernetesResourcesQuotaComponentAutoConfiguration.GroupConditions.class})
 @AutoConfigureAfter(CamelAutoConfiguration.class)
 @EnableConfigurationProperties({ComponentConfigurationProperties.class,
@@ -71,8 +70,7 @@ public class KubernetesResourcesQuotaComponentAutoConfiguration {
 
     static class GroupConditions extends GroupCondition {
         public GroupConditions() {
-            super("camel.component",
-                    "camel.component.kubernetes-resources-quota");
+            super("camel.component", "camel.component.kubernetes-resources-quota");
         }
     }
 
@@ -110,16 +108,15 @@ public class KubernetesResourcesQuotaComponentAutoConfiguration {
         if (ObjectHelper.isNotEmpty(customizers)) {
             for (ComponentCustomizer<KubernetesResourcesQuotaComponent> customizer : customizers) {
                 boolean useCustomizer = (customizer instanceof HasId)
-                        ? HierarchicalPropertiesEvaluator
-                                .evaluate(
-                                        applicationContext.getEnvironment(),
-                                        "camel.component.customizer",
-                                        "camel.component.kubernetes-resources-quota.customizer",
-                                        ((HasId) customizer).getId())
-                        : HierarchicalPropertiesEvaluator
-                                .evaluate(applicationContext.getEnvironment(),
-                                        "camel.component.customizer",
-                                        "camel.component.kubernetes-resources-quota.customizer");
+                        ? HierarchicalPropertiesEvaluator.evaluate(
+                                applicationContext.getEnvironment(),
+                                "camel.component.customizer",
+                                "camel.component.kubernetes-resources-quota.customizer",
+                                ((HasId) customizer).getId())
+                        : HierarchicalPropertiesEvaluator.evaluate(
+                                applicationContext.getEnvironment(),
+                                "camel.component.customizer",
+                                "camel.component.kubernetes-resources-quota.customizer");
                 if (useCustomizer) {
                     LOGGER.debug("Configure component {}, with customizer {}",
                             component, customizer);

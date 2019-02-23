@@ -24,7 +24,7 @@ import com.amazonaws.services.simpledb.model.UpdateCondition;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,7 +50,7 @@ public class PutAttributesCommandTest {
 
     @Test
     public void execute() {
-        List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
+        List<ReplaceableAttribute> replaceableAttributes = new ArrayList<>();
         replaceableAttributes.add(new ReplaceableAttribute("NAME1", "VALUE1", true));
         exchange.getIn().setHeader(SdbConstants.REPLACEABLE_ATTRIBUTES, replaceableAttributes);
         exchange.getIn().setHeader(SdbConstants.ITEM_NAME, "ITEM1");
@@ -67,7 +67,7 @@ public class PutAttributesCommandTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void executeWithoutItemName() {
-        List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
+        List<ReplaceableAttribute> replaceableAttributes = new ArrayList<>();
         replaceableAttributes.add(new ReplaceableAttribute("NAME1", "VALUE1", true));
         exchange.getIn().setHeader(SdbConstants.REPLACEABLE_ATTRIBUTES, replaceableAttributes);
         UpdateCondition updateCondition = new UpdateCondition("NAME1", "VALUE1", true);
@@ -80,7 +80,7 @@ public class PutAttributesCommandTest {
     public void determineReplaceableAttributes() {
         assertNull(this.command.determineReplaceableAttributes());
 
-        List<ReplaceableAttribute> replaceableAttributes = new ArrayList<ReplaceableAttribute>();
+        List<ReplaceableAttribute> replaceableAttributes = new ArrayList<>();
         replaceableAttributes.add(new ReplaceableAttribute("NAME1", "VALUE1", true));
         exchange.getIn().setHeader(SdbConstants.REPLACEABLE_ATTRIBUTES, replaceableAttributes);
 

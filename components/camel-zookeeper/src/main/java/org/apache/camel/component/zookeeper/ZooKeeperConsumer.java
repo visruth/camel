@@ -30,7 +30,7 @@ import org.apache.camel.component.zookeeper.operations.GetChildrenOperation;
 import org.apache.camel.component.zookeeper.operations.GetDataOperation;
 import org.apache.camel.component.zookeeper.operations.OperationResult;
 import org.apache.camel.component.zookeeper.operations.ZooKeeperOperation;
-import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.support.DefaultConsumer;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooKeeper;
 
@@ -44,7 +44,7 @@ public class ZooKeeperConsumer extends DefaultConsumer {
     private final ZooKeeperConnectionManager zkm;
     private ZooKeeper connection;
     private ZooKeeperConfiguration configuration;
-    private LinkedBlockingQueue<ZooKeeperOperation> operations = new LinkedBlockingQueue<ZooKeeperOperation>();
+    private LinkedBlockingQueue<ZooKeeperOperation> operations = new LinkedBlockingQueue<>();
     private ExecutorService executor;
     private volatile boolean shuttingDown;
 

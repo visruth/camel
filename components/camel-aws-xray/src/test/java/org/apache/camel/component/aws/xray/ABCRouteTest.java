@@ -16,8 +16,14 @@
  */
 package org.apache.camel.component.aws.xray;
 
+import java.util.concurrent.TimeUnit;
+
+import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 
 public class ABCRouteTest extends CamelAwsXRayTestSupport {
 
@@ -25,12 +31,11 @@ public class ABCRouteTest extends CamelAwsXRayTestSupport {
         super(
             TestDataBuilder.createTrace().inRandomOrder()
                 .withSegment(TestDataBuilder.createSegment("start")
-                    .withSubsegment(TestDataBuilder.createSubsegment("direct:a")
-                        .withSubsegment(TestDataBuilder.createSubsegment("a")
-                            .withSubsegment(TestDataBuilder.createSubsegment("seda:b"))
-                            .withSubsegment(TestDataBuilder.createSubsegment("seda:c"))
-                        )
-                    )
+                    .withSubsegment(TestDataBuilder.createSubsegment("direct:a"))
+                )
+                .withSegment(TestDataBuilder.createSegment("a")
+                    .withSubsegment(TestDataBuilder.createSubsegment("seda:b"))
+                    .withSubsegment(TestDataBuilder.createSubsegment("seda:c"))
                 )
                 .withSegment(TestDataBuilder.createSegment("b"))
                 .withSegment(TestDataBuilder.createSegment("c")
@@ -43,7 +48,12 @@ public class ABCRouteTest extends CamelAwsXRayTestSupport {
 
     @Test
     public void testRoute() throws Exception {
+        NotifyBuilder notify = new NotifyBuilder(context).whenDone(5).create();
+
         template.requestBody("direct:start", "Hello");
+
+        assertThat("Not all exchanges were fully processed",
+                notify.matches(10, TimeUnit.SECONDS), is(equalTo(true)));
 
         verify();
     }

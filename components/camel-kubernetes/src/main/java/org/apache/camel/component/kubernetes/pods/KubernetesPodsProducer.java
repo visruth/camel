@@ -18,7 +18,6 @@ package org.apache.camel.component.kubernetes.pods;
 
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.DoneablePod;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -26,15 +25,13 @@ import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListMultiDeletable;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.PodResource;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.kubernetes.AbstractKubernetesEndpoint;
 import org.apache.camel.component.kubernetes.KubernetesConstants;
 import org.apache.camel.component.kubernetes.KubernetesOperations;
-import org.apache.camel.impl.DefaultProducer;
-import org.apache.camel.util.MessageHelper;
+import org.apache.camel.support.DefaultProducer;
+import org.apache.camel.support.MessageHelper;
 import org.apache.camel.util.ObjectHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

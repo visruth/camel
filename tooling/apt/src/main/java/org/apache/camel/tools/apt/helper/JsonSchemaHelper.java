@@ -25,16 +25,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.json.simple.JsonObject;
-import org.json.simple.Jsoner;
+import org.apache.camel.util.json.JsonObject;
+import org.apache.camel.util.json.Jsoner;
 
 /**
  * A helper class for <a href="http://json-schema.org/">JSON schema</a>.
  */
 public final class JsonSchemaHelper {
 
-    private static final String VALID_CHARS = ".-='/\\!&():;";
+    private static final String VALID_CHARS = ".,-='/\\!&%():;#${}";
 
     private JsonSchemaHelper() {
     }
@@ -79,30 +80,22 @@ public final class JsonSchemaHelper {
         if ("enum".equals(typeName)) {
             String actualType = JsonSchemaHelper.getType(type, false);
             sb.append(Strings.doubleQuote(actualType));
-            sb.append(", \"javaType\": \"" + type + "\"");
-            CollectionStringBuffer enumValues = new CollectionStringBuffer();
-            for (Object value : enums) {
-                enumValues.append(Strings.doubleQuote(value.toString()));
-            }
+            sb.append(", \"javaType\": \"").append(type).append("\"");
             sb.append(", \"enum\": [ ");
-            sb.append(enumValues.toString());
+            sb.append(enums.stream().map(Strings::doubleQuote).collect(Collectors.joining(", ")));
             sb.append(" ]");
         } else if (oneOfType) {
             sb.append(Strings.doubleQuote(typeName));
-            sb.append(", \"javaType\": \"" + type + "\"");
-            CollectionStringBuffer oneOfValues = new CollectionStringBuffer();
-            for (Object value : oneOffTypes) {
-                oneOfValues.append(Strings.doubleQuote(value.toString()));
-            }
+            sb.append(", \"javaType\": \"").append(type).append("\"");
             sb.append(", \"oneOf\": [ ");
-            sb.append(oneOfValues.toString());
+            sb.append(oneOffTypes.stream().map(Strings::doubleQuote).collect(Collectors.joining(", ")));
             sb.append(" ]");
         } else if ("array".equals(typeName)) {
             sb.append(Strings.doubleQuote("array"));
-            sb.append(", \"javaType\": \"" + type + "\"");
+            sb.append(", \"javaType\": \"").append(type).append("\"");
         } else {
             sb.append(Strings.doubleQuote(typeName));
-            sb.append(", \"javaType\": \"" + type + "\"");
+            sb.append(", \"javaType\": \"").append(type).append("\"");
         }
 
         if (!Strings.isNullOrEmpty(optionalPrefix)) {
@@ -263,6 +256,15 @@ public final class JsonSchemaHelper {
         for (String line : lines) {
             line = line.trim();
 
+            if (line.startsWith("**")) {
+                continue;
+            }
+            // remove leading javadoc *
+            if (line.startsWith("*")) {
+                line = line.substring(1);
+                line = line.trim();
+            }
+
             // terminate if we reach @param, @return or @deprecated as we only want the javadoc summary
             if (line.startsWith("@param") || line.startsWith("@return") || line.startsWith("@deprecated")) {
                 break;
@@ -277,7 +279,8 @@ public final class JsonSchemaHelper {
             line = line.replaceAll("<.*?>", "");
 
             // remove all inlined javadoc links, eg such as {@link org.apache.camel.spi.Registry}
-            line = line.replaceAll("\\{\\@\\w+\\s([\\w.]+)\\}", "$1");
+            // use #? to remove leading # in case its a local reference
+            line = line.replaceAll("\\{\\@\\w+\\s#?([\\w.#(\\d,)]+)\\}", "$1");
 
             // we are starting from a new line, so add a whitespace
             if (!first) {
@@ -377,12 +380,8 @@ public final class JsonSchemaHelper {
             // to be backwards compatible
             Object newValue = rowEntry.getValue();
             if (newValue instanceof List) {
-                List list = (List) newValue;
-                CollectionStringBuffer csb = new CollectionStringBuffer(",");
-                for (Object line : list) {
-                    csb.append(line);
-                }
-                newValue = csb.toString();
+                List<Object> list = (List) newValue;
+                newValue = list.stream().map(String::valueOf).collect(Collectors.joining(","));
             }
             // ensure value is escaped
             String value = escapeJson(newValue.toString());

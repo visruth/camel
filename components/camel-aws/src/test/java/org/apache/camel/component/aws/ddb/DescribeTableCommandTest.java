@@ -24,7 +24,7 @@ import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -48,7 +48,7 @@ public class DescribeTableCommandTest {
     @Test
     public void testExecute() {
         command.execute();
-        List<KeySchemaElement> keySchema = new ArrayList<KeySchemaElement>();
+        List<KeySchemaElement> keySchema = new ArrayList<>();
         keySchema.add(new KeySchemaElement().withAttributeName("name"));
         assertEquals("FULL_DESCRIBE_TABLE", ddbClient.describeTableRequest.getTableName());
         assertEquals("FULL_DESCRIBE_TABLE", exchange.getIn().getHeader(DdbConstants.TABLE_NAME));

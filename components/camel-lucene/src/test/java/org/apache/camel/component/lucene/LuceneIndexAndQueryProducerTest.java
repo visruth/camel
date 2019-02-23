@@ -237,9 +237,9 @@ public class LuceneIndexAndQueryProducerTest extends CamelTestSupport {
                     public void process(Exchange exchange) throws Exception {
                         Hits hits = exchange.getIn().getBody(Hits.class);
                         if (hits == null) {
-                            HashMap<String, String> map = new HashMap<String, String>();
+                            HashMap<String, String> map = new HashMap<>();
                             map.put("NO_LUCENE_DOCS_ERROR", "NO LUCENE DOCS FOUND");
-                            exchange.getContext().setProperties(map);
+                            exchange.getContext().setGlobalOptions(map);
                         }
                         LOG.debug("Number of hits: " + hits.getNumberOfHits());
                     }
@@ -251,7 +251,7 @@ public class LuceneIndexAndQueryProducerTest extends CamelTestSupport {
 
         sendQuery();
         mockSearchEndpoint.assertIsSatisfied();
-        Map<String, String> errorMap = mockSearchEndpoint.getCamelContext().getProperties();
+        Map<String, String> errorMap = mockSearchEndpoint.getCamelContext().getGlobalOptions();
         LOG.debug("------------Completed LuceneQueryProducer Wildcard with Return Lucene Docs Test---------------");
         context.stop();
         assertTrue(errorMap.get("NO_LUCENE_DOCS_ERROR") == null);

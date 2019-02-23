@@ -18,6 +18,7 @@ package org.apache.camel.component.jms.discovery;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.jms.ConnectionFactory;
 import javax.naming.Context;
 
@@ -31,9 +32,6 @@ import org.junit.Test;
 
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
 
-/**
- * @version 
- */
 public class JmsDiscoveryTest extends CamelTestSupport {
     protected MyRegistry registry = new MyRegistry();
 
@@ -50,7 +48,7 @@ public class JmsDiscoveryTest extends CamelTestSupport {
         // sleep a little
         Thread.sleep(1000);
 
-        Map<String, Map<?, ?>> map = new HashMap<String, Map<?, ?>>(registry.getServices());
+        Map<String, Map<?, ?>> map = new HashMap<>(registry.getServices());
         assertTrue("There should be 1 or more, was: " + map.size(), map.size() >= 1);
     }
 

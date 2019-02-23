@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-amqp</artifactId>
@@ -40,8 +40,6 @@
       ${camel.osgi.import.defaults},
       *
     </camel.osgi.import>
-    <camel.osgi.export.pkg>org.apache.camel.component.amqp.*</camel.osgi.export.pkg>
-    <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=amqp</camel.osgi.export.service>
   </properties>
 
   <dependencies>
@@ -67,33 +65,45 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-buffer</artifactId>
-      <version>${netty40-version}</version>
+      <version>${netty-version}</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-common</artifactId>
-      <version>${netty40-version}</version>
+      <version>${netty-version}</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-handler</artifactId>
-      <version>${netty40-version}</version>
+      <version>${netty-version}</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-transport</artifactId>
-      <version>${netty40-version}</version>
+      <version>${netty-version}</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-codec-http</artifactId>
-      <version>${netty40-version}</version>
+      <version>${netty-version}</version>
     </dependency>
 
     <!-- testing -->
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-broker</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>artemis-server</artifactId>
+      <version>${activemq-artemis-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>artemis-amqp-protocol</artifactId>
+      <version>${activemq-artemis-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

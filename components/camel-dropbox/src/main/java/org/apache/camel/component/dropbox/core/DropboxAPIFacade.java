@@ -92,31 +92,31 @@ public final class DropboxAPIFacade {
         // in case the remote path is not specified, the remotePath = localPath
         String dropboxPath = remotePath == null ? localPath : remotePath;
 
-        UploadUploader entry;
+        boolean isPresent = true;
         try {
-            entry = client.files().upload(dropboxPath);
+            client.files().getMetadata(dropboxPath);
         } catch (DbxException e) {
-            throw new DropboxException(dropboxPath + " does not exist or can't obtain metadata");
+            isPresent = false;
         }
 
         if (localPath != null) {
-            return putFile(localPath, mode, dropboxPath, entry);
+            return putFile(localPath, mode, dropboxPath, isPresent);
         } else {
-            return putBody(exchange, mode, dropboxPath, entry);
+            return putBody(exchange, mode, dropboxPath, isPresent);
         }
     }
 
-    private DropboxFileUploadResult putFile(String localPath, DropboxUploadMode mode, String dropboxPath, UploadUploader entry) throws DropboxException {
+    private DropboxFileUploadResult putFile(String localPath, DropboxUploadMode mode, String dropboxPath, boolean isPresent) throws DropboxException {
         File fileLocalPath = new File(localPath);
         // verify uploading of a single file
         if (fileLocalPath.isFile()) {
             // check if dropbox file exists
-            if (entry != null) {
-                throw new DropboxException(dropboxPath + " exists on dropbox and is not a file!");
+            if (isPresent && !DropboxUploadMode.force.equals(mode)) {
+                throw new DropboxException(dropboxPath + " exists on dropbox. Use force upload mode to override");
             }
             // in case the entry not exists on dropbox check if the filename
             // should be appended
-            if (entry == null) {
+            if (!isPresent) {
                 if (dropboxPath.endsWith(DropboxConstants.DROPBOX_FILE_SEPARATOR)) {
                     dropboxPath = dropboxPath + fileLocalPath.getName();
                 }
@@ -139,7 +139,7 @@ public final class DropboxAPIFacade {
             // verify uploading of a list of files inside a dir
             LOG.debug("Uploading a dir...");
             // check if dropbox folder exists
-            if (entry != null) {
+            if (isPresent && !DropboxUploadMode.force.equals(mode)) {
                 throw new DropboxException(dropboxPath + " exists on dropbox and is not a folder!");
             }
             if (!dropboxPath.endsWith(DropboxConstants.DROPBOX_FILE_SEPARATOR)) {
@@ -150,7 +150,7 @@ public final class DropboxAPIFacade {
             // list all files in a dir
             Collection<File> listFiles = FileUtils.listFiles(fileLocalPath, null, true);
             if (listFiles.isEmpty()) {
-                throw new DropboxException(localPath + " doesn't contain any files");
+                throw new DropboxException(localPath + " does not contain any files");
             }
 
             HashMap<String, DropboxResultCode> resultMap = new HashMap<>(listFiles.size());
@@ -181,7 +181,7 @@ public final class DropboxAPIFacade {
         }
     }
 
-    private DropboxFileUploadResult putBody(Exchange exchange, DropboxUploadMode mode, String dropboxPath, UploadUploader entry) throws DropboxException {
+    private DropboxFileUploadResult putBody(Exchange exchange, DropboxUploadMode mode, String dropboxPath, boolean isPresent) throws DropboxException {
         String name = exchange.getIn().getHeader(HEADER_PUT_FILE_NAME, String.class);
         if (name == null) {
             // fallback to use CamelFileName
@@ -194,7 +194,7 @@ public final class DropboxAPIFacade {
 
         // in case the entry not exists on dropbox check if the filename should
         // be appended
-        if (entry == null) {
+        if (!isPresent) {
             if (dropboxPath.endsWith(DropboxConstants.DROPBOX_FILE_SEPARATOR)) {
                 dropboxPath = dropboxPath + name;
             }
@@ -271,7 +271,7 @@ public final class DropboxAPIFacade {
                 searchMatches = listing.getMatches();
                 return new DropboxSearchResult(searchMatches);
             } catch (DbxException e) {
-                throw new DropboxException(remotePath + " does not exist or can't obtain metadata");
+                throw new DropboxException(remotePath + " does not exist or cannot obtain metadata", e);
             }
         } else {
             LOG.debug("Search by query: {}", query);
@@ -280,7 +280,7 @@ public final class DropboxAPIFacade {
                 searchMatches = listing.getMatches();
                 return new DropboxSearchResult(searchMatches);
             } catch (DbxException e) {
-                throw new DropboxException(remotePath + " does not exist or can't obtain metadata");
+                throw new DropboxException(remotePath + " does not exist or cannot obtain metadata", e);
             }
         }
     }
@@ -297,7 +297,7 @@ public final class DropboxAPIFacade {
         try {
             client.files().deleteV2(remotePath);
         } catch (DbxException e) {
-            throw new DropboxException(remotePath + " does not exist or can't obtain metadata");
+            throw new DropboxException(remotePath + " does not exist or cannot obtain metadata", e);
         }
         return new DropboxDelResult(remotePath);
     }
@@ -315,7 +315,7 @@ public final class DropboxAPIFacade {
             client.files().moveV2(remotePath, newRemotePath);
             return new DropboxMoveResult(remotePath, newRemotePath);
         } catch (DbxException e) {
-            throw new DropboxException(remotePath + " does not exist or can't obtain metadata");
+            throw new DropboxException(remotePath + " does not exist or cannot obtain metadata", e);
         }
     }
 
@@ -369,9 +369,9 @@ public final class DropboxAPIFacade {
                 return null;
             }
         } catch (DbxException e) {
-            throw new DropboxException(path + " does not exist or can't obtain metadata");
+            throw new DropboxException(path + " does not exist or cannot obtain metadata", e);
         } catch (IOException e) {
-            throw new DropboxException(path + " can't obtain a stream");
+            throw new DropboxException(path + " cannot obtain a stream", e);
         }
     }
 }

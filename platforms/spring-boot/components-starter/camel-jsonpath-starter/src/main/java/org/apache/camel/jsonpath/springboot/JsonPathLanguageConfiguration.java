@@ -32,6 +32,11 @@ public class JsonPathLanguageConfiguration
             LanguageConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the jsonpath language. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * Whether to suppress exceptions such as PathNotFoundException.
      */
     private Boolean suppressExceptions = false;
@@ -49,7 +54,7 @@ public class JsonPathLanguageConfiguration
      */
     private Boolean writeAsString = false;
     /**
-     * Name of header to use as input instead of the message body
+     * Name of header to use as input, instead of the message body
      */
     private String headerName;
     /**

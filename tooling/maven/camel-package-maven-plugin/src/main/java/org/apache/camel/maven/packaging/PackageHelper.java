@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +50,7 @@ public final class PackageHelper {
             }
             String path = file.getPath() + "/" + suffix;
             if (log.isDebugEnabled()) {
-                log.debug("checking  if " + path + " (" + r.getDirectory() + "/" + suffix + ") has changed.");
+                log.debug("Checking  if " + path + " (" + r.getDirectory() + "/" + suffix + ") has changed.");
             }
             if (buildContext.hasDelta(path)) {
                 log.debug("Indeed " + suffix + " has changed.");
@@ -109,7 +111,7 @@ public final class PackageHelper {
      * @return the map
      */
     public static Map<String, String> parseAsMap(String data) {
-        Map<String, String> answer = new HashMap<String, String>();
+        Map<String, String> answer = new HashMap<>();
         if (data != null) {
             String[] lines = data.split("\n");
             for (String line : lines) {
@@ -152,10 +154,6 @@ public final class PackageHelper {
 
         @Override
         public boolean accept(File pathname) {
-            // skip camel-jetty9 as its a duplicate of camel-jetty
-            if ("camel-jetty9".equals(pathname.getName())) {
-                return false;
-            }
             return pathname.isDirectory() || pathname.getName().endsWith(".json");
         }
     }
@@ -167,11 +165,11 @@ public final class PackageHelper {
             String name = pathname.getName();
             boolean special = "camel-core-osgi".equals(name)
                 || "camel-core-xml".equals(name)
-                || "camel-box".equals(name)
                 || "camel-http-common".equals(name)
-                || "camel-jetty".equals(name)
                 || "camel-jetty-common".equals(name);
-            boolean special2 = "camel-linkedin".equals(name)
+            boolean special2 = "camel-as2".equals(name)
+                || "camel-box".equals(name)
+                || "camel-linkedin".equals(name)
                 || "camel-olingo2".equals(name)
                 || "camel-olingo4".equals(name)
                 || "camel-salesforce".equals(name);
@@ -182,5 +180,19 @@ public final class PackageHelper {
             return pathname.isDirectory() || name.endsWith(".json");
         }
     }
+
+    public static File findCamelCoreDirectory(File dir) {
+        if (dir == null) {
+            return null;
+        }
+        Path p = dir.toPath().resolve("core/camel-core");
+        if (Files.isDirectory(p)) {
+            return p.toFile();
+        } else {
+            // okay walk up the parent dir
+            return findCamelCoreDirectory(dir.getParentFile());
+        }
+    }
+
 
 }

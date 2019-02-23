@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
 import javax.sip.SipFactory;
@@ -63,7 +64,7 @@ public class SipConfiguration {
     private String protocol;
     private Map<String, Object> parameters;
 
-    @UriPath @Metadata(required = "true")
+    @UriPath @Metadata(required = true)
     private URI uri;
     @UriParam(label = "advanced")
     private AddressFactory addressFactory;
@@ -357,7 +358,7 @@ public class SipConfiguration {
     }
 
     private void createViaHeaders() throws ParseException, InvalidArgumentException {
-        viaHeaders = new ArrayList<ViaHeader>();
+        viaHeaders = new ArrayList<>();
         ViaHeader viaHeader = headerFactory.createViaHeader(getFromHost(), getFromPort(),
                 getTransport(), null);
 

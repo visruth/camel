@@ -30,23 +30,20 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-
 import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
-import org.apache.camel.util.CamelContextHelper;
+import org.apache.camel.support.CamelContextHelper;
+import org.apache.camel.support.DefaultEndpoint;
 import org.apache.camel.util.ObjectHelper;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.apache.camel.component.mongodb3.MongoDbOperation.command;
 import static org.apache.camel.component.mongodb3.MongoDbOperation.findAll;
@@ -60,15 +57,13 @@ import static org.apache.camel.component.mongodb3.MongoDbOutputType.MongoIterabl
  * Component for working with documents stored in MongoDB database.
  */
 @UriEndpoint(firstVersion = "2.19.0", scheme = "mongodb3", title = "MongoDB", syntax = "mongodb3:connectionBean",
-    consumerClass = MongoDbTailableCursorConsumer.class, label = "database,nosql")
+    label = "database,nosql")
 public class MongoDbEndpoint extends DefaultEndpoint {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MongoDbEndpoint.class);
 
     private MongoClient mongoConnection;
 
     @UriPath
-    @Metadata(required = "true")
+    @Metadata(required = true)
     private String connectionBean;
     @UriParam
     private String database;
@@ -103,10 +98,10 @@ public class MongoDbEndpoint extends DefaultEndpoint {
     private String tailTrackCollection;
     @UriParam(label = "tail")
     private String tailTrackField;
-    private MongoDbTailTrackingConfig tailTrackingConfig;
-
-    @UriParam
+    @UriParam(label = "common")
     private MongoDbOutputType outputType;
+    
+    private MongoDbTailTrackingConfig tailTrackingConfig;
 
     private MongoDatabase mongoDatabase;
     private MongoCollection<Document> mongoCollection;
@@ -209,7 +204,7 @@ public class MongoDbEndpoint extends DefaultEndpoint {
      * @throws CamelMongoDbException
      */
     public void initializeConnection() throws CamelMongoDbException {
-        LOG.info("Initialising MongoDb endpoint: {}", this.toString());
+        log.info("Initialising MongoDb endpoint: {}", this);
         if (database == null || (collection == null && !(getDbStats.equals(operation) || command.equals(operation)))) {
             throw new CamelMongoDbException("Missing required endpoint configuration: database and/or collection");
         }
@@ -223,7 +218,7 @@ public class MongoDbEndpoint extends DefaultEndpoint {
             }
             mongoCollection = mongoDatabase.getCollection(collection, Document.class);
 
-            LOG.debug("MongoDb component initialised and endpoint bound to MongoDB collection with the following parameters. Address list: {}, Db: {}, Collection: {}",
+            log.debug("MongoDb component initialised and endpoint bound to MongoDB collection with the following parameters. Address list: {}, Db: {}, Collection: {}",
                       new Object[] {mongoConnection.getAllAddress().toString(), mongoDatabase.getName(), collection});
 
             try {
@@ -248,7 +243,7 @@ public class MongoDbEndpoint extends DefaultEndpoint {
     public void ensureIndex(MongoCollection<Document> aCollection, List<Bson> dynamicIndex) {
         if (dynamicIndex != null && !dynamicIndex.isEmpty()) {
             for (Bson index : dynamicIndex) {
-                LOG.debug("create Document Index {}", index);
+                log.debug("create Document Index {}", index);
                 aCollection.createIndex(index);
             }
         }
@@ -299,19 +294,10 @@ public class MongoDbEndpoint extends DefaultEndpoint {
     @Override
     protected void doStart() throws Exception {
         mongoConnection = CamelContextHelper.mandatoryLookup(getCamelContext(), connectionBean, MongoClient.class);
-        LOG.debug("Resolved the connection with the name {} as {}", connectionBean, mongoConnection);
+        log.debug("Resolved the connection with the name {} as {}", connectionBean, mongoConnection);
         super.doStart();
     }
     
-    @Override
-    protected void doStop() throws Exception {
-        super.doStop();
-        if (mongoConnection != null) {
-            LOG.debug("Closing connection");
-            mongoConnection.close();
-        }
-    }
-
     // ======= Getters and setters
     // ===============================================
 
@@ -623,10 +609,8 @@ public class MongoDbEndpoint extends DefaultEndpoint {
     }
 
     /**
-     * Convert the output of the producer to the selected type : "DocumentList",
-     * "Document" or "MongoIterable". DocumentList or Document applies to
-     * findAll. MongoIterable applies to all other operations.
-     * 
+     * Convert the output of the producer to the selected type : DocumentList Document or MongoIterable. 
+     * DocumentList or MongoIterable applies to findAll and aggregate. Document applies to all other operations.
      * @param outputType
      */
     public void setOutputType(MongoDbOutputType outputType) {

@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-milo</artifactId>
@@ -33,23 +33,15 @@
   <description>Camel OPC UA support</description>
 
   <properties>
-    <camel.osgi.export.pkg>
-      !*.internal.*,
-      org.apache.camel.component.milo.*
-    </camel.osgi.export.pkg>
     <camel.osgi.import.before.defaults>
       com.google.common.*;version="19.0.0"
     </camel.osgi.import.before.defaults>
-    <camel.osgi.export.service>
-      org.apache.camel.spi.ComponentResolver;component=milo-client,
-      org.apache.camel.spi.ComponentResolver;component=milo-server
-    </camel.osgi.export.service>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-core</artifactId>
+      <artifactId>camel-support</artifactId>
     </dependency>
 
     <dependency>
@@ -100,39 +92,12 @@
           <childDelegation>false</childDelegation>
           <useFile>true</useFile>
           <forkCount>1</forkCount>
-          <reuseForks>true</reuseForks>
+          <!-- required due to issue eclipse/milo#23 -->
+          <reuseForks>false</reuseForks>
           <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
-          <includes>
-            <!-- Here we only run one test -->
-            <include>**/ConverterTest.java</include>
-          </includes>
         </configuration>
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>milo-test</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <childDelegation>false</childDelegation>
-              <useFile>true</useFile>
-              <forkCount>1</forkCount>
-              <!-- required due to issue eclipse/milo#23 -->
-              <reuseForks>false</reuseForks>
-              <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
-              <includes>
-                <include>**/*Test.java</include>
-              </includes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>

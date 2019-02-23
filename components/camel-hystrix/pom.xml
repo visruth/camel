@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>components</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-hystrix</artifactId>
@@ -33,12 +33,9 @@
   <description>Circuit Breaker EIP using Netflix Hystrix</description>
 
   <properties>
-    <!-- use by camel-catalog -->
     <firstVersion>2.18.0</firstVersion>
     <label>eip,microservice</label>
 
-    <camel.osgi.export.pkg>org.apache.camel.component.hystrix.*</camel.osgi.export.pkg>
-    <camel.osgi.export.service>org.apache.camel.spi.ComponentResolver;component=hystrix</camel.osgi.export.service>
   </properties>
 
   <dependencies>

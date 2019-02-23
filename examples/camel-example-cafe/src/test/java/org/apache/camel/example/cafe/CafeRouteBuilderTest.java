@@ -30,9 +30,6 @@ import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
-/**
- * @version 
- */
 public class CafeRouteBuilderTest extends CamelTestSupport {
     protected TestWaiter waiter = new TestWaiter();
     protected TestDrinkRouter driverRouter = new TestDrinkRouter();
@@ -68,7 +65,7 @@ public class CafeRouteBuilderTest extends CamelTestSupport {
     @Test
     public void testCafeRoute() throws Exception {
         driverRouter.setTestModel(false);
-        List<Drink> drinks = new ArrayList<Drink>();
+        List<Drink> drinks = new ArrayList<>();
         Order order = new Order(2);
         order.addItem(DrinkType.ESPRESSO, 2, true);
         order.addItem(DrinkType.CAPPUCCINO, 4, false);

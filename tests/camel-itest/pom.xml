@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>tests</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-itest</artifactId>
@@ -32,11 +32,6 @@
   <description>Performs cross component integration tests</description>
 
   <repositories>
-    <repository>
-      <id>maven-restlet</id>
-      <name>Public online Restlet repository</name>
-      <url>http://maven.restlet.org</url>
-    </repository>
 
     <!-- required for validator tests -->
     <repository>
@@ -80,7 +75,7 @@
     </dependency>        
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-jetty9</artifactId>
+      <artifactId>camel-jetty</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -95,17 +90,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-http</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-hawtdb</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -115,12 +100,12 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-netty-http</artifactId>
+      <artifactId>camel-netty4-http</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-quartz</artifactId>
+      <artifactId>camel-quartz2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -138,18 +123,6 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring-redis</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-restlet</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- restlet JAXB binding -->
-    <dependency>
-      <groupId>org.restlet.osgi</groupId>
-      <artifactId>org.restlet.ext.jaxb</artifactId>
-      <version>${restlet-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -190,10 +163,10 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-	  <groupId>org.apache.camel</groupId>
-	  <artifactId>camel-netty</artifactId>
-	  <scope>test</scope>
-	</dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-netty4</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-shiro</artifactId>
@@ -266,6 +239,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-test-spring</artifactId>           
       <scope>test</scope>
@@ -304,8 +282,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-activemq</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -328,7 +306,7 @@
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-jdk14</artifactId>
         </exclusion>
-        <!-- we use the version from camel-jetty9 -->
+        <!-- we use the version from camel-jetty -->
         <exclusion>
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-util</artifactId>
@@ -447,6 +425,10 @@
           <systemPropertyVariables>
             <derby.stream.error.file>target/derby.log</derby.stream.error.file>
           </systemPropertyVariables>
+          <excludes>
+            <!-- exclude doc tests as they dont work on CI server -->
+            <exclude>**/*DocumentationTest.*</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
@@ -489,9 +471,9 @@
 
   <profiles>
     <profile>
-      <id>jdk9-build</id>
+      <id>jdk9+-build</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <build>
         <plugins>
@@ -499,8 +481,8 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <excludes>
-                <!-- TODO: until CXF-7520 is resolved and released. -->
-                <exclude>**/*GreeterClientCxfMessageTest.java</exclude>
+                <!-- exclude doc tests as they dont work on CI server -->
+                <exclude>**/*DocumentationTest.*</exclude>
               </excludes>
             </configuration>
           </plugin>

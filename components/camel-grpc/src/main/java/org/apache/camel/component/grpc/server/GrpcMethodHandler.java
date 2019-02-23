@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.grpc.stub.StreamObserver;
-
 import javassist.util.proxy.MethodHandler;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.component.grpc.GrpcConstants;
 import org.apache.camel.component.grpc.GrpcConsumer;
@@ -46,7 +44,7 @@ public class GrpcMethodHandler implements MethodHandler {
     @Override
     @SuppressWarnings("unchecked")
     public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        Map<String, Object> grcpHeaders = new HashMap<String, Object>();
+        Map<String, Object> grcpHeaders = new HashMap<>();
         
         grcpHeaders.put(GrpcHeaderInterceptor.USER_AGENT_CONTEXT_KEY.toString(), GrpcHeaderInterceptor.USER_AGENT_CONTEXT_KEY.get());
         grcpHeaders.put(GrpcHeaderInterceptor.CONTENT_TYPE_CONTEXT_KEY.toString(), GrpcHeaderInterceptor.CONTENT_TYPE_CONTEXT_KEY.get());

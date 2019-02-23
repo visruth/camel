@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,19 +31,11 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.converters.reflection.FieldDictionary;
-import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
-import com.thoughtworks.xstream.core.TreeMarshallingStrategy;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.CompactWriter;
-import com.thoughtworks.xstream.io.xml.XppDriver;
 
 import org.apache.camel.component.salesforce.SalesforceEndpointConfig;
 import org.apache.camel.component.salesforce.SalesforceHttpClient;
 import org.apache.camel.component.salesforce.api.NoSuchSObjectException;
 import org.apache.camel.component.salesforce.api.SalesforceException;
-import org.apache.camel.component.salesforce.api.dto.AnnotationFieldKeySorter;
 import org.apache.camel.component.salesforce.api.dto.RestError;
 import org.apache.camel.component.salesforce.api.dto.composite.SObjectBatch;
 import org.apache.camel.component.salesforce.api.dto.composite.SObjectBatchResponse;
@@ -52,9 +43,9 @@ import org.apache.camel.component.salesforce.api.dto.composite.SObjectComposite;
 import org.apache.camel.component.salesforce.api.dto.composite.SObjectCompositeResponse;
 import org.apache.camel.component.salesforce.api.dto.composite.SObjectTree;
 import org.apache.camel.component.salesforce.api.dto.composite.SObjectTreeResponse;
-import org.apache.camel.component.salesforce.api.utils.DateTimeConverter;
 import org.apache.camel.component.salesforce.api.utils.JsonUtils;
 import org.apache.camel.component.salesforce.api.utils.Version;
+import org.apache.camel.component.salesforce.api.utils.XStreamUtils;
 import org.apache.camel.component.salesforce.internal.PayloadFormat;
 import org.apache.camel.component.salesforce.internal.SalesforceSession;
 import org.apache.camel.util.IOHelper;
@@ -67,12 +58,8 @@ import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DefaultCompositeApiClient extends AbstractClientBase implements CompositeApiClient {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultCompositeApiClient.class);
 
     // Composite (non-tree, non-batch) does not support XML format
     private static final XStream NO_XSTREAM = null;
@@ -83,7 +70,7 @@ public class DefaultCompositeApiClient extends AbstractClientBase implements Com
 
     private final Map<Class<?>, ObjectReader> readers = new HashMap<>();
 
-    private final Map<Class<?>, ObjectWriter> writters = new HashMap<>();
+    private final Map<Class<?>, ObjectWriter> writers = new HashMap<>();
 
     private final XStream xStreamCompositeBatch;
 
@@ -101,10 +88,11 @@ public class DefaultCompositeApiClient extends AbstractClientBase implements Com
             mapper = JsonUtils.createObjectMapper();
         }
 
-        xStreamCompositeBatch = configureXStream(SObjectBatch.class, SObjectBatchResponse.class);
+        xStreamCompositeBatch = XStreamUtils.createXStream(SObjectBatch.class, SObjectBatchResponse.class);
 
-        xStreamCompositeTree = configureXStream(SObjectTree.class, SObjectTreeResponse.class);
-        // newer Salesforce API versions return `<SObjectTreeResponse>` element, older versions
+        xStreamCompositeTree = XStreamUtils.createXStream(SObjectTree.class, SObjectTreeResponse.class);
+        // newer Salesforce API versions return `<SObjectTreeResponse>` element,
+        // older versions
         // return `<Result>` element
         xStreamCompositeTree.alias("SObjectTreeResponse", SObjectTreeResponse.class);
     }
@@ -122,10 +110,8 @@ public class DefaultCompositeApiClient extends AbstractClientBase implements Com
         final ContentProvider content = serialize(NO_XSTREAM, composite, composite.objectTypes());
         post.content(content);
 
-        doHttpRequest(post,
-            (response, responseHeaders, exception) -> callback.onResponse(
-                tryToReadResponse(NO_XSTREAM, SObjectCompositeResponse.class, response), responseHeaders,
-                exception));
+        doHttpRequest(post, (response, responseHeaders, exception) -> callback.onResponse(
+            tryToReadResponse(NO_XSTREAM, SObjectCompositeResponse.class, response), responseHeaders, exception));
     }
 
     @Override
@@ -193,7 +179,7 @@ public class DefaultCompositeApiClient extends AbstractClientBase implements Com
     ObjectWriter jsonWriterFor(final Object obj) {
         final Class<?> type = obj.getClass();
 
-        return Optional.ofNullable(writters.get(type)).orElseGet(() -> mapper.writerFor(type));
+        return Optional.ofNullable(writers.get(type)).orElseGet(() -> mapper.writerFor(type));
     }
 
     ContentProvider serialize(final XStream xstream, final Object body, final Class<?>... additionalTypes)
@@ -236,7 +222,7 @@ public class DefaultCompositeApiClient extends AbstractClientBase implements Com
             // must be XML
             return Optional.of(fromXml(xstream, responseStream));
         } catch (XStreamException | IOException e) {
-            LOG.warn("Unable to read response from the Composite API", e);
+            log.warn("Unable to read response from the Composite API", e);
             return Optional.empty();
         } finally {
             IOHelper.close(responseStream);
@@ -289,29 +275,6 @@ public class DefaultCompositeApiClient extends AbstractClientBase implements Com
                     + ", but the payload of the Composite API operation requires format " + requiredFormat,
                 0);
         }
-    }
-
-    static XStream configureXStream(final Class<?>... additionalTypes) {
-        final PureJavaReflectionProvider reflectionProvider = new PureJavaReflectionProvider(
-            new FieldDictionary(new AnnotationFieldKeySorter()));
-
-        final XppDriver hierarchicalStreamDriver = new XppDriver(new NoNameCoder()) {
-            @Override
-            public HierarchicalStreamWriter createWriter(final Writer out) {
-                return new CompactWriter(out, getNameCoder());
-            }
-
-        };
-
-        final XStream xStream = new XStream(reflectionProvider, hierarchicalStreamDriver);
-        xStream.aliasSystemAttribute(null, "class");
-        xStream.ignoreUnknownElements();
-        XStreamUtils.addDefaultPermissions(xStream);
-        xStream.registerConverter(new DateTimeConverter());
-        xStream.setMarshallingStrategy(new TreeMarshallingStrategy());
-        xStream.processAnnotations(additionalTypes);
-
-        return xStream;
     }
 
     static <T> T fromXml(final XStream xstream, final InputStream responseStream) {

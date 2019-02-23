@@ -28,9 +28,6 @@ import org.apache.camel.test.AvailablePortFinder;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 
-/**
- * 
- */
 public class CxfProducerProtocalHeaderTest extends CamelTestSupport {
     private static int port = AvailablePortFinder.getNextAvailable();
     private static final String RESPONSE = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
@@ -66,7 +63,7 @@ public class CxfProducerProtocalHeaderTest extends CamelTestSupport {
     private Exchange sendSimpleMessage(String endpointUri) {
         Exchange exchange = template.send(endpointUri, new Processor() {
             public void process(final Exchange exchange) {
-                final List<String> params = new ArrayList<String>();
+                final List<String> params = new ArrayList<>();
                 params.add("Hello World!");
                 exchange.getIn().setBody(params);
                 exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "echo");

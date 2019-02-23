@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>components</artifactId>
-        <version>2.21.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <name>Camel :: Disruptor</name>
@@ -32,21 +32,21 @@
     <packaging>jar</packaging>
 
     <properties>
-        <camel.osgi.export.pkg>org.apache.camel.component.disruptor.*</camel.osgi.export.pkg>
-        <camel.osgi.export.service>
-          org.apache.camel.spi.ComponentResolver;component=disruptor,
-          org.apache.camel.spi.ComponentResolver;component=disruptor-vm
-        </camel.osgi.export.service>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
+            <artifactId>camel-support</artifactId>
         </dependency>
         <dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hdrhistogram</groupId>
+            <artifactId>HdrHistogram</artifactId>
+            <version>${hdrhistrogram-version}</version>
         </dependency>
 
         <!-- Test dependencies -->

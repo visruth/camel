@@ -33,6 +33,7 @@ import org.apache.olingo.client.api.domain.ClientComplexValue;
 import org.apache.olingo.client.api.domain.ClientEntity;
 import org.apache.olingo.client.api.domain.ClientEntitySet;
 import org.apache.olingo.client.api.domain.ClientPrimitiveValue;
+import org.apache.olingo.client.api.domain.ClientProperty;
 import org.apache.olingo.client.api.domain.ClientServiceDocument;
 import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.edm.Edm;
@@ -61,68 +62,60 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
     private static final String TEST_CREATE_PEOPLE = PEOPLE + "(" + TEST_CREATE_KEY + ")";
     private static final String TEST_CREATE_RESOURCE_CONTENT_ID = "1";
     private static final String TEST_UPDATE_RESOURCE_CONTENT_ID = "2";
-    private static final String TEST_CREATE_JSON = "{\n"
-            + "  \"UserName\": \"lewisblack\",\n"
-            + "  \"FirstName\": \"Lewis\",\n"
-            + "  \"LastName\": \"Black\"\n"
-            + "}";
-    private static final String TEST_UPDATE_JSON = "{\n"
-            + "  \"UserName\": \"lewisblack\",\n"
-            + "  \"FirstName\": \"Lewis\",\n"
-            + "  \"MiddleName\": \"Black\",\n"
-            + "  \"LastName\": \"Black\"\n"
-            + "}";
+    private static final String TEST_CREATE_JSON = "{\n" + "  \"UserName\": \"lewisblack\",\n" + "  \"FirstName\": \"Lewis\",\n" + "  \"LastName\": \"Black\"\n" + "}";
+    private static final String TEST_UPDATE_JSON = "{\n" + "  \"UserName\": \"lewisblack\",\n" + "  \"FirstName\": \"Lewis\",\n" + "  \"MiddleName\": \"Black\",\n"
+                                                   + "  \"LastName\": \"Black\"\n" + "}";
 
     @Test
     public void testRead() throws Exception {
-        final Map<String, Object> headers = new HashMap<String, Object>();
+        final Map<String, Object> headers = new HashMap<>();
 
         // Read metadata ($metadata) object
-        final Edm metadata = (Edm)requestBodyAndHeaders("direct://readmetadata", null, headers);
+        final Edm metadata = (Edm)requestBodyAndHeaders("direct:readmetadata", null, headers);
         assertNotNull(metadata);
         assertEquals(1, metadata.getSchemas().size());
 
         // Read service document object
-        final ClientServiceDocument document = (ClientServiceDocument)requestBodyAndHeaders("direct://readdocument", null, headers);
+        final ClientServiceDocument document = (ClientServiceDocument)requestBodyAndHeaders("direct:readdocument", null, headers);
 
         assertNotNull(document);
         assertTrue(document.getEntitySets().size() > 1);
         LOG.info("Service document has {} entity sets", document.getEntitySets().size());
 
         // Read entity set of the People object
-        final ClientEntitySet entities = (ClientEntitySet)requestBodyAndHeaders("direct://readentities", null, headers);
+        final ClientEntitySet entities = (ClientEntitySet)requestBodyAndHeaders("direct:readentities", null, headers);
         assertNotNull(entities);
         assertEquals(5, entities.getEntities().size());
 
         // Read object count with query options passed through header
-        final Long count = (Long)requestBodyAndHeaders("direct://readcount", null, headers);
+        final Long count = (Long)requestBodyAndHeaders("direct:readcount", null, headers);
         assertEquals(20, count.intValue());
 
-        final ClientPrimitiveValue value = (ClientPrimitiveValue)requestBodyAndHeaders("direct://readvalue", null, headers);
-        LOG.info("Client value \"{}\" has type {}", value.toString(), value.getTypeName());
+        final ClientPrimitiveValue value = (ClientPrimitiveValue)requestBodyAndHeaders("direct:readvalue", null, headers);
+        LOG.info("Client value \"{}\" has type {}", value, value.getTypeName());
         assertEquals("Male", value.asPrimitive().toString());
 
-        final ClientPrimitiveValue singleProperty = (ClientPrimitiveValue)requestBodyAndHeaders("direct://readsingleprop", null, headers);
+        final ClientPrimitiveValue singleProperty = (ClientPrimitiveValue)requestBodyAndHeaders("direct:readsingleprop", null, headers);
         assertTrue(singleProperty.isPrimitive());
         assertEquals("San Francisco International Airport", singleProperty.toString());
 
-        final ClientComplexValue complexProperty = (ClientComplexValue)requestBodyAndHeaders("direct://readcomplexprop", null, headers);
+        final ClientComplexValue complexProperty = (ClientComplexValue)requestBodyAndHeaders("direct:readcomplexprop", null, headers);
         assertTrue(complexProperty.isComplex());
         assertEquals("San Francisco", complexProperty.get("City").getComplexValue().get("Name").getValue().toString());
 
-        final ClientEntity entity = (ClientEntity)requestBodyAndHeaders("direct://readentitybyid", null, headers);
+        final ClientEntity entity = (ClientEntity)requestBodyAndHeaders("direct:readentitybyid", null, headers);
         assertNotNull(entity);
         assertEquals("Russell", entity.getProperty("FirstName").getValue().toString());
 
-        final ClientEntity unbFuncReturn = (ClientEntity)requestBodyAndHeaders("direct://callunboundfunction", null, headers);
+        final ClientEntity unbFuncReturn = (ClientEntity)requestBodyAndHeaders("direct:callunboundfunction", null, headers);
         assertNotNull(unbFuncReturn);
     }
-    
+
     @Test
     public void testReadWithFilter() {
         // Read entity set with filter of the Airports object
-        final ClientEntitySet entities = (ClientEntitySet)requestBody("direct://readwithfilter", null);
-        
+        final ClientEntitySet entities = (ClientEntitySet)requestBody("direct:readwithfilter", null);
+
         assertNotNull(entities);
         assertEquals(1, entities.getEntities().size());
     }
@@ -131,7 +124,7 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
     public void testCreateUpdateDelete() throws Exception {
         final ClientEntity clientEntity = createEntity();
 
-        ClientEntity entity = requestBody("direct://create-entity", clientEntity);
+        ClientEntity entity = requestBody("direct:create-entity", clientEntity);
         assertNotNull(entity);
         assertEquals("Lewis", entity.getProperty("FirstName").getValue().toString());
         assertEquals("", entity.getProperty("MiddleName").getValue().toString());
@@ -139,20 +132,20 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
         // update
         clientEntity.getProperties().add(objFactory.newPrimitiveProperty("MiddleName", objFactory.newPrimitiveValueBuilder().buildString("Lewis")));
 
-        HttpStatusCode status = requestBody("direct://update-entity", clientEntity);
+        HttpStatusCode status = requestBody("direct:update-entity", clientEntity);
         assertNotNull("Update status", status);
         assertEquals("Update status", HttpStatusCode.NO_CONTENT.getStatusCode(), status.getStatusCode());
         LOG.info("Update entity status: {}", status);
 
         // delete
-        status = requestBody("direct://delete-entity", null);
+        status = requestBody("direct:delete-entity", null);
         assertNotNull("Delete status", status);
         assertEquals("Delete status", HttpStatusCode.NO_CONTENT.getStatusCode(), status.getStatusCode());
         LOG.info("Delete status: {}", status);
 
         // check for delete
         try {
-            requestBody("direct://read-deleted-entity", null);
+            requestBody("direct:read-deleted-entity", null);
         } catch (CamelExecutionException e) {
             assertEquals("Resource Not Found [HTTP/1.1 404 Not Found]", e.getCause().getMessage());
         }
@@ -160,7 +153,7 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
 
     @Test
     public void testCreateUpdateDeleteFromJson() throws Exception {
-        ClientEntity entity = requestBody("direct://create-entity", TEST_CREATE_JSON);
+        ClientEntity entity = requestBody("direct:create-entity", TEST_CREATE_JSON);
         assertNotNull(entity);
         assertEquals("Lewis", entity.getProperty("FirstName").getValue().toString());
         assertEquals("Black", entity.getProperty("LastName").getValue().toString());
@@ -168,20 +161,20 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
         assertEquals("", entity.getProperty("MiddleName").getValue().toString());
 
         // update
-        HttpStatusCode status = requestBody("direct://update-entity", TEST_UPDATE_JSON);
+        HttpStatusCode status = requestBody("direct:update-entity", TEST_UPDATE_JSON);
         assertNotNull("Update status", status);
         assertEquals("Update status", HttpStatusCode.NO_CONTENT.getStatusCode(), status.getStatusCode());
         LOG.info("Update entity status: {}", status);
 
         // delete
-        status = requestBody("direct://delete-entity", null);
+        status = requestBody("direct:delete-entity", null);
         assertNotNull("Delete status", status);
         assertEquals("Delete status", HttpStatusCode.NO_CONTENT.getStatusCode(), status.getStatusCode());
         LOG.info("Delete status: {}", status);
 
         // check for delete
         try {
-            requestBody("direct://read-deleted-entity", null);
+            requestBody("direct:read-deleted-entity", null);
         } catch (CamelExecutionException e) {
             assertEquals("Resource Not Found [HTTP/1.1 404 Not Found]", e.getCause().getMessage());
         }
@@ -199,7 +192,7 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
 
     @Test
     public void testBatch() throws Exception {
-        final List<Olingo4BatchRequest> batchParts = new ArrayList<Olingo4BatchRequest>();
+        final List<Olingo4BatchRequest> batchParts = new ArrayList<>();
 
         // 1. Edm query
         batchParts.add(Olingo4BatchQueryRequest.resourcePath(Constants.METADATA).resourceUri(TEST_SERVICE_BASE_URL).build());
@@ -211,7 +204,7 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
         batchParts.add(Olingo4BatchQueryRequest.resourcePath(TEST_PEOPLE).resourceUri(TEST_SERVICE_BASE_URL).build());
 
         // 4. Read with $top
-        final HashMap<String, String> queryParams = new HashMap<String, String>();
+        final HashMap<String, String> queryParams = new HashMap<>();
         queryParams.put(SystemQueryOptionKind.TOP.toString(), "5");
         batchParts.add(Olingo4BatchQueryRequest.resourcePath(PEOPLE).resourceUri(TEST_SERVICE_BASE_URL).queryParams(queryParams).build());
 
@@ -232,7 +225,7 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
         batchParts.add(Olingo4BatchQueryRequest.resourcePath(TEST_CREATE_PEOPLE).resourceUri(TEST_SERVICE_BASE_URL).build());
 
         // execute batch request
-        final List<Olingo4BatchResponse> responseParts = requestBody("direct://batch", batchParts);
+        final List<Olingo4BatchResponse> responseParts = requestBody("direct:batch", batchParts);
         assertNotNull("Batch response", responseParts);
         assertEquals("Batch responses expected", 8, responseParts.size());
 
@@ -270,30 +263,197 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
         assertNotNull(error);
         LOG.info("Read deleted entity error: {}", error.getMessage());
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void testEndpointHttpHeaders() throws Exception {
-        final Map<String, Object> headers = new HashMap<String, Object>();
-        final ClientEntity entity = (ClientEntity)requestBodyAndHeaders("direct://read-etag", null, headers);
-        
+        final Map<String, Object> headers = new HashMap<>();
+        final ClientEntity entity = (ClientEntity)requestBodyAndHeaders("direct:read-etag", null, headers);
+
         MockEndpoint mockEndpoint = getMockEndpoint("mock:check-etag-header");
         mockEndpoint.expectedMessageCount(1);
         mockEndpoint.assertIsSatisfied();
-        
+
         Map<String, String> responseHttpHeaders = (Map<String, String>)mockEndpoint.getExchanges().get(0).getIn().getHeader("CamelOlingo4.responseHttpHeaders");
         assertEquals(responseHttpHeaders.get("ETag"), entity.getETag());
-        
-        Map<String, String> endpointHttpHeaders = new HashMap<String, String>();
+
+        Map<String, String> endpointHttpHeaders = new HashMap<>();
         endpointHttpHeaders.put("If-Match", entity.getETag());
         headers.put("CamelOlingo4.endpointHttpHeaders", endpointHttpHeaders);
-        requestBodyAndHeaders("direct://delete-with-etag", null, headers);
-        
+        requestBodyAndHeaders("direct:delete-with-etag", null, headers);
+
         // check for deleted entity with ETag
         try {
-            requestBody("direct://read-etag", null);
+            requestBody("direct:read-etag", null);
         } catch (CamelExecutionException e) {
             assertStringContains(e.getCause().getMessage(), "The request resource is not found.");
+        }
+    }
+
+    /**
+     * Read entity set of the People object and filter already seen items on
+     * subsequent exchanges Use a delay since the mock endpoint does not always
+     * get the correct number of exchanges before being satisfied.
+     *
+     * Note:
+     * - consumer.splitResults is set to false since this ensures the first returned message
+     *   contains all the results. This is preferred for the purposes of this test. The default
+     *   will mean the first n messages contain the results (where n is the result total) then
+     *   subsequent messages will be empty
+     */
+    @Test
+    public void testConsumerReadFilterAlreadySeen() throws Exception {
+        final Map<String, Object> headers = new HashMap<>();
+        String endpoint = "olingo4://read/People?filterAlreadySeen=true&consumer.delay=2&consumer.sendEmptyMessageWhenIdle=true&consumer.splitResult=false";
+        int expectedEntities = 20;
+        int expectedMsgCount = 3;
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:consumer-alreadyseen");
+        mockEndpoint.expectedMessageCount(expectedMsgCount);
+
+        final ClientEntitySet entities = (ClientEntitySet)requestBodyAndHeaders(endpoint, null, headers);
+        assertNotNull(entities);
+        assertEquals(expectedEntities, entities.getEntities().size());
+
+        mockEndpoint.assertIsSatisfied();
+
+        for (int i = 0; i < expectedMsgCount; ++i) {
+            Object body = mockEndpoint.getExchanges().get(i).getIn().getBody();
+
+            if (i == 0) {
+                //
+                // First polled messages contained all the entities
+                //
+                assertTrue(body instanceof ClientEntitySet);
+                ClientEntitySet set = (ClientEntitySet)body;
+                assertEquals(expectedEntities, set.getEntities().size());
+            } else {
+                //
+                // Subsequent polling messages should be empty
+                // since the filterAlreadySeen property is true
+                //
+                assertNull(body);
+            }
+        }
+    }
+
+    /**
+     * Read entity set of the People object and with no filter already seen, all
+     * items should be present in each message
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testProducerReadNoFilterAlreadySeen() throws Exception {
+        final Map<String, Object> headers = new HashMap<>();
+        String endpoint = "direct:read-people-nofilterseen";
+        int expectedEntities = 20;
+        int expectedMsgCount = 3;
+
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:producer-noalreadyseen");
+        mockEndpoint.expectedMessageCount(expectedMsgCount);
+
+        for (int i = 0; i < expectedMsgCount; ++i) {
+            final ClientEntitySet entities = (ClientEntitySet)requestBodyAndHeaders(endpoint, null, headers);
+            assertNotNull(entities);
+        }
+
+        mockEndpoint.assertIsSatisfied();
+
+        for (int i = 0; i < expectedMsgCount; ++i) {
+            Object body = mockEndpoint.getExchanges().get(i).getIn().getBody();
+            assertTrue(body instanceof ClientEntitySet);
+            ClientEntitySet set = (ClientEntitySet)body;
+
+            //
+            // All messages contained all the entities
+            //
+            assertEquals(expectedEntities, set.getEntities().size());
+        }
+    }
+
+    /**
+     * Read entity set of the People object and filter already seen items on
+     * subsequent exchanges
+     */
+    @Test
+    public void testProducerReadFilterAlreadySeen() throws Exception {
+        final Map<String, Object> headers = new HashMap<>();
+        String endpoint = "direct:read-people-filterseen";
+        int expectedEntities = 20;
+        int expectedMsgCount = 3;
+
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:producer-alreadyseen");
+        mockEndpoint.expectedMessageCount(expectedMsgCount);
+
+        for (int i = 0; i < expectedMsgCount; ++i) {
+            final ClientEntitySet entities = (ClientEntitySet)requestBodyAndHeaders(endpoint, null, headers);
+            assertNotNull(entities);
+        }
+
+        mockEndpoint.assertIsSatisfied();
+
+        for (int i = 0; i < expectedMsgCount; ++i) {
+            Object body = mockEndpoint.getExchanges().get(i).getIn().getBody();
+            assertTrue(body instanceof ClientEntitySet);
+            ClientEntitySet set = (ClientEntitySet)body;
+
+            if (i == 0) {
+                //
+                // First polled messages contained all the entities
+                //
+                assertEquals(expectedEntities, set.getEntities().size());
+            } else {
+                //
+                // Subsequent messages should be empty
+                // since the filterAlreadySeen property is true
+                //
+                assertEquals(0, set.getEntities().size());
+            }
+        }
+    }
+
+    /**
+     * Read entity set of the People object and split the results
+     * into individual messages
+     */
+    @Test
+    public void testConsumerReadSplitResults() throws Exception {
+        final Map<String, Object> headers = new HashMap<>();
+        String endpoint = "olingo4://read/People?consumer.splitResult=true";
+        int expectedEntities = 20;
+
+        int expectedMsgCount = 3;
+        MockEndpoint mockEndpoint = getMockEndpoint("mock:consumer-splitresult");
+        mockEndpoint.expectedMinimumMessageCount(expectedMsgCount);
+
+        final ClientEntitySet entities = (ClientEntitySet)requestBodyAndHeaders(endpoint, null, headers);
+        assertNotNull(entities);
+        assertEquals(expectedEntities, entities.getEntities().size());
+
+        mockEndpoint.assertIsSatisfied();
+        //
+        // At least 3 individual messages in the exchange,
+        // each containing a different entity.
+        //
+        for (int i = 0; i < expectedMsgCount; ++i) {
+            Object body = mockEndpoint.getExchanges().get(i).getIn().getBody();
+            assertTrue(body instanceof ClientEntity);
+            ClientEntity entity = (ClientEntity)body;
+            ClientProperty nameProperty = entity.getProperty("UserName");
+            assertNotNull(nameProperty);
+
+            switch(i) {
+            case 0:
+                assertEquals("russellwhyte", nameProperty.getValue().toString());
+                break;
+            case 1:
+                assertEquals("scottketchum", nameProperty.getValue().toString());
+                break;
+            case 2:
+                assertEquals("ronaldmundy", nameProperty.getValue().toString());
+                break;
+            default:
+            }
         }
     }
 
@@ -302,44 +462,55 @@ public class Olingo4ComponentTest extends AbstractOlingo4TestSupport {
         return new RouteBuilder() {
             public void configure() {
                 // test routes for read
-                from("direct://readmetadata").to("olingo4://read/$metadata");
+                from("direct:readmetadata").to("olingo4://read/$metadata");
 
-                from("direct://readdocument").to("olingo4://read/");
+                from("direct:readdocument").to("olingo4://read/");
 
-                from("direct://readentities").to("olingo4://read/People?$top=5&$orderby=FirstName asc");
+                from("direct:readentities").to("olingo4://read/People?$top=5&$orderby=FirstName asc");
 
-                from("direct://readcount").to("olingo4://read/People/$count");
+                from("direct:readcount").to("olingo4://read/People/$count");
 
-                from("direct://readvalue").to("olingo4://read/People('russellwhyte')/Gender/$value");
+                from("direct:readvalue").to("olingo4://read/People('russellwhyte')/Gender/$value");
 
-                from("direct://readsingleprop").to("olingo4://read/Airports('KSFO')/Name");
+                from("direct:readsingleprop").to("olingo4://read/Airports('KSFO')/Name");
 
-                from("direct://readcomplexprop").to("olingo4://read/Airports('KSFO')/Location");
+                from("direct:readcomplexprop").to("olingo4://read/Airports('KSFO')/Location");
 
-                from("direct://readentitybyid").to("olingo4://read/People('russellwhyte')");
-                
-                from("direct://readwithfilter").to("olingo4://read/Airports?$filter=Name eq 'San Francisco International Airport'");
+                from("direct:readentitybyid").to("olingo4://read/People('russellwhyte')");
 
-                from("direct://callunboundfunction").to("olingo4://read/GetNearestAirport(lat=33,lon=-118)");
+                from("direct:readwithfilter").to("olingo4://read/Airports?$filter=Name eq 'San Francisco International Airport'");
+
+                from("direct:callunboundfunction").to("olingo4://read/GetNearestAirport(lat=33,lon=-118)");
 
                 // test route for create individual entity
-                from("direct://create-entity").to("olingo4://create/People");
+                from("direct:create-entity").to("olingo4://create/People");
 
                 // test route for update
-                from("direct://update-entity").to("olingo4://update/People('lewisblack')");
+                from("direct:update-entity").to("olingo4://update/People('lewisblack')");
 
                 // test route for delete
-                from("direct://delete-entity").to("olingo4://delete/People('lewisblack')");
+                from("direct:delete-entity").to("olingo4://delete/People('lewisblack')");
 
                 // test route for delete
-                from("direct://read-deleted-entity").to("olingo4://delete/People('lewisblack')");
+                from("direct:read-deleted-entity").to("olingo4://delete/People('lewisblack')");
 
                 // test route for batch
-                from("direct://batch").to("olingo4://batch");
-                
-                from("direct://read-etag").to("olingo4://read/Airlines('AA')").to("mock:check-etag-header");
-                
-                from("direct://delete-with-etag").to("olingo4://delete/Airlines('AA')");
+                from("direct:batch").to("olingo4://batch");
+
+                from("direct:read-etag").to("olingo4://read/Airlines('AA')").to("mock:check-etag-header");
+
+                from("direct:delete-with-etag").to("olingo4://delete/Airlines('AA')");
+
+                from("direct:read-people-nofilterseen").to("olingo4://read/People").to("mock:producer-noalreadyseen");
+
+                from("direct:read-people-filterseen").to("olingo4://read/People?filterAlreadySeen=true").to("mock:producer-alreadyseen");
+
+                //
+                // Consumer endpoint
+                //
+                from("olingo4://read/People?filterAlreadySeen=true&consumer.delay=2&consumer.sendEmptyMessageWhenIdle=true&consumer.splitResult=false").to("mock:consumer-alreadyseen");
+
+                from("olingo4://read/People?consumer.splitResult=true").to("mock:consumer-splitresult");
             }
         };
     }

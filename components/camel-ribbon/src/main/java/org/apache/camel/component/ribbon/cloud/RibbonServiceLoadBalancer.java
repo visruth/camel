@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.RejectedExecutionException;
 
+import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.config.IClientConfigKey;
 import com.netflix.loadbalancer.DummyPing;
@@ -43,9 +44,9 @@ import org.apache.camel.cloud.ServiceFilterAware;
 import org.apache.camel.cloud.ServiceLoadBalancer;
 import org.apache.camel.cloud.ServiceLoadBalancerFunction;
 import org.apache.camel.component.ribbon.RibbonConfiguration;
-import org.apache.camel.support.ServiceSupport;
+import org.apache.camel.support.service.ServiceHelper;
+import org.apache.camel.support.service.ServiceSupport;
 import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.ServiceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +175,7 @@ public class RibbonServiceLoadBalancer
 
         if (configuration.getProperties() != null) {
             for (Map.Entry<String, String> entry : configuration.getProperties().entrySet()) {
-                IClientConfigKey key = IClientConfigKey.Keys.valueOf(entry.getKey());
+                IClientConfigKey key = CommonClientConfigKey.valueOf(entry.getKey());
                 String value = entry.getValue();
 
                 LOGGER.debug("RibbonClientConfig: {}={}", key.key(), value);

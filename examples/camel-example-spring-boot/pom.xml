@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.camel.example</groupId>
     <artifactId>examples</artifactId>
-    <version>2.21.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-example-spring-boot</artifactId>
@@ -67,6 +67,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -74,7 +80,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-actuator</artifactId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
     <!-- Camel -->
@@ -120,10 +126,11 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-maven-plugin</artifactId>
         <version>${project.version}</version>
-        <!-- allows to fail if not all routes are fully covered during testing -->
+        <!-- allows to fail if not all routes are covered during testing -->
 <!--
         <configuration>
           <failOnError>true</failOnError>
+          <coverageThreshold>90</coverageThreshold>
         </configuration>
 -->
       </plugin>
@@ -132,9 +139,9 @@
 
   <profiles>
     <profile>
-      <id>jdk9-build</id>
+      <id>jdk9+-build</id>
       <activation>
-        <jdk>9</jdk>
+        <jdk>[9,)</jdk>
       </activation>
       <build>
         <plugins>

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package org.apache.camel.component.crypto.cms;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -36,7 +35,7 @@ import org.apache.camel.component.crypto.cms.exception.CryptoCmsNoCertificateFor
 import org.apache.camel.component.crypto.cms.exception.CryptoCmsNoKeyOrCertificateForAliasException;
 import org.apache.camel.component.crypto.cms.util.ExchangeUtil;
 import org.apache.camel.component.crypto.cms.util.KeystoreUtil;
-import org.apache.camel.util.jsse.KeyStoreParameters;
+import org.apache.camel.support.jsse.KeyStoreParameters;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -384,7 +383,7 @@ public class EnvelopedDataTest {
         throws UnsupportedEncodingException, Exception {
         KeyStoreParameters keystorePas = KeystoreUtil.getKeyStoreParameters(keystoreName);
 
-        List<RecipientInfo> recipients = new ArrayList<RecipientInfo>(aliases.length);
+        List<RecipientInfo> recipients = new ArrayList<>(aliases.length);
         for (String alias : aliases) {
             DefaultKeyTransRecipientInfo recipient = new DefaultKeyTransRecipientInfo();
             recipient.setCertificateAlias(alias);

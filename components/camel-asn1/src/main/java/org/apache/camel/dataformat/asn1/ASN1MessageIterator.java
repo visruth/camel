@@ -24,7 +24,7 @@ import java.util.Iterator;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.RuntimeCamelException;
-import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.support.DefaultMessage;
 import org.apache.camel.util.IOHelper;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Primitive;
@@ -68,7 +68,6 @@ public class ASN1MessageIterator implements Iterator<Message>, Closeable {
             }
             return availableDataInCurrentEntry;
         } catch (IOException exception) {
-            //Just wrap the IOException as CamelRuntimeException
             throw new RuntimeCamelException(exception);
         }
     }
@@ -91,7 +90,6 @@ public class ASN1MessageIterator implements Iterator<Message>, Closeable {
                 return null;
             }
         } catch (IOException exception) {
-            //Just wrap the IOException as CamelRuntimeException
             throw new RuntimeCamelException(exception);
         }
     }

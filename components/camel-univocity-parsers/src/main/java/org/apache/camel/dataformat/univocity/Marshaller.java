@@ -26,8 +26,8 @@ import com.univocity.parsers.common.AbstractWriter;
 import org.apache.camel.Exchange;
 import org.apache.camel.NoTypeConversionAvailableException;
 
-import static org.apache.camel.util.ExchangeHelper.convertToMandatoryType;
-import static org.apache.camel.util.ExchangeHelper.convertToType;
+import static org.apache.camel.support.ExchangeHelper.convertToMandatoryType;
+import static org.apache.camel.support.ExchangeHelper.convertToType;
 
 /**
  * This class marshalls the exchange body using an uniVocity writer. It can
@@ -36,7 +36,7 @@ import static org.apache.camel.util.ExchangeHelper.convertToType;
  * @param <W> Writer class
  */
 final class Marshaller<W extends AbstractWriter<?>> {
-    private final LinkedHashSet<String> headers = new LinkedHashSet<String>();
+    private final LinkedHashSet<String> headers = new LinkedHashSet<>();
     private final boolean adaptHeaders;
 
     /**

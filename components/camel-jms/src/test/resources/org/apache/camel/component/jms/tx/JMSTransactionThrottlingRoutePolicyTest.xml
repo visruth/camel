@@ -37,19 +37,19 @@
         <property name="connectionFactory" ref="poolConnectionFactory"/>
     </bean>
 
-    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <bean id="activemq" class="org.apache.camel.component.jms.JmsComponent">
         <property name="connectionFactory" ref="poolConnectionFactory"/>
         <property name="transacted" value="true"/>
         <property name="transactionManager" ref="jmsTransactionManager"/>
     </bean>
 
-    <bean id="activemq-sender" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <bean id="activemq-sender" class="org.apache.camel.component.jms.JmsComponent">
         <property name="connectionFactory" ref="poolConnectionFactory"/>
         <property name="transacted" value="true"/>
         <property name="transactionManager" ref="jmsTransactionManager"/>
     </bean>
     
-    <bean id="myPolicy" class="org.apache.camel.impl.ThrottlingInflightRoutePolicy">
+    <bean id="myPolicy" class="org.apache.camel.throttling.ThrottlingInflightRoutePolicy">
         <property name="maxInflightExchanges" value="16"/>
         <property name="resumePercentOfMax" value="25"/>
     </bean>

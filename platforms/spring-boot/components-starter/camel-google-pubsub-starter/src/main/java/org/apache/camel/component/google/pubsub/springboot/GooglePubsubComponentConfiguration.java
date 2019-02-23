@@ -32,6 +32,11 @@ public class GooglePubsubComponentConfiguration
             ComponentConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the google-pubsub component. This
+     * is enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * Sets the connection factory to use: provides the ability to explicitly
      * manage connection credentials: - the path to the key file - the Service
      * Account Key / Email pair
@@ -64,5 +69,41 @@ public class GooglePubsubComponentConfiguration
 
     public static class GooglePubsubConnectionFactoryNestedConfiguration {
         public static final Class CAMEL_NESTED_CLASS = org.apache.camel.component.google.pubsub.GooglePubsubConnectionFactory.class;
+        private String serviceAccount;
+        private String serviceAccountKey;
+        private String credentialsFileLocation;
+        private String serviceURL;
+
+        public String getServiceAccount() {
+            return serviceAccount;
+        }
+
+        public void setServiceAccount(String serviceAccount) {
+            this.serviceAccount = serviceAccount;
+        }
+
+        public String getServiceAccountKey() {
+            return serviceAccountKey;
+        }
+
+        public void setServiceAccountKey(String serviceAccountKey) {
+            this.serviceAccountKey = serviceAccountKey;
+        }
+
+        public String getCredentialsFileLocation() {
+            return credentialsFileLocation;
+        }
+
+        public void setCredentialsFileLocation(String credentialsFileLocation) {
+            this.credentialsFileLocation = credentialsFileLocation;
+        }
+
+        public String getServiceURL() {
+            return serviceURL;
+        }
+
+        public void setServiceURL(String serviceURL) {
+            this.serviceURL = serviceURL;
+        }
     }
 }

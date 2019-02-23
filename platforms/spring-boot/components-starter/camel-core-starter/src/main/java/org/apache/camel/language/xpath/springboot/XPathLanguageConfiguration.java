@@ -32,6 +32,11 @@ public class XPathLanguageConfiguration
             LanguageConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the xpath language. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * Name of class for document type The default value is org.w3c.dom.Document
      */
     private String documentType;
@@ -53,8 +58,8 @@ public class XPathLanguageConfiguration
     private Boolean logNamespaces = false;
     /**
      * Whether to enable thread-safety for the returned result of the xpath
-     * expression. This applies to when using NODESET as the result type and the
-     * returned set has multiple elements. In this situation there can be
+     * expression. This applies to when using NODESET as the result type, and
+     * the returned set has multiple elements. In this situation there can be
      * thread-safety issues if you process the NODESET concurrently such as from
      * a Camel Splitter EIP in parallel processing mode. This option prevents
      * concurrency issues by doing defensive copies of the nodes. It is

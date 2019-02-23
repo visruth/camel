@@ -24,7 +24,6 @@ import org.apache.camel.spring.boot.ComponentConfigurationPropertiesCommon;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.util.Version;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * To insert or query from Apache Lucene databases.
@@ -37,6 +36,11 @@ public class LuceneComponentConfiguration
         extends
             ComponentConfigurationPropertiesCommon {
 
+    /**
+     * Whether to enable auto configuration of the lucene component. This is
+     * enabled by default.
+     */
+    private Boolean enabled;
     /**
      * To use a shared lucene configuration
      */
@@ -76,6 +80,9 @@ public class LuceneComponentConfiguration
          * Operation to do such as insert or query.
          */
         private LuceneOperation operation;
+        /**
+         * Operation to do such as insert or query.
+         */
         private String authority;
         /**
          * An optional directory containing files to be used to be analyzed and
@@ -99,7 +106,9 @@ public class LuceneComponentConfiguration
          * An integer value that limits the result set of the search operation
          */
         private Integer maxHits;
-        @NestedConfigurationProperty
+        /**
+         * An integer value that limits the result set of the search operation
+         */
         private Version luceneVersion;
 
         public URI getUri() {

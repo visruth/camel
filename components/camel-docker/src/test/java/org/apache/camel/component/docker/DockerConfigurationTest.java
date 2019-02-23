@@ -22,7 +22,7 @@ import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.support.DefaultMessage;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class DockerConfigurationTest {
     public void testPropertyfromEndpointProperties() {
         String host = "camelhost";
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put(DockerHelper.transformFromHeaderName(DockerConstants.DOCKER_HOST), host);
         configuration.setParameters(parameters);
 

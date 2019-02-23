@@ -33,6 +33,11 @@ public class XMLSecurityDataFormatConfiguration
             DataFormatConfigurationPropertiesCommon {
 
     /**
+     * Whether to enable auto configuration of the secureXML data format. This
+     * is enabled by default.
+     */
+    private Boolean enabled;
+    /**
      * The cipher algorithm to be used for encryption/decryption of the XML
      * message content. The available choices are: XMLCipher.TRIPLEDES
      * XMLCipher.AES_128 XMLCipher.AES_128_GCM XMLCipher.AES_192
@@ -43,15 +48,23 @@ public class XMLSecurityDataFormatConfiguration
     private String xmlCipherAlgorithm = "TRIPLEDES";
     /**
      * A String used as passPhrase to encrypt/decrypt content. The passPhrase
-     * has to be provided. If no passPhrase is specified a default passPhrase is
-     * used. The passPhrase needs to be put together in conjunction with the
+     * has to be provided. If no passPhrase is specified, a default passPhrase
+     * is used. The passPhrase needs to be put together in conjunction with the
      * appropriate encryption algorithm. For example using TRIPLEDES the
      * passPhase can be a Only another 24 Byte key
      */
     private String passPhrase;
     /**
+     * A byte used as passPhrase to encrypt/decrypt content. The passPhrase has
+     * to be provided. If no passPhrase is specified, a default passPhrase is
+     * used. The passPhrase needs to be put together in conjunction with the
+     * appropriate encryption algorithm. For example using TRIPLEDES the
+     * passPhase can be a Only another 24 Byte key
+     */
+    private byte[] passPhraseByte;
+    /**
      * The XPath reference to the XML Element selected for
-     * encryption/decryption. If no tag is specified the entire payload is
+     * encryption/decryption. If no tag is specified, the entire payload is
      * encrypted/decrypted.
      */
     private String secureTag;
@@ -75,11 +88,11 @@ public class XMLSecurityDataFormatConfiguration
      */
     private String recipientKeyAlias;
     /**
-     * Refers to a KeyStore instance to lookup in the registry which is used for
-     * configuration options for creating and loading a KeyStore instance that
-     * represents the sender's trustStore or recipient's keyStore.
+     * Refers to a KeyStore instance to lookup in the registry, which is used
+     * for configuration options for creating and loading a KeyStore instance
+     * that represents the sender's trustStore or recipient's keyStore.
      */
-    private String keyOrTrustStoreParametersId;
+    private String keyOrTrustStoreParametersRef;
     /**
      * The password to be used for retrieving the private key from the KeyStore.
      * This key is used for asymmetric decryption.
@@ -106,7 +119,7 @@ public class XMLSecurityDataFormatConfiguration
     /**
      * Whether the data format should set the Content-Type header with the type
      * from the data format if the data format is capable of doing so. For
-     * example application/xml for data formats marshalling to XML or
+     * example application/xml for data formats marshalling to XML, or
      * application/json for data formats marshalling to JSon etc.
      */
     private Boolean contentTypeHeader = false;
@@ -125,6 +138,14 @@ public class XMLSecurityDataFormatConfiguration
 
     public void setPassPhrase(String passPhrase) {
         this.passPhrase = passPhrase;
+    }
+
+    public byte[] getPassPhraseByte() {
+        return passPhraseByte;
+    }
+
+    public void setPassPhraseByte(byte[] passPhraseByte) {
+        this.passPhraseByte = passPhraseByte;
     }
 
     public String getSecureTag() {
@@ -159,13 +180,13 @@ public class XMLSecurityDataFormatConfiguration
         this.recipientKeyAlias = recipientKeyAlias;
     }
 
-    public String getKeyOrTrustStoreParametersId() {
-        return keyOrTrustStoreParametersId;
+    public String getKeyOrTrustStoreParametersRef() {
+        return keyOrTrustStoreParametersRef;
     }
 
-    public void setKeyOrTrustStoreParametersId(
-            String keyOrTrustStoreParametersId) {
-        this.keyOrTrustStoreParametersId = keyOrTrustStoreParametersId;
+    public void setKeyOrTrustStoreParametersRef(
+            String keyOrTrustStoreParametersRef) {
+        this.keyOrTrustStoreParametersRef = keyOrTrustStoreParametersRef;
     }
 
     public String getKeyPassword() {

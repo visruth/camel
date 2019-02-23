@@ -53,8 +53,7 @@ import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
 
 import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.component.box.BoxConfiguration;
-import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.jsse.SSLContextParameters;
+import org.apache.camel.support.jsse.SSLContextParameters;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
@@ -111,9 +110,9 @@ public final class BoxConnectionHelper {
             final SSLContext sslContext = new SSLContextParameters().createSSLContext(null);
             options.setSSLClientProtocols(sslContext.createSSLEngine().getEnabledProtocols());
         } catch (GeneralSecurityException e) {
-            throw ObjectHelper.wrapRuntimeCamelException(e);
+            throw RuntimeCamelException.wrapRuntimeCamelException(e);
         } catch (IOException e) {
-            throw ObjectHelper.wrapRuntimeCamelException(e);
+            throw RuntimeCamelException.wrapRuntimeCamelException(e);
         } finally {
             if (webClient != null) {
                 webClient.close();
@@ -186,7 +185,7 @@ public final class BoxConnectionHelper {
                 final String location = e.getResponse().getResponseHeaderValue("Location");
                 redirectQuery = new URL(location).getQuery();
             }
-            final Map<String, String> params = new HashMap<String, String>();
+            final Map<String, String> params = new HashMap<>();
             final Matcher matcher = QUERY_PARAM_PATTERN.matcher(redirectQuery);
             while (matcher.find()) {
                 params.put(matcher.group(1), matcher.group(2));

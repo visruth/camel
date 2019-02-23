@@ -23,9 +23,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.camel.RuntimeCamelException;
+import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriParams;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.function.ThrowingHelper;
 import org.ehcache.CacheManager;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.Configuration;
@@ -52,9 +54,9 @@ public class EhcacheConfiguration implements Cloneable {
     @UriParam(label = "advanced")
     private Map<String, CacheConfiguration<?, ?>> configurations;
     @UriParam(label = "advanced", javaType = "java.lang.String", defaultValue = "java.lang.Object")
-    private Class<?> keyType = Object.class;
+    private Class<?> keyType;
     @UriParam(label = "advanced", javaType = "java.lang.String", defaultValue = "java.lang.Object")
-    private Class<?> valueType = Object.class;
+    private Class<?> valueType;
     @UriParam(label = "consumer", defaultValue = "ORDERED")
     private EventOrdering eventOrdering = EventOrdering.ORDERED;
     @UriParam(label = "consumer", defaultValue = "ASYNCHRONOUS")
@@ -94,6 +96,7 @@ public class EhcacheConfiguration implements Cloneable {
      * @deprecated use {@link #setConfigurationUri(String)} instead
      */
     @Deprecated
+    @Metadata(deprecationNote = "use configurationUri instead")
     public void setConfigUri(String configUri) {
         setConfigurationUri(configUri);
     }
@@ -169,7 +172,7 @@ public class EhcacheConfiguration implements Cloneable {
     }
 
     /**
-     * Set the the delivery mode (ordered, unordered)
+     * Set the delivery mode (ordered, unordered)
      */
     public void setEventOrdering(String eventOrdering) {
         setEventOrdering(EventOrdering.valueOf(eventOrdering));
@@ -184,7 +187,7 @@ public class EhcacheConfiguration implements Cloneable {
     }
 
     /**
-     * Set the the delivery mode (synchronous, asynchronous)
+     * Set the delivery mode (synchronous, asynchronous)
      */
     public void setEventFiring(String eventFiring) {
         setEventFiring(EventFiring.valueOf(eventFiring));
@@ -235,7 +238,7 @@ public class EhcacheConfiguration implements Cloneable {
     }
 
     public boolean hasConfiguration(String name) {
-        return ObjectHelper.applyIfNotEmpty(configurations, c -> c.containsKey(name), () -> false);
+        return ThrowingHelper.applyIfNotEmpty(configurations, c -> c.containsKey(name), () -> false);
     }
 
     /**

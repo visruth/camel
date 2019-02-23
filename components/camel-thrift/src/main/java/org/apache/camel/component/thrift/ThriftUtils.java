@@ -28,7 +28,7 @@ import java.util.StringJoiner;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.thrift.client.AsyncClientMethodCallback;
-import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.support.ObjectHelper;
 import org.apache.camel.util.ReflectionHelper;
 import org.apache.thrift.async.AsyncMethodCallback;
 import org.apache.thrift.async.TAsyncClientManager;
@@ -98,7 +98,7 @@ public final class ThriftUtils {
             if (asyncClientGetter == null) {
                 throw new IllegalArgumentException("Thrift async client getter not found: " + clientClassName + "." + ThriftConstants.THRIFT_ASYNC_CLIENT_GETTER_NAME);
             }
-            asynClientInstance = ObjectHelper.invokeMethod(asyncClientGetter, factoryInstance, (TNonblockingTransport)transport);
+            asynClientInstance = ObjectHelper.invokeMethod(asyncClientGetter, factoryInstance, transport);
 
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Thrift sync client class not found: " + clientClassName);

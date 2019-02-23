@@ -42,21 +42,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.component.cxf.common.header.CxfHeaderHelper;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.camel.component.cxf.util.ReaderInputStream;
-import org.apache.camel.impl.DefaultAttachment;
 import org.apache.camel.spi.HeaderFilterStrategy;
 import org.apache.camel.spi.HeaderFilterStrategyAware;
-import org.apache.camel.util.ExchangeHelper;
+import org.apache.camel.support.DefaultAttachment;
+import org.apache.camel.support.ExchangeHelper;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapHeader;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
@@ -85,8 +88,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Default CXF binding implementation.
- * 
- * @version 
  */
 public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultCxfBinding.class);
@@ -133,7 +134,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
         if (!DataFormat.CXF_MESSAGE.equals(dataFormat)) {
             for (Map.Entry<String, org.apache.camel.Attachment> entry : camelExchange.getIn().getAttachmentObjects().entrySet()) {
                 if (attachments == null) {
-                    attachments = new HashSet<Attachment>();
+                    attachments = new HashSet<>();
                 }
                 AttachmentImpl attachment = new AttachmentImpl(entry.getKey());
                 org.apache.camel.Attachment camelAttachment = entry.getValue();
@@ -324,7 +325,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
         }
         
         // create response context
-        Map<String, Object> responseContext = new HashMap<String, Object>();
+        Map<String, Object> responseContext = new HashMap<>();
         
         org.apache.camel.Message response;
         if (camelExchange.getPattern().isOutCapable()) {
@@ -350,6 +351,11 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
         // create out message
         Endpoint ep = cxfExchange.get(Endpoint.class);
         Message outMessage = ep.getBinding().createMessage();
+        if (cxfExchange.getInMessage() instanceof SoapMessage) { 
+            SoapVersion soapVersion = ((SoapMessage)cxfExchange.getInMessage()).getVersion();
+            ((SoapMessage)outMessage).setVersion(soapVersion);
+        }
+        
         cxfExchange.setOutMessage(outMessage);       
 
         DataFormat dataFormat = camelExchange.getProperty(CxfConstants.DATA_FORMAT_PROPERTY,  
@@ -407,7 +413,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
         boolean isXop = Boolean.valueOf(camelExchange.getProperty(Message.MTOM_ENABLED, String.class));
         for (Map.Entry<String, org.apache.camel.Attachment> entry : camelExchange.getOut().getAttachmentObjects().entrySet()) {
             if (attachments == null) {
-                attachments = new HashSet<Attachment>();
+                attachments = new HashSet<>();
             }
             AttachmentImpl attachment = new AttachmentImpl(entry.getKey());
             org.apache.camel.Attachment camelAttachment = entry.getValue();
@@ -655,7 +661,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
         
         // get cxf transport headers (if any) from camel exchange
         // use a treemap to keep ordering and ignore key case
-        Map<String, List<String>> transportHeaders = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, List<String>> transportHeaders = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (camelExchange != null) {
             Map<String, List<String>> h = CastUtils.cast((Map<?, ?>)camelExchange.getProperty(Message.PROTOCOL_HEADERS));
             if (h != null) {
@@ -686,7 +692,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
             
             // need to filter the User-Agent ignore the case, as CXF just check the header with "User-Agent"
             if (entry.getKey().equalsIgnoreCase("User-Agent")) {
-                List<String> listValue = new ArrayList<String>();
+                List<String> listValue = new ArrayList<>();
                 listValue.add(entry.getValue().toString());
                 transportHeaders.put("User-Agent", listValue);
             }
@@ -716,7 +722,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
                 if (entry.getValue() instanceof List) {
                     transportHeaders.put(entry.getKey(), (List<String>)entry.getValue());
                 } else {
-                    List<String> listValue = new ArrayList<String>();
+                    List<String> listValue = new ArrayList<>();
                     listValue.add(entry.getValue().toString());
                     transportHeaders.put(entry.getKey(), listValue);
                 }
@@ -731,7 +737,10 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
             // from the previous request or response propagated with the invocation context
             cxfContext.remove(Message.PROTOCOL_HEADERS);
         }
-        cxfContext.put(SoapBindingConstants.SOAP_ACTION, camelHeaders.get(SoapBindingConstants.SOAP_ACTION));
+        if (camelHeaders.get(CxfConstants.OPERATION_NAMESPACE) == null
+            && camelHeaders.get(CxfConstants.OPERATION_NAME) == null) {
+            cxfContext.put(SoapBindingConstants.SOAP_ACTION, camelHeaders.get(SoapBindingConstants.SOAP_ACTION));
+        }
     }
 
     protected static Object getContentFromCxf(Message message, DataFormat dataFormat, String encoding) {
@@ -759,8 +768,8 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
                 }
             } else if (dataFormat == DataFormat.PAYLOAD) {
                 List<SoapHeader> headers = CastUtils.cast((List<?>)message.get(Header.HEADER_LIST));
-                Map<String, String> nsMap = new HashMap<String, String>();
-                answer = new CxfPayload<SoapHeader>(headers, getPayloadBodyElements(message, nsMap), nsMap);
+                Map<String, String> nsMap = new HashMap<>();
+                answer = new CxfPayload<>(headers, getPayloadBodyElements(message, nsMap), nsMap);
                 
             } else if (dataFormat.dealias() == DataFormat.RAW) {
                 answer = message.getContent(InputStream.class);
@@ -828,7 +837,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
         }
         MessageContentsList inObjects = MessageContentsList.getContentsList(message);
         if (inObjects == null) {
-            return new ArrayList<Source>(0);
+            return new ArrayList<>(0);
         }
         org.apache.cxf.message.Exchange exchange = message.getExchange();
         BindingOperationInfo boi = exchange.getBindingOperationInfo();
@@ -850,7 +859,7 @@ public class DefaultCxfBinding implements CxfBinding, HeaderFilterStrategyAware 
             partInfos = op.getInput().getMessageParts();            
         }
         
-        List<Source> answer = new ArrayList<Source>();
+        List<Source> answer = new ArrayList<>();
 
         for (MessagePartInfo partInfo : partInfos) {
             if (!inObjects.hasValue(partInfo)) {

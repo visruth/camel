@@ -27,11 +27,10 @@ import java.util.concurrent.TimeoutException;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Connection;
-
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.support.DefaultMessage;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -172,7 +171,7 @@ public class RabbitMQProducerTest {
     @Test
     public void testPropertiesUsesCustomHeaders() throws IOException {
         RabbitMQProducer producer = new RabbitMQProducer(endpoint);
-        Map<String, Object> customHeaders = new HashMap<String, Object>();
+        Map<String, Object> customHeaders = new HashMap<>();
         customHeaders.put("stringHeader", "A string");
         customHeaders.put("bigDecimalHeader", new BigDecimal("12.34"));
         customHeaders.put("integerHeader", 42);

@@ -18,17 +18,16 @@ package org.apache.camel.language.groovy;
 
 import groovy.lang.Script;
 import org.apache.camel.Service;
+import org.apache.camel.spi.annotations.Language;
+import org.apache.camel.support.LRUSoftCache;
 import org.apache.camel.support.LanguageSupport;
-import org.apache.camel.util.LRUSoftCache;
 import org.codehaus.groovy.runtime.InvokerHelper;
 
-/**
- * @version
- */
+@Language("groovy")
 public class GroovyLanguage extends LanguageSupport {
 
     // Cache used to stores the compiled scripts (aka their classes)
-    private final LRUSoftCache<String, GroovyClassService> scriptCache = new LRUSoftCache<String, GroovyClassService>(16, 1000, true);
+    private final LRUSoftCache<String, GroovyClassService> scriptCache = new LRUSoftCache<>(16, 1000, true);
 
     private static final class GroovyClassService implements Service {
 

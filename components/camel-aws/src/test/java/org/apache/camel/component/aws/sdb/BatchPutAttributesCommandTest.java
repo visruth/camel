@@ -23,7 +23,7 @@ import com.amazonaws.services.simpledb.model.ReplaceableItem;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.support.DefaultExchange;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class BatchPutAttributesCommandTest {
 
     @Test
     public void execute() {
-        List<ReplaceableItem> replaceableItems = new ArrayList<ReplaceableItem>();
+        List<ReplaceableItem> replaceableItems = new ArrayList<>();
         replaceableItems.add(new ReplaceableItem("ITEM1"));
         exchange.getIn().setHeader(SdbConstants.REPLACEABLE_ITEMS, replaceableItems);
         
@@ -63,7 +63,7 @@ public class BatchPutAttributesCommandTest {
     public void determineReplaceableItems() {
         assertNull(this.command.determineReplaceableItems());
         
-        List<ReplaceableItem> replaceableItems = new ArrayList<ReplaceableItem>();
+        List<ReplaceableItem> replaceableItems = new ArrayList<>();
         replaceableItems.add(new ReplaceableItem("ITEM1"));
         exchange.getIn().setHeader(SdbConstants.REPLACEABLE_ITEMS, replaceableItems);
         
